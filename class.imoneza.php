@@ -5,23 +5,25 @@ class iMoneza {
 
     public function __construct()
     {
-        $this->options = get_option('imoneza_options');
+        $this->options = array();
 
-        // If there's an Access API access key, and we're using client-side access control, create the JavaScript snippet
-        if (isset($this->options['ra_api_key_access']) && $this->options['ra_api_key_access'] != '' && (!isset($this->options['access_control']) || $this->options['access_control'] == 'JS')) {
-            add_action('wp_head', array($this, 'create_snippet'));
-        }
+        // if (isset(variable_get("imoneza_ra_api_key_access")))
 
-        // If 'no_dynamic' isn't set, then make sure we add the dynamic resource creation block to every page
-        if (!isset($this->options['no_dynamic']) || $this->options['no_dynamic'] != '1') {
-            add_action('wp_head', array($this, 'create_dynamic'));
-        }
+        // // If there's an Access API access key, and we're using client-side access control, create the JavaScript snippet
+        // if (isset($this->options['ra_api_key_access']) && $this->options['ra_api_key_access'] != '' && (!isset($this->options['access_control']) || $this->options['access_control'] == 'JS')) {
+        //     add_action('wp_head', array($this, 'create_snippet'));
+        // }
 
-        // Perform server-side access control
-        if (isset($this->options['ra_api_key_secret']) && $this->options['ra_api_key_secret'] != '' && isset($this->options['access_control']) && $this->options['access_control'] == 'SS') {
-            add_action('template_redirect', array($this, 'imoneza_template_redirect'));
-            add_action('wp_head', array($this, 'create_reference'));
-        }
+        // // If 'no_dynamic' isn't set, then make sure we add the dynamic resource creation block to every page
+        // if (!isset($this->options['no_dynamic']) || $this->options['no_dynamic'] != '1') {
+        //     add_action('wp_head', array($this, 'create_dynamic'));
+        // }
+
+        // // Perform server-side access control
+        // if (isset($this->options['ra_api_key_secret']) && $this->options['ra_api_key_secret'] != '' && isset($this->options['access_control']) && $this->options['access_control'] == 'SS') {
+        //     add_action('template_redirect', array($this, 'imoneza_template_redirect'));
+        //     add_action('wp_head', array($this, 'create_reference'));
+        // }
     }
 
     public function imoneza_template_redirect()

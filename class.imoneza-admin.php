@@ -5,19 +5,17 @@ class iMoneza_Admin {
 
     public function __construct()
     {
-        session_start();
+        // $this->options = get_option('imoneza_options');
 
-        $this->options = get_option('imoneza_options');
+        // add_action('admin_menu', array( $this, 'add_plugin_page'));
+        // add_action('admin_init', array( $this, 'page_init'));
+        // add_action('admin_notices', array($this, 'admin_notices'));
 
-        add_action('admin_menu', array( $this, 'add_plugin_page'));
-        add_action('admin_init', array( $this, 'page_init'));
-        add_action('admin_notices', array($this, 'admin_notices'));
-
-        // If Management API public and private keys are set, then add the iMoneza metabox
-        if (isset($this->options['rm_api_key_access']) && $this->options['rm_api_key_access'] != '' && isset($this->options['rm_api_key_secret']) && $this->options['rm_api_key_secret'] != '') {
-            add_action('add_meta_boxes', array($this, 'add_meta_boxes'));
-            add_action('save_post', array($this, 'imoneza_save_meta_box_data'));
-        }
+        // // If Management API public and private keys are set, then add the iMoneza metabox
+        // if (isset($this->options['rm_api_key_access']) && $this->options['rm_api_key_access'] != '' && isset($this->options['rm_api_key_secret']) && $this->options['rm_api_key_secret'] != '') {
+        //     add_action('add_meta_boxes', array($this, 'add_meta_boxes'));
+        //     add_action('save_post', array($this, 'imoneza_save_meta_box_data'));
+        // }
     }
 
     public function add_meta_boxes($post)
@@ -322,30 +320,78 @@ class iMoneza_Admin {
      */
     public function create_admin_page()
     {
-        // Set class property
-        ?>
-        <div class="wrap">
-            <?php screen_icon(); ?>
-            <h2>iMoneza Settings</h2>           
-            <form method="post" action="options.php">
-            <?php
-                // This prints out all hidden setting fields
-                settings_fields('imoneza_settings');
-                do_settings_sections('imoneza-settings-admin');
-                submit_button(); 
-            ?>
-            </form>
-        </div>
-        <?php
+
+        $form = array();
+        $form['imoneza_ra_api_key_access'] = array(
+            '#type' => 'textfield',
+            '#title' => t('Resource Access Key'),
+            '#default_value' => variable_get('imoneza_ra_api_key_access', ""),
+            '#size' => 15,
+            '#maxlength' => 50,
+            '#description' => t("Resource Access API Access Key"),
+            '#required' => FALSE,
+          );
+
+        $form['imoneza_ra_api_key_secret'] = array(
+            '#type' => 'textfield',
+            '#title' => t('Resource Access Secret'),
+            '#default_value' => variable_get('imoneza_ra_api_key_secret', ""),
+            '#size' => 15,
+            '#maxlength' => 50,
+            '#description' => t("Resource Access API Secret Key"),
+            '#required' => FALSE,
+          );
+
+        $form['imoneza_rm_api_key_access'] = array(
+            '#type' => 'textfield',
+            '#title' => t('Resource Management Access Key'),
+            '#default_value' => variable_get('imoneza_rm_api_key_access', ""),
+            '#size' => 15,
+            '#maxlength' => 50,
+            '#description' => t("Resource Management API Access Key"),
+            '#required' => FALSE,
+          );
+
+        $form['imoneza_rm_api_key_secret'] = array(
+            '#type' => 'textfield',
+            '#title' => t('Resource Management Secret'),
+            '#default_value' => variable_get('imoneza_rm_api_key_secret', ""),
+            '#size' => 15,
+            '#maxlength' => 50,
+            '#description' => t("Resource Management API Secret Key"),
+            '#required' => FALSE,
+          );
+
+        $form['imoneza_nodynamic'] = array(
+            '#type' => 'checkbox',
+            '#title' => t('Disable Dynamic Resource Creation'),
+            '#default_value' => variable_get('imoneza_nodynamic', FALSE),
+            '#size' => 15,
+            '#maxlength' => 50,
+            '#description' => t("Do not include dynamic resource creation block on every page"),
+            '#required' => FALSE,
+          );
+
+        $options = array(NO_ACCESS_CONTROL => t("None"), 
+            CLIENT_SIDE_ACCESS_CONTROL => t("Client-side (JavaScript)"), SERVER_SIDE_ACCESS_CONTROL => t("Server-side"));
+
+        $form['access_control'] = array(
+            '#type' => 'radios',
+            '#title' => t('Access Control Method'),
+            '#default_value' => variable_get('imoneza_access_control', 0),
+            '#options' => $options,
+            '#description' => t("Access Control Style"),
+            '#required' => FALSE,
+          );
     }
 
     public function setUpdatedNotice($notice) {
-        session_start();
+        
         $_SESSION['iMoneza_UpdatedNotice'] = $notice;
     }
 
     public function setErrorNotice($notice) {
-        session_start();
+        
         $_SESSION['iMoneza_ErrorNotice'] = $notice;
     }
 

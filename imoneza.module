@@ -8,9 +8,18 @@
 
 require_once('class.imoneza.php');
 require_once('class.imoneza-api.php');
+require_once('class.imoneza-admin.php');
 require_once('class.imoneza-resourceaccess.php');
 require_once('class.imoneza-restfulrequest.php');
 
+define("NO_ACCESS_CONTROL", 0);
+define("CLIENT_SIDE_ACCESS_CONTROL", 1);
+define("SERVER_SIDE_ACCESS_CONTROL", 2);
+
 $imoneza = new iMoneza();
+
+// if (user_access('administer')){
+	$imoneza_admin = new iMoneza_Admin();
+// }
 
 require_once("hooks.php");
