@@ -47,6 +47,7 @@ class iMoneza_RestfulRequest {
         $baseString = implode("\n", array($this->method, $timestamp, strtolower($this->uri), $paramStrings));
         $hash = base64_encode(hash_hmac('sha256', $baseString, $this->api->secretKey, true));
 
+
         $url = $this->api->server . $this->uri;
         if (count($this->getParameters) > 0)
         {
@@ -67,6 +68,8 @@ class iMoneza_RestfulRequest {
                 'Content-Type' => $this->contentType
             )
         ));
+
+
 
         if ($rawResponse->code < 200 || $rawResponse->code > 299) {
             $exMessage = "An error occurred connecting to an iMoneza API. This may be a temporary connectivity issue; refresh the page to try again.";

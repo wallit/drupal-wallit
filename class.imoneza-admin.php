@@ -5,17 +5,12 @@ class iMoneza_Admin {
 
     public function __construct()
     {
-        // $this->options = get_option('imoneza_options');
+         $this->options = variable_get('imoneza_options');
 
-        // add_action('admin_menu', array( $this, 'add_plugin_page'));
-        // add_action('admin_init', array( $this, 'page_init'));
-        // add_action('admin_notices', array($this, 'admin_notices'));
-
-        // // If Management API public and private keys are set, then add the iMoneza metabox
-        // if (isset($this->options['rm_api_key_access']) && $this->options['rm_api_key_access'] != '' && isset($this->options['rm_api_key_secret']) && $this->options['rm_api_key_secret'] != '') {
-        //     add_action('add_meta_boxes', array($this, 'add_meta_boxes'));
-        //     add_action('save_post', array($this, 'imoneza_save_meta_box_data'));
-        // }
+         // If Management API public and private keys are set, then add the iMoneza metabox
+         if (isset($this->options['rm_api_key_access']) && $this->options['rm_api_key_access'] != '' && isset($this->options['rm_api_key_secret']) && $this->options['rm_api_key_secret'] != '') {
+             $this->ready = true;
+         }
     }
 
     public function add_meta_boxes($post)
@@ -33,21 +28,53 @@ class iMoneza_Admin {
         }
     }
 
-    public function render_imoneza_meta_box($post)
+    public function render_form_javascript(){
+        ob_start();
+        include "post_form_js.html";
+        $retVal = ob_get_clean();
+        return  $retVal;
+    }
+
+    public function render_imoneza_meta_box(&$form, $form_state)
     {
         // Add an nonce field so we can check for it later.
-	    wp_nonce_field( 'imoneza_meta_box', 'imoneza_meta_box_nonce' );
-
         try {
+
+            $form['imoneza'] = array(
+                '#type' => 'fieldset',
+                '#title' => t('iMoneza'),
+                '#collapsible' => TRUE,
+                '#collapsed' => TRUE,
+                '#group' => 'additional_settings'
+            );
+
+            $post = $form_state["node"];
+
+
+
+            //needed for multival
+           // $form["#tree"] = TRUE;
+
+
+
             $resourceManagement = new iMoneza_ResourceManagement();
-            //$response = $resourceManagement->getProperty();
-            $resource = $resourceManagement->getResource($post->ID, true);
+            if (isset($post) && isset($post->nid)){
+                $resource = $resourceManagement->getResource($post->nid, true);
+            }else{
+                $resource = array("IsManaged" => 0);
+            }
 
             if (IMONEZA__DEBUG) {
-                echo '<p><a onclick="document.getElementById(\'imonezaDebugResource\').style.display = document.getElementById(\'imonezaDebugResource\').style.display == \'none\' ? \'block\' : \'none\';">Resource</a></p>';
-                echo '<pre id="imonezaDebugResource" style="display:none;">';
-                print_r($resource);
-                echo '</pre>';
+
+                $resourceDebug = '<p><a onclick="document.getElementById(\'imonezaDebugResource\').style.display = document.getElementById(\'imonezaDebugResource\').style.display == \'none\' ? \'block\' : \'none\';">Resource</a></p>';
+                $resourceDebug .=  '<pre id="imonezaDebugResource" style="display:none;">';
+                $resourceDebug .= print_r($resource, true);
+                $resourceDebug .=  '</pre>';
+
+                $form['imoneza']["imoneza_resource_debug"] = array(
+                    '#markup' => $resourceDebug
+                );
+
             }
 
             $isManaged = $resource['IsManaged'] == 1 && $resource['Active'] == 1;
@@ -59,18 +86,17 @@ class iMoneza_Admin {
             }
 
             if (IMONEZA__DEBUG) {
-                echo '<p><a onclick="document.getElementById(\'imonezaDebugProperty\').style.display = document.getElementById(\'imonezaDebugProperty\').style.display == \'none\' ? \'block\' : \'none\';">Property</a></p>';
-                echo '<pre id="imonezaDebugProperty" style="display:none;">';
-                print_r($resource);
-                echo '</pre>';
+
+                $propertyDebug = '<p><a onclick="document.getElementById(\'imonezaDebugProperty\').style.display = document.getElementById(\'imonezaDebugProperty\').style.display == \'none\' ? \'block\' : \'none\';">Property</a></p>';
+                $propertyDebug .=  '<pre id="imonezaDebugProperty" style="display:none;">';
+                $propertyDebug .= print_r($resource, true);
+                $propertyDebug .=  '</pre>';
+
+                $form['imoneza']["imoneza_resource_debug"] = array(
+                    '#markup' => $propertyDebug
+                );
             }
 
-            $pricingGroups = '';
-            $pricingGroupsList = $isManaged ? $resource['Property']['PricingGroups'] : $property['PricingGroups'];
-            foreach ($pricingGroupsList as $pricingGroup) {
-                $isSelected = $isManaged ? $resource['PricingGroup']['PricingGroupID'] == $pricingGroup['PricingGroupID'] : $pricingGroup['IsDefault'] == 1;
-                $pricingGroups .= '<option value="' . $pricingGroup['PricingGroupID'] . '"' . ($isSelected ? ' selected="selected"' : '' ) . '>' . $pricingGroup['Name'] . '</option>';
-            }
 
             // If there are no pricing tiers, set a default zero tier in case we need it
             if (!isset($resource['ResourcePricingTiers']) || count($resource['ResourcePricingTiers']) == 0) {
@@ -79,60 +105,10 @@ class iMoneza_Admin {
                 );
             }
 
-            echo '
-            <script type="text/javascript">
-            function imoneza_update_display() {
-                if (document.getElementById("imoneza_isManaged").checked) {
-                    if (document.getElementById("imoneza_name").value == "" && document.getElementById("title"))
-                        document.getElementById("imoneza_name").value = document.getElementById("title").value;
-                    if (document.getElementById("imoneza_title").value == "" && document.getElementById("title"))
-                        document.getElementById("imoneza_title").value = document.getElementById("title").value;
-                    if (document.getElementById("imoneza_description").value == "" && document.getElementById("excerpt"))
-                        document.getElementById("imoneza_description").value = document.getElementById("excerpt").value;
-                }
-                imoneza_toggle_class(".imoneza_row", document.getElementById("imoneza_isManaged").checked);
+            $form['imoneza']['imoneza_js_area'] = array(
+                "#markup" => $this->render_form_javascript()
+            );
 
-                if (document.getElementById("imoneza_isManaged").checked) {
-                    var pm = document.getElementById("imoneza_pricingModel");
-                    var selectedPricingModel = pm.options[pm.selectedIndex].value;
-                    imoneza_toggle_class(".imoneza_row_price", (selectedPricingModel == "FixedPrice" || selectedPricingModel == "VariablePrice"));
-                    imoneza_toggle_class(".imoneza_row_price_tier", (selectedPricingModel == "TimeTiered" || selectedPricingModel == "ViewTiered"));
-
-                    var epu = document.getElementById("imoneza_expirationPeriodUnit");
-                    var expirationPeriodUnit = epu.options[epu.selectedIndex].value;
-                    imoneza_toggle_class(".imoneza_row_price_expiration", (selectedPricingModel == "FixedPrice" || selectedPricingModel == "VariablePrice") && (expirationPeriodUnit != "Never"));
-                }
-            }
-
-            function imoneza_toggle_class(className, isVisible) {
-                var els = document.querySelectorAll(className);
-                for (var i = 0; i < els.length; ++i) {
-                    els[i].style.display = (isVisible ? "table-row" : "none");
-                }
-            }
-
-            function imoneza_add_tier(label) {
-                var t = document.getElementById("imoneza_tiers");
-                var r = t.insertRow(t.rows.length - 1);
-                var c0 = r.insertCell(0);
-                var c1 = r.insertCell(1);
-                var c2 = r.insertCell(2);
-                if (label == \'minutes\')
-                    label = \'<select name="imoneza_tier_price_multiplier[]"><option value="1">minutes</option><option value="60">hours</option><option value="1440">days</option></select>\';
-                c0.innerHTML = "<input type=\"text\" size=\"5\" name=\"imoneza_tier[]\" /> " + label;
-                c1.innerHTML = "<input type=\"text\" name=\"imoneza_tier_price[]\" />";
-                c2.innerHTML = "<a href=\"#\" onclick=\"return imoneza_remove_tier(this);\">Remove</a>";
-                
-                return false;
-            }
-
-            function imoneza_remove_tier(t) {
-                var r = t.parentNode.parentNode;
-                r.parentNode.removeChild(r);
-
-                return false;
-            }
-            </script>';
 
             $rowClass = 'imoneza_row';
             $priceRowClass = ' imoneza_row_price';
@@ -157,62 +133,178 @@ class iMoneza_Admin {
             if (!$isManaged || ($resource['PricingModel'] != 'TimeTiered' && $resource['PricingModel'] != 'ViewTiered'))
                 $priceTierStyleAttr = ($priceStyleAttr == '' ? ' style="display:none;"' : $priceStyleAttr);
 
-            echo '<table><tbody>';
-	        echo '<tr><td width="120"><input type="hidden" id="imoneza_isManaged_original" name="imoneza_isManaged_original" value="' . ($isManaged ? '1' : '0') . '" /><input onclick="imoneza_update_display()" type="checkbox" id="imoneza_isManaged" name="imoneza_isManaged" value="1"' . ($isManaged ? ' checked' : '') . ' /></td><td colspan="2"><label for="imoneza_isManaged">Use iMoneza to manage access to this resource</label></td></tr>';
-            
-            echo '<tr class="' . $rowClass . '"' . $styleAttr . '><td colspan="3"><strong>Metadata</strong></td></tr>';
-	        echo '<tr class="' . $rowClass . '"' . $styleAttr . '><td><label for="imoneza_name">Internal Name</label></td><td><input type="text" id="imoneza_name" name="imoneza_name" value="' . esc_attr($resource['Name']) . '" size="25" /></td><td><small>A friendly name for the property to help you identify it. This name is never displayed publicly to consumers. Defaults to the article title.</small></td></tr>';
-	        echo '<tr class="' . $rowClass . '"' . $styleAttr . '><td><label for="imoneza_title">Title</label></td><td><input type="text" id="imoneza_title" name="imoneza_title" value="' . esc_attr($resource['Title']) . '" size="25" /></td><td><small>The title of the property which gets displayed to consumers. Defaults to the article title.</small></td></tr>';
-	        echo '<tr class="' . $rowClass . '"' . $styleAttr . '><td><label for="imoneza_byline">Byline</label></td><td><input type="text" id="imoneza_byline" name="imoneza_byline" value="' . esc_attr($resource['Byline']) . '" size="25" /></td><td><small>For instance, the author of the post.</small></td></tr>';
-	        echo '<tr class="' . $rowClass . '"' . $styleAttr . '><td><label for="imoneza_description">Description</label></td><td><textarea id="imoneza_description" name="imoneza_description">' . esc_attr($resource['Description']) . '</textarea></td><td><small>A short description of the post. Defaults to the post\'s excerpt.</small></td></tr>';
+            $form['imoneza']["imoneza_managed"] = array(
+                "#type" => "checkbox",
+                '#title' => t('Use iMoneza to manage access to this resource'),
+                '#default_value' => $isManaged,
+                '#required' => FALSE,
+                "#attributes" => array(
+                    "onclick" => "imoneza_update_display()",
+                    "id" => "imoneza_isManaged",
+                )
+            );
 
-            echo '<tr class="' . $rowClass . '"' . $styleAttr . '><td colspan="3"><strong>Pricing</strong></td></tr>';
-	        echo '<tr class="' . $rowClass . '"' . $styleAttr . '><td><label for="imoneza_pricingGroup">Pricing Group</label></td><td><select id="imoneza_pricingGroup" name="imoneza_pricingGroup">' . $pricingGroups . '</select></td></tr>';
-	        echo '<tr class="' . $rowClass . '"' . $styleAttr . '><td><label for="imoneza_pricingModel">Pricing Model</label></td><td><select id="imoneza_pricingModel" name="imoneza_pricingModel" onchange="imoneza_update_display()">' .
-                '<option value="Inherit"' . ($resource['PricingModel'] == 'Inherit' ? ' selected="selected"' : '') . '>Inherit</option>' .
-                '<option value="Free"' . ($resource['PricingModel'] == 'Free' ? ' selected="selected"' : '') . '>Free</option>' .
-                '<option value="FixedPrice"' . ($resource['PricingModel'] == 'FixedPrice' ? ' selected="selected"' : '') . '>Fixed Price</option>' .
-                '<option value="VariablePrice"' . ($resource['PricingModel'] == 'VariablePrice' ? ' selected="selected"' : '') . '>Variable Price</option>' .
-                '<option value="TimeTiered"' . ($resource['PricingModel'] == 'TimeTiered' ? ' selected="selected"' : '') . '>Time Tiered</option>' .
-                '<option value="ViewTiered"' . ($resource['PricingModel'] == 'ViewTiered' ? ' selected="selected"' : '') . '>View Tiered</option>' .
-                '<option value="SubscriptionOnly"' . ($resource['PricingModel'] == 'SubscriptionOnly' ? ' selected="selected"' : '') . '>Subscription Only</option>' .
-                '</select></td></tr>';
+            $form['imoneza']["imoneza_managed_hidden"] = array(
+                "#type" => "hidden",
+                "#id" => "imoneza_isManaged_original",
+                "#default_value" => $isManaged
+            );
 
-            echo '<tr class="' . $rowClass . $priceRowClass . '"' . $priceStyleAttr . '><td colspan="3"><strong>Custom Pricing</strong></td></tr>';
-	        echo '<tr class="' . $rowClass . $priceRowClass . '"' . $priceStyleAttr . '><td><label for="imoneza_price">Price</label></td><td><input type="text" id="imoneza_price" name="imoneza_price" value="' . esc_attr($resource['Price']) . '" size="25" /></td></tr>';
-	        echo '<tr class="' . $rowClass . $priceRowClass . '"' . $priceStyleAttr . '><td><label for="imoneza_expirationPeriodUnit">Expiration Period</label></td><td><select id="imoneza_expirationPeriodUnit" name="imoneza_expirationPeriodUnit" onchange="imoneza_update_display()">' .
-                '<option value="Never"' . ($resource['ExpirationPeriodUnit'] == 'Never' ? ' selected="selected"' : '') . '>Never</option>' .
-                '<option value="Years"' . ($resource['ExpirationPeriodUnit'] == 'Years' ? ' selected="selected"' : '') . '>Years</option>' .
-                '<option value="Months"' . ($resource['ExpirationPeriodUnit'] == 'Months' ? ' selected="selected"' : '') . '>Months</option>' .
-                '<option value="Weeks"' . ($resource['ExpirationPeriodUnit'] == 'Weeks' ? ' selected="selected"' : '') . '>Weeks</option>' .
-                '<option value="Days"' . ($resource['ExpirationPeriodUnit'] == 'Days' ? ' selected="selected"' : '') . '>Days</option>' .
-                '</select></td></tr>';
-	        echo '<tr class="' . $rowClass . $priceRowClass . $expirationValueClass . '"' . $expirationStyleAttr . '><td><label for="imoneza_expirationPeriodValue">Expiration Duration</label></td><td><input type="text" id="imoneza_expirationPeriodValue" name="imoneza_expirationPeriodValue" value="' . esc_attr($resource['ExpirationPeriodValue']) . '" size="25" /></td></tr>';
+            $form['imoneza']["imoneza_metadata"] = array(
+                "#markup" => "<strong>Metadata</strong>"
+            );
 
-            echo '<tr class="' . $rowClass . ' ' . $priceTierClass . '"' . $priceTierStyleAttr . '><td colspan="2"><strong>Pricing Tiers</strong></td><td><small>You must have at least one tier, and there must be one tier of 0 minutes or 0 views.</small></td></tr>';
-            echo '<tr class="' . $rowClass . ' ' . $priceTierClass . '"' . $priceTierStyleAttr . '><td colspan="3"><table id="imoneza_tiers"><tbody><tr><th>Tier</th><th>Price</th></tr>';
-            foreach ($resource['ResourcePricingTiers'] as $tier) {
-                $label = ' views';
-                $value = $tier['Tier'];
-                if ($resource['PricingModel'] == 'TimeTiered') {
-                    $label = 'minutes';
-                    if ($value > 0 && $value % 1440 == 0) {
-                        $label = 'days';
-                        $value = $value / 1440;
-                    } else if ($value > 0 && $value % 60 == 0) {
-                        $label = 'hours';
-                        $value = $value / 60;
-                    }
-                    $label = '<select name="imoneza_tier_price_multiplier[]"><option value="1"' . ($label == 'minutes' ? ' selected' : '') . '>minutes</option><option value="60"' . ($label == 'hours' ? ' selected' : '') . '>hours</option><option value="1440"' . ($label == 'days' ? ' selected' : '') . '>days</option></select>';
-                }
-                echo '<tr><td><input type="text" value="' . $value . '" name="imoneza_tier[]" size="5" />' . $label . '</td><td><input type="text" value="' . number_format($tier['Price'], 2) . '" name="imoneza_tier_price[]" /></td><td>' . ($tier['Tier'] > 0 ? '<a href="#" onclick="return imoneza_remove_tier(this);">Remove Tier</a>' : '') . '</td></tr>';
+            $form['imoneza']["imoneza_name"] = array(
+                "#type" => "textfield",
+                "#size" => "25",
+                "#default_value" => t(check_plain(isset($resource['Name']) ? $resource['Name'] : "")),
+                "#title" => t("Name"),
+                "#description" => t("A friendly name for the resource to help you identify it. This name is never displayed publicly to consumers. Defaults to the article title.")
+            );
+
+            $form['imoneza']["imoneza_title"] = array(
+                "#type" => "textfield",
+                "#size" => 25,
+                "#default_value" => t(check_plain(isset($resource['Title']) ? $resource['Title'] : "")),
+                "#title" => t("Title"),
+                "#description" => t("The title of the resource which gets displayed to consumers. Defaults to the article title.")
+            );
+
+            $form['imoneza']["imoneza_byline"] = array(
+                "#type" => "textfield",
+                "#size" => 25,
+                "#default_value" => t(check_plain(isset($resource['Byline']) ? $resource['Byline'] : "")),
+                "#title" => t("Byline"),
+                "#description" => t("For instance, the author of the post.")
+            );
+
+            $form['imoneza']["imoneza_description"] = array(
+                "#type" => "textarea",
+                "#default_value" => t(check_plain(isset($resource['Description']) ? $resource['Description'] : "")),
+                "#title" => "Description",
+                "#description" => t("A short description of the post. Defaults to the post's excerpt.")
+            );
+
+            $form['imoneza']["imoneza_pricing"] = array(
+                "#markup" => "<strong>Pricing</strong>"
+            );
+
+            $pricingOptions = array(
+                "Inherit" => "Inherit",
+                "Free" => "Free",
+                "FixedPrice" => "Fixed Price",
+                "VariablePrice" => "Variable Price",
+                "TimeTiered" => "Time Tiered",
+                "ViewTiered" => "View Tiered",
+                "SubscriptionOnly" => "Subscription Only");
+
+
+
+            $pricingGroups = array();
+            $pricingGroupsList = $isManaged ? $resource['Property']['PricingGroups'] : $property['PricingGroups'];
+            $defaultGroup = 0;
+            foreach ($pricingGroupsList as $pricingGroup) {
+                $defaultGroup = $pricingGroup['IsDefault'];
+                $pricingGroups[$pricingGroup['PricingGroupID']] = $pricingGroup['Name'];
             }
-            echo '<tr><td width="220"></td><td width="160"></td><td><a href="#" onclick="return imoneza_add_tier(\'' . ($resource['PricingModel'] == 'ViewTiered' ? 'views' : 'minutes') . '\');">Add Tier</a></td></tr>';
-            echo '</tbody></table></td></tr>';
 
-            echo '</tbody></table>';
+            $selectedGroup = $isManaged ? $resource['PricingGroup']['PricingGroupID'] :$defaultGroup;
+
+            $form['imoneza']["imoneza_pricingGroup"] = array(
+                "#type" => "select",
+                "#options" => $pricingGroups,
+                "#title" => t("Pricing Group"),
+                "#default_value" => $selectedGroup
+            );
+
+            if (!isset($resource['PricingModel'])){
+              $resource['PricingModel'] = "Inherit";
+            }
+
+            $form['imoneza']["imoneza_pricingModel"] = array(
+                "#type" => "select",
+                "#options" => $pricingOptions,
+                "#default_value" => $resource['PricingModel'],
+                "#title" => t("Pricing Model"),
+                "#attributes" => array(
+                    "onchange" => "imoneza_update_display()"
+                )
+            );
+
+            $form['imoneza']["imoneza_custom_pricing"] = array(
+                "#markup" => "<strong>Custom Pricing</strong>"
+            );
+
+            $form['imoneza']["imoneza_price"] = array(
+                "#type" => "textfield",
+                "#size" => 25,
+                "#title" => t("Pricing"),
+            );
+
+            $expirationOptions = array(
+                "Never" => "Never",
+                "Years" => "Years",
+                "Months" => "Months",
+                "Weeks" => "Weeks",
+                "Days" => "Days"
+            );
+
+            if (!isset($resource['ExpirationPeriodUnit'])){
+                $resource['ExpirationPeriodUnit'] = "Never";
+            }
+
+            $form['imoneza']["imoneza_expirationPeriodUnit"] = array(
+                "#type" => "select",
+                "#options" => $expirationOptions,
+                "#title" => t("Expiration Period"),
+                "#attributes" => array(
+                    "onchange" => "imoneza_update_display()"
+                ),
+                "#default_value" => $resource['ExpirationPeriodUnit'] = "Never"
+            );
+
+            $form['imoneza']["imonexa_expirationPeriodValue"] = array(
+                "#type" => "textfield",
+                "#title" => "Expiration Duration",
+                "#size" => 25
+            );
+
+            $form['imoneza']["imoneza_tierd_header"] = array(
+                "#markup" => "<strong>Pricing Tiers</strong><br /><small>You must have at least one tier, and there must be one tier of 0 minutes or 0 views.</small>"
+            );
+
+
+            //idk what to do with this
+            //$output .=  '<tr class="' . $rowClass . ' ' . $priceTierClass . '"' . $priceTierStyleAttr . '><td colspan="3"><table id="imoneza_tiers"><tbody><tr><th>Tier</th><th>Price</th></tr>';
+//            if (isset($resource['ResourcePricingTiers'])){
+//                foreach ($resource['ResourcePricingTiers'] as $tier) {
+//                    $label = ' views';
+//                    $value = $tier['Tier'];
+//                    if ($resource['PricingModel'] == 'TimeTiered') {
+//                        $label = 'minutes';
+//                        if ($value > 0 && $value % 1440 == 0) {
+//                            $label = 'days';
+//                            $value = $value / 1440;
+//                        } else if ($value > 0 && $value % 60 == 0) {
+//                            $label = 'hours';
+//                            $value = $value / 60;
+//                        }
+//
+//                        $label = '<select name="imoneza_tier_price_multiplier[]"><option value="1"' . ($label == 'minutes' ? ' selected' : '') . '>minutes</option><option value="60"' . ($label == 'hours' ? ' selected' : '') . '>hours</option><option value="1440"' . ($label == 'days' ? ' selected' : '') . '>days</option></select>';
+//                    }
+//                    $output .=  '<tr><td><input type="text" value="' . $value . '" name="imoneza_tier[]" size="5" />' . $label . '</td><td><input type="text" value="' . number_format($tier['Price'], 2) . '" name="imoneza_tier_price[]" /></td><td>' . ($tier['Tier'] > 0 ? '<a href="#" onclick="return imoneza_remove_tier(this);">Remove Tier</a>' : '') . '</td></tr>';
+//                }
+//            }
+//
+//            $form['imoneza']["imoneza_addTier"] = array(
+//                "#markup" => "<a href=\"#\" onclick=\"return imoneza_add_tier();\">Add Tier</a>"
+//            );
+
+
         } catch (Exception $e) {
-            echo $e->getMessage();
+            $form['imoneza']["imoneza_error"] = array(
+                "#markup" => t("An error has occurred: " . check_plain($e->getMessage()))
+            );
         }
     }
 
@@ -322,12 +414,13 @@ class iMoneza_Admin {
     {
 
         $form = array();
+        $options = variable_get("imoneza_options", array());
         $form['imoneza_ra_api_key_access'] = array(
             '#type' => 'textfield',
             '#title' => t('Resource Access Key'),
-            '#default_value' => variable_get('imoneza_ra_api_key_access', ""),
-            '#size' => 15,
-            '#maxlength' => 50,
+            '#default_value' => $options['imoneza_ra_api_key_access'] ?: "",
+            '#size' => 36,
+            '#maxlength' => 100,
             '#description' => t("Resource Access API Access Key"),
             '#required' => FALSE,
           );
@@ -335,9 +428,9 @@ class iMoneza_Admin {
         $form['imoneza_ra_api_key_secret'] = array(
             '#type' => 'textfield',
             '#title' => t('Resource Access Secret'),
-            '#default_value' => variable_get('imoneza_ra_api_key_secret', ""),
-            '#size' => 15,
-            '#maxlength' => 50,
+            '#default_value' => $options['imoneza_ra_api_key_secret'] ?: "",
+            '#size' => 65,
+            '#maxlength' => 100,
             '#description' => t("Resource Access API Secret Key"),
             '#required' => FALSE,
           );
@@ -345,9 +438,9 @@ class iMoneza_Admin {
         $form['imoneza_rm_api_key_access'] = array(
             '#type' => 'textfield',
             '#title' => t('Resource Management Access Key'),
-            '#default_value' => variable_get('imoneza_rm_api_key_access', ""),
-            '#size' => 15,
-            '#maxlength' => 50,
+            '#default_value' => $options['imoneza_rm_api_key_access'] ?: "",
+            '#size' => 36,
+            '#maxlength' => 100,
             '#description' => t("Resource Management API Access Key"),
             '#required' => FALSE,
           );
@@ -355,9 +448,9 @@ class iMoneza_Admin {
         $form['imoneza_rm_api_key_secret'] = array(
             '#type' => 'textfield',
             '#title' => t('Resource Management Secret'),
-            '#default_value' => variable_get('imoneza_rm_api_key_secret', ""),
-            '#size' => 15,
-            '#maxlength' => 50,
+            '#default_value' => $options['imoneza_rm_api_key_secret'] ?: "",
+            '#size' => 65,
+            '#maxlength' => 100,
             '#description' => t("Resource Management API Secret Key"),
             '#required' => FALSE,
           );
@@ -365,24 +458,45 @@ class iMoneza_Admin {
         $form['imoneza_nodynamic'] = array(
             '#type' => 'checkbox',
             '#title' => t('Disable Dynamic Resource Creation'),
-            '#default_value' => variable_get('imoneza_nodynamic', FALSE),
-            '#size' => 15,
-            '#maxlength' => 50,
+            '#default_value' => $options['imoneza_nodynamic'] ?: FALSE,
             '#description' => t("Do not include dynamic resource creation block on every page"),
             '#required' => FALSE,
           );
 
-        $options = array(NO_ACCESS_CONTROL => t("None"), 
+        $radioOptions = array(NO_ACCESS_CONTROL => t("None"),
             CLIENT_SIDE_ACCESS_CONTROL => t("Client-side (JavaScript)"), SERVER_SIDE_ACCESS_CONTROL => t("Server-side"));
 
-        $form['access_control'] = array(
+        $form['imoneza_access_control'] = array(
             '#type' => 'radios',
             '#title' => t('Access Control Method'),
-            '#default_value' => variable_get('imoneza_access_control', 0),
-            '#options' => $options,
-            '#description' => t("Access Control Style"),
+            '#default_value' => $options['imoneza_access_control'] ?: 0,
+            '#options' => $radioOptions,
             '#required' => FALSE,
           );
+
+        $form['imoneza_config_submit'] = array(
+            "#type" => "submit",
+            "#value" => "Save"
+        );
+
+        $form["#submit"][] = array($this, "imoneza_save_config");
+
+        return $form;
+
+    }
+
+    public function imoneza_save_config($form, &$form_state){
+
+        $options = array();
+        $options['imoneza_ra_api_key_access'] =  $form_state['values']['imoneza_ra_api_key_access'];
+        $options['imoneza_ra_api_key_secret'] = $form_state['values']["imoneza_ra_api_key_secret"];
+        $options['imoneza_rm_api_key_access'] = $form_state['values']["imoneza_rm_api_key_access"];
+        $options['imoneza_rm_api_key_secret'] = $form_state['values']["imoneza_rm_api_key_secret"];
+        $options['imoneza_nodynamic'] = $form_state['values']["imoneza_nodynamic"];
+        $options['imoneza_access_control'] = $form_state['values']["imoneza_access_control"];
+
+        variable_set("imoneza_options", $options);
+
     }
 
     public function setUpdatedNotice($notice) {
@@ -582,4 +696,3 @@ class iMoneza_Admin {
         );
     }
 }
-?>
