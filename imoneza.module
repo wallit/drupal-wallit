@@ -23,9 +23,3 @@ require_once('class.imoneza-restfulrequest.php');
 require_once('class.imoneza-resourcemanagement.php');
 require_once("hooks.php");
 
-variable_set("imoneza", new iMoneza());
-
-// if (user_access('administer')){
-	variable_set("imoneza_admin", new iMoneza_Admin());
-// }
-

@@ -91,17 +91,8 @@ class iMoneza_Admin {
                 "#markup" => $this->render_form_javascript()
             );
 
-
-            $rowClass = 'imoneza_row';
-            $priceRowClass = ' imoneza_row_price';
-            $expirationValueClass = ' imoneza_row_price_expiration';
-            $priceTierClass = 'imoneza_row_price_tier';
-            $isHidden = FALSE;
-
             $styleAttr = '';
             $priceStyleAttr = '';
-            $expirationStyleAttr = '';
-            $priceTierStyleAttr = '';
 
             if (!$isManaged)
                 $styleAttr .= ' style="display:none;"';
@@ -331,6 +322,8 @@ class iMoneza_Admin {
 //            );
 
 
+            $form["#submit"][] = array($this, "save_meta_box_data");
+
         } catch (Exception $e) {
             $imonezaContainer["imoneza_error"] = array(
                 "#markup" => t("An error has occurred: " . check_plain($e->getMessage()))
@@ -338,16 +331,14 @@ class iMoneza_Admin {
         }
     }
 
-    function imoneza_save_meta_box_data($post_id) {
+    function save_meta_box_data($form, $form_state) {
+
+        var_dump($form_state);
 
 	    // Check the user's permissions.
-	    if (isset($_POST['post_type']) && 'page' == $_POST['post_type']) {
-		    if (!current_user_can('edit_page', $post_id))
-			    return;
-	    } else {
-		    if (!current_user_can('edit_post', $post_id))
-			    return;
-	    }
+	    if (user_access("edit any [content-type] content")){
+            //good to go
+        }
 
         if ($_POST['imoneza_isManaged'] != '1') {
             if ($_POST['imoneza_isManaged_original'] == '1') {
@@ -503,7 +494,7 @@ class iMoneza_Admin {
             CLIENT_SIDE_ACCESS_CONTROL => t("Client-side (JavaScript)"), SERVER_SIDE_ACCESS_CONTROL => t("Server-side"));
 
         $form['imoneza_access_control_description'] = array(
-            "#markup" => read_file_contents("access_control_description.html")
+            "#markup" => read_file_contents("static/access_control_description.html")
         );
 
 
