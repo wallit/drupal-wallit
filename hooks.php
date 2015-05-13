@@ -36,3 +36,25 @@ function imoneza_admin(){
     return $imoneza_admin->create_admin_page();
 
 }
+
+function imoneza_node_load($nodes, $types){
+    //check for resource access
+    //TODO do we want to run this if more than one node is displayed on the page?
+
+    if (user_access("administer")){
+        return;
+    }
+    if (count($nodes) > 1 || count($nodes) < 1){
+        return;
+        //For now, not executing on pages that contain multiple nodes
+    }
+    $options = variable_get("imoneza_options");
+
+    $node = array_pop($nodes);
+    if (in_array($node->type, $options['imoneza_node_types'])){
+        $imoneza = variable_get("imoneza", new iMoneza());
+        $imoneza->imoneza_template_redirect($node);
+    }else{
+        //ignore it
+    }
+}

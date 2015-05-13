@@ -6,8 +6,8 @@ class iMoneza_ResourceAccess extends iMoneza_API {
 
     public function __construct()
     {
-        $options = get_option('imoneza_options');
-        parent::__construct($options, $options['ra_api_key_access'], $options['ra_api_key_secret'], IMONEZA__RA_API_URL);
+        $options = variable_get('imoneza_options');
+        parent::__construct($options, $options['imoneza_ra_api_key_access'], $options['imoneza_ra_api_key_secret'], IMONEZA__RA_API_URL);
 
         // 14 days
         $this->cookieExpiration = 60 * 60 * 24 * 14;
@@ -31,7 +31,9 @@ class iMoneza_ResourceAccess extends iMoneza_API {
                 $temporaryUserToken = $_REQUEST['iMonezaTUT'];
                 $resourceAccessData = $this->getResourceAccessDataFromTemporaryUserToken($externalKey, $resourceURL, $temporaryUserToken);
             } else {
-                $userToken = $_COOKIE['iMonezaUT'];
+                if (isset($_COOKIE['iMonezaUT'])){
+                    $userToken = $_COOKIE['iMonezaUT'];
+                };
                 $resourceAccessData = $this->getResourceAccessDataFromExternalKey($externalKey, $resourceURL, $userToken);
             }
 
@@ -42,7 +44,7 @@ class iMoneza_ResourceAccess extends iMoneza_API {
             {
                 $url = $resourceAccessData['AccessActionURL'];
                 $url = $url . '&OriginalURL=' . rawurlencode($resourceURL);
-                wp_redirect($url);
+                drupal_goto($url);
                 exit;
             }
         } catch (Exception $e) {
@@ -61,10 +63,10 @@ class iMoneza_ResourceAccess extends iMoneza_API {
 
         $response = $request->getResponse();
 
-        if ($response['response']['code'] == '404') {
+        if ($response->code == '404') {
             throw new Exception('An error occurred with the Resource Access API key. Make sure you have valid Access Management API keys set in the iMoneza plugin settings.');
         } else {
-            return json_decode($response['body'], true);
+            return json_decode($response->data, true);
         }
     }
 
@@ -77,11 +79,10 @@ class iMoneza_ResourceAccess extends iMoneza_API {
 
         $response = $request->getResponse();
 
-        if ($response['response']['code'] == '404') {
+        if ($response->code == '404') {
             throw new Exception('An error occurred with the Resource Access API key. Make sure you have valid Access Management API keys set in the iMoneza plugin settings.');
         } else {
-            return json_decode($response['body'], true);
+            return json_decode($response->data, true);
         }
     }
 }
-?>

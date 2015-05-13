@@ -13,26 +13,8 @@ class iMoneza_Admin {
          }
     }
 
-    public function add_meta_boxes($post)
-    {
-        $screens = array('post', 'page');
-        foreach ($screens as $screens) {
-            add_meta_box(
-                'imoneza-meta-box',
-                'iMoneza',
-                array($this, 'render_imoneza_meta_box'),
-                $screen,
-                'normal',
-                'default'
-            );
-        }
-    }
-
     public function render_form_javascript(){
-        ob_start();
-        include "post_form_js.html";
-        $retVal = ob_get_clean();
-        return  $retVal;
+        return read_file_contents("post_form_js.html");
     }
 
     public function render_imoneza_meta_box(&$form, $form_state)
@@ -514,6 +496,11 @@ class iMoneza_Admin {
         $radioOptions = array(NO_ACCESS_CONTROL => t("None"),
             CLIENT_SIDE_ACCESS_CONTROL => t("Client-side (JavaScript)"), SERVER_SIDE_ACCESS_CONTROL => t("Server-side"));
 
+        $form['imoneza_access_control_description'] = array(
+            "#markup" => read_file_contents("access_control_description.html")
+        );
+
+
         $form['imoneza_access_control'] = array(
             '#type' => 'radios',
             '#title' => t('Access Control Method'),
@@ -521,6 +508,22 @@ class iMoneza_Admin {
             '#options' => $radioOptions,
             '#required' => FALSE,
           );
+
+        $nodeTypes = node_type_get_types();
+
+        $nodeOptions = array();
+
+        foreach($nodeTypes as $type){
+            $nodeOptions[$type->type] = $type->name;
+        }
+
+        $form['imoneza_node_types'] = array(
+            "#type" => "checkboxes",
+            "#options" => $nodeOptions,
+            //"#default_value" => $options['imoneza_node_types'],
+            "#title" => "Node Types",
+            "#description" => "Use this to select which node types you want iMoneza to control"
+        );
 
         $form['imoneza_config_submit'] = array(
             "#type" => "submit",
@@ -536,107 +539,99 @@ class iMoneza_Admin {
     public function imoneza_save_config($form, &$form_state){
 
         $options = array();
-        $options['imoneza_ra_api_key_access'] =  $form_state['values']['imoneza_ra_api_key_access'];
-        $options['imoneza_ra_api_key_secret'] = $form_state['values']["imoneza_ra_api_key_secret"];
-        $options['imoneza_rm_api_key_access'] = $form_state['values']["imoneza_rm_api_key_access"];
-        $options['imoneza_rm_api_key_secret'] = $form_state['values']["imoneza_rm_api_key_secret"];
-        $options['imoneza_nodynamic'] = $form_state['values']["imoneza_nodynamic"];
-        $options['imoneza_access_control'] = $form_state['values']["imoneza_access_control"];
+        echo "sanitizing input";
+        $sanitizedInput = $this->sanitize($form_state['values']);
+        $options['imoneza_ra_api_key_access'] =  $sanitizedInput['imoneza_ra_api_key_access'];
+        $options['imoneza_ra_api_key_secret'] = $sanitizedInput["imoneza_ra_api_key_secret"];
+        $options['imoneza_rm_api_key_access'] = $sanitizedInput["imoneza_rm_api_key_access"];
+        $options['imoneza_rm_api_key_secret'] = $sanitizedInput["imoneza_rm_api_key_secret"];
+        $options['imoneza_nodynamic'] = $sanitizedInput["imoneza_nodynamic"];
+        $options['imoneza_access_control'] = $sanitizedInput["imoneza_access_control"];
+        $options['imoneza_node_types'] = $sanitizedInput['imoneza_node_types'];
 
         variable_set("imoneza_options", $options);
 
-    }
-
-    public function setUpdatedNotice($notice) {
-        
-        $_SESSION['iMoneza_UpdatedNotice'] = $notice;
-    }
-
-    public function setErrorNotice($notice) {
-        
-        $_SESSION['iMoneza_ErrorNotice'] = $notice;
-    }
-
-    public function admin_notices() {
-        if (isset($_SESSION['iMoneza_UpdatedNotice']) && $_SESSION['iMoneza_UpdatedNotice'] != '') {
-            ?>
-                <div class="updated">
-                    <p><?= $_SESSION['iMoneza_UpdatedNotice'] ?></p>
-                </div>
-            <?php
-            unset($_SESSION['iMoneza_UpdatedNotice']);
-        }
-        if (isset($_SESSION['iMoneza_ErrorNotice']) && $_SESSION['iMoneza_ErrorNotice'] != '') {
-            ?>
-                <div class="error">
-                    <p><?= $_SESSION['iMoneza_ErrorNotice'] ?></p>
-                </div>
-            <?php
-            unset($_SESSION['iMoneza_ErrorNotice']);
-        }
-    }
-
-    /**
-     * Register and add settings
-     */
-    public function page_init()
-    {        
-        register_setting('imoneza_settings', 'imoneza_options', array( $this, 'sanitize' ));
-
-        add_settings_section('imoneza_settings_ra_api_key', 'Resource Access API', array($this, 'print_section_info_ra_api'), 'imoneza-settings-admin');  
-        add_settings_field('ra_api_key_access', 'Access Key', array( $this, 'ra_api_key_access_callback' ), 'imoneza-settings-admin', 'imoneza_settings_ra_api_key');
-        add_settings_field('ra_api_key_secret', 'Secret Key', array( $this, 'ra_api_key_secret_callback' ), 'imoneza-settings-admin', 'imoneza_settings_ra_api_key');
-
-        add_settings_section('imoneza_settings_rm_api_key', 'Resource Management API', array($this, 'print_section_info_rm_api'), 'imoneza-settings-admin');
-        add_settings_field('rm_api_key_access', 'Access Key', array( $this, 'rm_api_key_access_callback' ), 'imoneza-settings-admin', 'imoneza_settings_rm_api_key');
-        add_settings_field('rm_api_key_secret', 'Secret Key', array( $this, 'rm_api_key_secret_callback' ), 'imoneza-settings-admin', 'imoneza_settings_rm_api_key');
-
-        add_settings_section('imoneza_settings_dynamic_resource_creation', 'Dynamic Resource Creation', array($this, 'print_section_info_dynamic_resource_creation'), 'imoneza-settings-admin');
-        add_settings_field('no_dynamic', 'Do not include dynamic resource creation block on every page', array( $this, 'no_dynamic_callback' ), 'imoneza-settings-admin', 'imoneza_settings_dynamic_resource_creation');
-
-        add_settings_section('imoneza_access_control', 'Access Control', array($this, 'print_section_info_access_control'), 'imoneza-settings-admin');
-        add_settings_field('access_control', 'Access Control Method', array( $this, 'access_control_callback' ), 'imoneza-settings-admin', 'imoneza_access_control');
-        add_settings_field('access_control_excluded_user_agents', 'Excluded User Agents', array( $this, 'access_control_excluded_user_agents_callback' ), 'imoneza-settings-admin', 'imoneza_access_control');
-
-        add_settings_section('imoneza_help', 'Help', array($this, 'print_section_info_help'), 'imoneza-settings-admin');
     }
 
     /**
      * Sanitize each setting field as needed
      *
      * @param array $input Contains all settings fields as array keys
+     * @return array similar to $input with sanitized values
      */
     public function sanitize( $input )
     {
         $new_input = array();
 
-        if (isset($input['rm_api_key_access']))
-            $new_input['rm_api_key_access'] = sanitize_text_field($input['rm_api_key_access']);
-        if (isset($input['rm_api_key_secret']))
-            $new_input['rm_api_key_secret'] = sanitize_text_field($input['rm_api_key_secret']);
+        if (isset($input['imoneza_rm_api_key_access']))
+            $new_input['imoneza_rm_api_key_access'] = check_plain($input['imoneza_rm_api_key_access']);
+        if (isset($input['imoneza_rm_api_key_secret']))
+            $new_input['imoneza_rm_api_key_secret'] = check_plain($input['imoneza_rm_api_key_secret']);
 
-        if (isset($input['ra_api_key_access']))
-            $new_input['ra_api_key_access'] = sanitize_text_field($input['ra_api_key_access']);
-        if (isset($input['ra_api_key_secret']))
-            $new_input['ra_api_key_secret'] = sanitize_text_field($input['ra_api_key_secret']);
+        if (isset($input['imoneza_ra_api_key_access']))
+            $new_input['imoneza_ra_api_key_access'] = check_plain($input['imoneza_ra_api_key_access']);
+        if (isset($input['imoneza_ra_api_key_secret']))
+            $new_input['imoneza_ra_api_key_secret'] = check_plain($input['imoneza_ra_api_key_secret']);
 
-        if (isset($input['no_dynamic']) && $input['no_dynamic'] == '1')
-            $new_input['no_dynamic'] = '1';
+        if (isset($input['imoneza_nodynamic']) && $input['imoneza_nodynamic'] == '1')
+            $new_input['imoneza_nodynamic'] = '1';
         else
-            $new_input['no_dynamic'] = '0';
+            $new_input['imoneza_nodynamic'] = '0';
 
-        if (isset($input['use_access_control']) && $input['use_access_control'] == '1')
-            $new_input['use_access_control'] = '1';
+        if (isset($input['imoneza_use_access_control']) && $input['imoneza_use_access_control'] == '1')
+            $new_input['imoneza_use_access_control'] = '1';
         else
-            $new_input['use_access_control'] = '0';
+            $new_input['imoneza_use_access_control'] = '0';
 
-        if (isset($input['access_control']))
-            $new_input['access_control'] = sanitize_text_field($input['access_control']);
+        if (isset($input['imoneza_access_control']))
+            $new_input['imoneza_access_control'] = check_plain($input['imoneza_access_control']);
 
-        if (isset($input['access_control_excluded_user_agents']))
-            $new_input['access_control_excluded_user_agents'] = implode("\n", array_map('sanitize_text_field', str_replace("\r", "", explode("\n", $input['access_control_excluded_user_agents']))));
+        echo "BLAH";
+        var_dump($input['imoneza_node_types']);
+        if (isset($input['imoneza_node_types'])){
+            echo "node types";
+            var_dump($input['imoneza_node_types']);
+            $types = array();
+            foreach($input['imoneza_node_types'] as $nodeType){
+                $types = check_plain($nodeType);
+            }
+
+            $new_input['imoneza_node_types'] = $types;
+        }
+
+        if (isset($input['imoneza_access_control_excluded_user_agents']))
+            $new_input['imoneza_access_control_excluded_user_agents'] = implode("\n", array_map('check_plain', str_replace("\r", "", explode("\n", $input['imoneza_access_control_excluded_user_agents']))));
 
         return $new_input;
+    }
+
+    public function setUpdatedNotice($notice) {
+
+        $_SESSION['iMoneza_UpdatedNotice'] = $notice;
+    }
+
+    public function setErrorNotice($notice) {
+
+        $_SESSION['iMoneza_ErrorNotice'] = $notice;
+    }
+
+    public function admin_notices() {
+        if (isset($_SESSION['iMoneza_UpdatedNotice']) && $_SESSION['iMoneza_UpdatedNotice'] != '') {
+            ?>
+            <div class="updated">
+                <p><?= $_SESSION['iMoneza_UpdatedNotice'] ?></p>
+            </div>
+            <?php
+            unset($_SESSION['iMoneza_UpdatedNotice']);
+        }
+        if (isset($_SESSION['iMoneza_ErrorNotice']) && $_SESSION['iMoneza_ErrorNotice'] != '') {
+            ?>
+            <div class="error">
+                <p><?= $_SESSION['iMoneza_ErrorNotice'] ?></p>
+            </div>
+            <?php
+            unset($_SESSION['iMoneza_ErrorNotice']);
+        }
     }
 
     /** 

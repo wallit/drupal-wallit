@@ -14,6 +14,7 @@ define('IMONEZA__RM_API_URL', 'https://manageapi.imoneza.com');
 define('IMONEZA__RA_UI_URL', 'https://accessui.imoneza.com');
 define('IMONEZA__DEBUG', TRUE);
 
+require_once('b3_helpers.php');
 require_once('class.imoneza.php');
 require_once('class.imoneza-api.php');
 require_once('class.imoneza-admin.php');
