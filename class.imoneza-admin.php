@@ -147,46 +147,66 @@ class iMoneza_Admin {
             $form['imoneza']["imoneza_managed_hidden"] = array(
                 "#type" => "hidden",
                 "#id" => "imoneza_isManaged_original",
-                "#default_value" => $isManaged
+                "#default_value" => $isManaged,
+
             );
 
-            $form['imoneza']["imoneza_metadata"] = array(
-                "#markup" => "<strong>Metadata</strong>"
+            $form["imoneza"]["imoneza_meta_container"] = array(
+                "#type" => "container",
+                "#attributes" => array(
+                    "class" => array(
+                        "imoneza_row"
+                    )
+                )
             );
 
-            $form['imoneza']["imoneza_name"] = array(
+            $imonezaContainer = &$form["imoneza"]["imoneza_meta_container"];
+
+            $imonezaContainer["imoneza_metadata"] = array(
+                "#markup" => "<strong>Metadata</strong>",
+                "#attributes" => array(
+                    "class" => array("imoneza_row")
+                )
+            );
+
+            $imonezaContainer["imoneza_name"] = array(
                 "#type" => "textfield",
                 "#size" => "25",
                 "#default_value" => t(check_plain(isset($resource['Name']) ? $resource['Name'] : "")),
                 "#title" => t("Name"),
-                "#description" => t("A friendly name for the resource to help you identify it. This name is never displayed publicly to consumers. Defaults to the article title.")
+                "#description" => t("A friendly name for the resource to help you identify it. This name is never displayed publicly to consumers. Defaults to the article title."),
+
             );
 
-            $form['imoneza']["imoneza_title"] = array(
+            $imonezaContainer["imoneza_title"] = array(
                 "#type" => "textfield",
                 "#size" => 25,
                 "#default_value" => t(check_plain(isset($resource['Title']) ? $resource['Title'] : "")),
                 "#title" => t("Title"),
-                "#description" => t("The title of the resource which gets displayed to consumers. Defaults to the article title.")
+                "#description" => t("The title of the resource which gets displayed to consumers. Defaults to the article title."),
+
             );
 
-            $form['imoneza']["imoneza_byline"] = array(
+            $imonezaContainer["imoneza_byline"] = array(
                 "#type" => "textfield",
                 "#size" => 25,
                 "#default_value" => t(check_plain(isset($resource['Byline']) ? $resource['Byline'] : "")),
                 "#title" => t("Byline"),
-                "#description" => t("For instance, the author of the post.")
+                "#description" => t("For instance, the author of the post."),
+
             );
 
-            $form['imoneza']["imoneza_description"] = array(
+            $imonezaContainer["imoneza_description"] = array(
                 "#type" => "textarea",
                 "#default_value" => t(check_plain(isset($resource['Description']) ? $resource['Description'] : "")),
                 "#title" => "Description",
-                "#description" => t("A short description of the post. Defaults to the post's excerpt.")
+                "#description" => t("A short description of the post. Defaults to the post's excerpt."),
+
             );
 
-            $form['imoneza']["imoneza_pricing"] = array(
-                "#markup" => "<strong>Pricing</strong>"
+            $imonezaContainer["imoneza_pricing"] = array(
+                "#markup" => "<strong>Pricing</strong>",
+
             );
 
             $pricingOptions = array(
@@ -210,35 +230,49 @@ class iMoneza_Admin {
 
             $selectedGroup = $isManaged ? $resource['PricingGroup']['PricingGroupID'] :$defaultGroup;
 
-            $form['imoneza']["imoneza_pricingGroup"] = array(
+            $imonezaContainer["imoneza_pricingGroup"] = array(
                 "#type" => "select",
                 "#options" => $pricingGroups,
                 "#title" => t("Pricing Group"),
-                "#default_value" => $selectedGroup
+                "#default_value" => $selectedGroup,
+
             );
 
             if (!isset($resource['PricingModel'])){
               $resource['PricingModel'] = "Inherit";
             }
 
-            $form['imoneza']["imoneza_pricingModel"] = array(
+            $imonezaContainer["imoneza_pricingModel"] = array(
                 "#type" => "select",
                 "#options" => $pricingOptions,
                 "#default_value" => $resource['PricingModel'],
                 "#title" => t("Pricing Model"),
                 "#attributes" => array(
-                    "onchange" => "imoneza_update_display()"
+                    "onchange" => "imoneza_update_display()",
+                ),
+
+            );
+
+            $imonezaContainer["imoneza_custom_pricing_container"] = array(
+                "#type" => "container",
+                "#attributes" => array(
+                    "class" => array(
+                        "imoneza_row_price"
+                    )
                 )
             );
+            $customPricingContainer = &$imonezaContainer["imoneza_custom_pricing_container"];
+            $customPricingContainer["imoneza_custom_pricing"] = array(
+                "#markup" => "<strong>Custom Pricing</strong>",
 
-            $form['imoneza']["imoneza_custom_pricing"] = array(
-                "#markup" => "<strong>Custom Pricing</strong>"
             );
 
-            $form['imoneza']["imoneza_price"] = array(
+            $customPricingContainer["imoneza_price"] = array(
                 "#type" => "textfield",
                 "#size" => 25,
                 "#title" => t("Pricing"),
+
+
             );
 
             $expirationOptions = array(
@@ -253,24 +287,38 @@ class iMoneza_Admin {
                 $resource['ExpirationPeriodUnit'] = "Never";
             }
 
-            $form['imoneza']["imoneza_expirationPeriodUnit"] = array(
+            $customPricingContainer["imoneza_expirationPeriodUnit"] = array(
                 "#type" => "select",
                 "#options" => $expirationOptions,
                 "#title" => t("Expiration Period"),
                 "#attributes" => array(
-                    "onchange" => "imoneza_update_display()"
+                    "onchange" => "imoneza_update_display()",
+
                 ),
                 "#default_value" => $resource['ExpirationPeriodUnit'] = "Never"
             );
 
-            $form['imoneza']["imonexa_expirationPeriodValue"] = array(
+            $customPricingContainer["imoneza_expirationPeriodValue"] = array(
                 "#type" => "textfield",
                 "#title" => "Expiration Duration",
-                "#size" => 25
+                "#size" => 25,
+
             );
 
-            $form['imoneza']["imoneza_tierd_header"] = array(
-                "#markup" => "<strong>Pricing Tiers</strong><br /><small>You must have at least one tier, and there must be one tier of 0 minutes or 0 views.</small>"
+            $imonezaContainer["imoneza_tiered_pricing_container"] = array(
+                "#type" => "container",
+                "#attributes" => array(
+                    "class" => array(
+                        "imoneza_row_price_tier"
+                    )
+                )
+            );
+
+            $tieredPricingContainer = &$imonezaContainer["imoneza_tiered_pricing_container"];
+
+            $tieredPricingContainer["imoneza_tierd_header"] = array(
+                "#markup" => "<strong>Pricing Tiers</strong><br /><small>You must have at least one tier, and there must be one tier of 0 minutes or 0 views.</small>",
+
             );
 
 
@@ -302,7 +350,7 @@ class iMoneza_Admin {
 
 
         } catch (Exception $e) {
-            $form['imoneza']["imoneza_error"] = array(
+            $imonezaContainer["imoneza_error"] = array(
                 "#markup" => t("An error has occurred: " . check_plain($e->getMessage()))
             );
         }

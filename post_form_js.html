@@ -1,63 +1,73 @@
 <script type="text/javascript">
-function imoneza_update_display() {
-    if (document.getElementById("imoneza_isManaged").checked) {
-        if (document.getElementById("edit-imoneza_name").value == "" && document.getElementById("edit-title"))
-            document.getElementById("edit-imoneza_name").value = document.getElementById("edit-title").value;
-        if (document.getElementById("edit-imoneza_title").value == "" && document.getElementById("edit-title"))
-            document.getElementById("edit-imoneza_title").value = document.getElementById("edit-title").value;
-        if (document.getElementById("edit-imoneza_description").value == "" && document.getElementsByClassName("text-summary"))
-            document.getElementById("edit-imoneza_description").value = document.getElementsByClassName("text-summary").value;
+    var $ = jQuery;
+    function imoneza_update_display() {
+
+
+        if ($("#imoneza_isManaged").checked) {
+            console.log("checked");
+            if ($("#edit-imoneza-name").val() == "" && $("#edit-title"))
+                $("#edit-imoneza-name").value = $("#edit-title").value;
+            if (document.getElementById("edit-imoneza-title").value == "" && document.getElementById("edit-title"))
+                document.getElementById("edit-imoneza-title").value = document.getElementById("edit-title").value;
+            if (document.getElementById("edit-imoneza-description").value == "" && document.getElementsByClassName("text-summary"))
+                document.getElementById("edit-imoneza-description").value = document.getElementsByClassName("text-summary").value;
+        }
+        imoneza_toggle_class(".imoneza_row", document.getElementById("imoneza_isManaged").checked);
+
+        if (document.getElementById("imoneza_isManaged").checked) {
+            var pm = document.getElementById("edit-imoneza-pricingmodel");
+            var selectedPricingModel = pm.options[pm.selectedIndex].value;
+            imoneza_toggle_class(".imoneza_row_price", (selectedPricingModel == "FixedPrice" || selectedPricingModel == "VariablePrice"));
+            imoneza_toggle_class(".imoneza_row_price_tier", (selectedPricingModel == "TimeTiered" || selectedPricingModel == "ViewTiered"));
+
+            var epu = document.getElementById("edit-imoneza-expirationperiodunit");
+            var expirationPeriodUnit = epu.options[epu.selectedIndex].value;
+            imoneza_toggle_class(".imoneza_row_price_expiration", (selectedPricingModel == "FixedPrice" || selectedPricingModel == "VariablePrice") && (expirationPeriodUnit != "Never"));
+        }
     }
-    imoneza_toggle_class(".imoneza_row", document.getElementById("imoneza_isManaged").checked);
 
-    if (document.getElementById("imoneza_isManaged").checked) {
-        var pm = document.getElementById("imoneza_pricingModel");
-        var selectedPricingModel = pm.options[pm.selectedIndex].value;
-        imoneza_toggle_class(".imoneza_row_price", (selectedPricingModel == "FixedPrice" || selectedPricingModel == "VariablePrice"));
-        imoneza_toggle_class(".imoneza_row_price_tier", (selectedPricingModel == "TimeTiered" || selectedPricingModel == "ViewTiered"));
-
-        var epu = document.getElementById("imoneza_expirationPeriodUnit");
-        var expirationPeriodUnit = epu.options[epu.selectedIndex].value;
-        imoneza_toggle_class(".imoneza_row_price_expiration", (selectedPricingModel == "FixedPrice" || selectedPricingModel == "VariablePrice") && (expirationPeriodUnit != "Never"));
+    function imoneza_toggle_class(className, isVisible) {
+        var els = document.querySelectorAll(className);
+        for (var i = 0; i < els.length; ++i) {
+            els[i].style.display = (isVisible ? "table-row" : "none");
+        }
     }
-}
 
-function imoneza_toggle_class(className, isVisible) {
-    var els = document.querySelectorAll(className);
-    for (var i = 0; i < els.length; ++i) {
-        els[i].style.display = (isVisible ? "table-row" : "none");
-    }
-}
+    function imoneza_add_tier() {
+        var select = document.getElementById("edit-imoneza-pricingmodel").value;
+        if (select === "ViewTiered"){
 
-function imoneza_add_tier() {
-    var select = document.getElementById("imoneza_pricingModel").value;
-    if (select === "ViewTiered"){
+        }else if (select === "TimeTiered"){
 
-    }else if (select === "TimeTiered"){
+        }else{
+            //skip it, called by mistake
+            return false;
+        }
 
-    }else{
-        //skip it, called by mistake
+        var table = document.getElementById("edit-imoneza-tiers");
+        var row = table.insertRow(table.rows.length - 1);
+        var c0 = row.insertCell(0);
+        var c1 = row.insertCell(1);
+        var c2 = row.insertCell(2);
+        if (label == 'minutes')
+            label = '<select name="imoneza_tier_price_multiplier[]"><option value="1">minutes</option><option value="60">hours</option><option value="1440">days</option></select>';
+        c0.innerHTML = "<input type=\"text\" size=\"5\" name=\"imoneza_tier[]\" /> " + label;
+        c1.innerHTML = "<input type=\"text\" name=\"imoneza_tier_price[]\" />";
+        c2.innerHTML = "<a href=\"#\" onclick=\"return imoneza_remove_tier(this);\">Remove</a>";
+
         return false;
     }
 
-    var table = document.getElementById("imoneza_tiers");
-    var row = table.insertRow(table.rows.length - 1);
-    var c0 = row.insertCell(0);
-    var c1 = row.insertCell(1);
-    var c2 = row.insertCell(2);
-    if (label == 'minutes')
-        label = '<select name="imoneza_tier_price_multiplier[]"><option value="1">minutes</option><option value="60">hours</option><option value="1440">days</option></select>';
-    c0.innerHTML = "<input type=\"text\" size=\"5\" name=\"imoneza_tier[]\" /> " + label;
-    c1.innerHTML = "<input type=\"text\" name=\"imoneza_tier_price[]\" />";
-    c2.innerHTML = "<a href=\"#\" onclick=\"return imoneza_remove_tier(this);\">Remove</a>";
+    function imoneza_remove_tier(t) {
+        var r = t.parentNode.parentNode;
+        r.parentNode.removeChild(r);
 
-    return false;
-}
+        return false;
+    }
 
-function imoneza_remove_tier(t) {
-    var r = t.parentNode.parentNode;
-    r.parentNode.removeChild(r);
 
-    return false;
-}
+    $(document).ready(function(){
+        imoneza_update_display();
+    });
+
 </script>

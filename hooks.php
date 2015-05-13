@@ -10,7 +10,8 @@ function imoneza_help($path, $arg){
 }
  
 function imoneza_form_alter(&$form, $form_state, $form_id){
-	if (strcmp($form_id, "article_node_form") == 0){
+
+	if (strcmp($form_id, "article_node_form") == 0 || strcmp($form_id, "page_node_form") == 0){
         $admin = variable_get("imoneza_admin", new iMoneza_Admin());
         $admin->render_imoneza_meta_box($form, $form_state);
     }
