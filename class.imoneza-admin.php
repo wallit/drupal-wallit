@@ -340,31 +340,6 @@ class iMoneza_Admin {
 
     function imoneza_save_meta_box_data($post_id) {
 
-	    /*
-	     * We need to verify this came from our screen and with proper authorization,
-	     * because the save_post action can be triggered at other times.
-	     */
-
-	    // Check if our nonce is set.
-	    if (!isset($_POST['imoneza_meta_box_nonce']))
-		    return;
-
-	    // Verify that the nonce is valid.
-	    if (!wp_verify_nonce($_POST['imoneza_meta_box_nonce'], 'imoneza_meta_box'))
-		    return;
-
-	    // If this is an autosave, our form has not been submitted, so we don't want to do anything.
-	    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE)
-		    return;
-
-        // AJAX? Not used here
-        if (defined('DOING_AJAX') && DOING_AJAX)
-            return;
-
-        // Return if it's a post revision
-        if (false !== wp_is_post_revision($post_id))
-            return;
-
 	    // Check the user's permissions.
 	    if (isset($_POST['post_type']) && 'page' == $_POST['post_type']) {
 		    if (!current_user_can('edit_page', $post_id))
@@ -443,8 +418,21 @@ class iMoneza_Admin {
     public function create_admin_page()
     {
 
+
         $form = array();
         $options = variable_get("imoneza_options", array());
+        if ($options["imoneza_node_types"] == "0"){
+            $options["imoneza_node_types"] = array();
+        }
+        if (count($options) == 0){
+            $options['imoneza_ra_api_key_access'] =  "";
+            $options['imoneza_ra_api_key_secret'] = "";
+            $options['imoneza_rm_api_key_access'] = "";
+            $options['imoneza_rm_api_key_secret'] = "";
+            $options['imoneza_nodynamic'] = "0";
+            $options['imoneza_access_control'] = 0;
+            $options['imoneza_node_types'] = array();
+        }
         $form['imoneza_ra_api_key_access'] = array(
             '#type' => 'textfield',
             '#title' => t('Resource Access Key'),
@@ -520,7 +508,7 @@ class iMoneza_Admin {
         $form['imoneza_node_types'] = array(
             "#type" => "checkboxes",
             "#options" => $nodeOptions,
-            //"#default_value" => $options['imoneza_node_types'],
+            "#default_value" => $options['imoneza_node_types'],
             "#title" => "Node Types",
             "#description" => "Use this to select which node types you want iMoneza to control"
         );
@@ -532,6 +520,7 @@ class iMoneza_Admin {
 
         $form["#submit"][] = array($this, "imoneza_save_config");
 
+
         return $form;
 
     }
@@ -539,8 +528,10 @@ class iMoneza_Admin {
     public function imoneza_save_config($form, &$form_state){
 
         $options = array();
-        echo "sanitizing input";
-        $sanitizedInput = $this->sanitize($form_state['values']);
+
+
+        $sanitizedInput = $this->sanitize($form_state['values']);//$form_state['values'];
+
         $options['imoneza_ra_api_key_access'] =  $sanitizedInput['imoneza_ra_api_key_access'];
         $options['imoneza_ra_api_key_secret'] = $sanitizedInput["imoneza_ra_api_key_secret"];
         $options['imoneza_rm_api_key_access'] = $sanitizedInput["imoneza_rm_api_key_access"];
@@ -561,6 +552,7 @@ class iMoneza_Admin {
      */
     public function sanitize( $input )
     {
+
         $new_input = array();
 
         if (isset($input['imoneza_rm_api_key_access']))
@@ -586,14 +578,11 @@ class iMoneza_Admin {
         if (isset($input['imoneza_access_control']))
             $new_input['imoneza_access_control'] = check_plain($input['imoneza_access_control']);
 
-        echo "BLAH";
-        var_dump($input['imoneza_node_types']);
         if (isset($input['imoneza_node_types'])){
-            echo "node types";
-            var_dump($input['imoneza_node_types']);
+
             $types = array();
-            foreach($input['imoneza_node_types'] as $nodeType){
-                $types = check_plain($nodeType);
+            foreach($input['imoneza_node_types'] as $key => $val){
+                $types[check_plain($key)] = check_plain($val);
             }
 
             $new_input['imoneza_node_types'] = $types;

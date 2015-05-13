@@ -10,5 +10,6 @@ function read_file_contents($file){
     ob_start();
     include $file;
     $retVal = ob_get_clean();
+    ob_end_clean();
     return  $retVal;
 }
