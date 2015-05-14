@@ -2,28 +2,40 @@
     
 class iMoneza {
 	private $options;
+    public $doClientSideAuth = false;
+    public $doServerSideAuth = false;
+    public $doDynamic = false;
 
     public function __construct()
     {
-        $this->options = array();
+        $this->options = variable_get("imoneza_options", array());
 
-        // if (isset(variable_get("imoneza_ra_api_key_access")))
+        if (isset($options["imoneza_ra_api_key_access"])){
+            // If there's an Access API access key, and we're using client-side access control, create the JavaScript snippet
+            if (isset($this->options['ra_api_key_access']) && $this->options['ra_api_key_access'] != '' && (!isset($this->options['access_control']) || $this->options['access_control'] == 'JS')) {
+                $this->doClientSideAuth = true;
+            }
 
-        // // If there's an Access API access key, and we're using client-side access control, create the JavaScript snippet
-        // if (isset($this->options['ra_api_key_access']) && $this->options['ra_api_key_access'] != '' && (!isset($this->options['access_control']) || $this->options['access_control'] == 'JS')) {
-        //     add_action('wp_head', array($this, 'create_snippet'));
-        // }
+            // If 'no_dynamic' isn't set, then make sure we add the dynamic resource creation block to every page
+            if (!isset($this->options['no_dynamic']) || $this->options['no_dynamic'] != '1') {
+                $this->doDynamic = true;
+            }
 
-        // // If 'no_dynamic' isn't set, then make sure we add the dynamic resource creation block to every page
-        // if (!isset($this->options['no_dynamic']) || $this->options['no_dynamic'] != '1') {
-        //     add_action('wp_head', array($this, 'create_dynamic'));
-        // }
+            // Perform server-side access control
+            if (isset($this->options['ra_api_key_secret']) && $this->options['ra_api_key_secret'] != '' && isset($this->options['access_control']) && $this->options['access_control'] == 'SS') {
+                $this->doServerSideAuth = true;
+            }
+        }
+    }
 
-        // // Perform server-side access control
-        // if (isset($this->options['ra_api_key_secret']) && $this->options['ra_api_key_secret'] != '' && isset($this->options['access_control']) && $this->options['access_control'] == 'SS') {
-        //     add_action('template_redirect', array($this, 'imoneza_template_redirect'));
-        //     add_action('wp_head', array($this, 'create_reference'));
-        // }
+    public function is_imoneza_managed_node($node){
+
+        if (is_array($this->options['imoneza_node_types'])){
+            return in_array($node->type, $this->options['imoneza_node_types']);
+        }else{
+            return $node->type == $this->options['imoneza_node_types'];
+        }
+
     }
 
     public function imoneza_template_redirect($node)
@@ -87,13 +99,13 @@ class iMoneza {
     }
 
     // Adds the iMoneza JavaScript snippet to the HTML head of a page
-    public function create_snippet()
+    public function create_snippet($node)
     {
         $public_api_key = $this->options['ra_api_key_access'];
-        $resourceValues = $this->get_resource_values();
+        $resourceValues = $this->get_resource_values($node);
 
         if ($resourceValues['key'] != '') {
-            echo '
+            $output = '
                 <script src="' . IMONEZA__RA_UI_URL . '/assets/imoneza.js"></script>
                 <script type="text/javascript">
                     iMoneza.ResourceAccess.init({
@@ -102,6 +114,10 @@ class iMoneza {
                     });
                 </script>
             ';
+
+            return $output;
+        }else{
+            return '';
         }
     }
 
@@ -112,9 +128,9 @@ class iMoneza {
     }
 
     // Adds the dynamic resource creation block to the HTML head of a page
-    public function create_dynamic()
+    public function create_dynamic($node)
     {
-        $resourceValues = $this->get_resource_values();
+        $resourceValues = $this->get_resource_values($node);
 
         if ($resourceValues['key'] != '') {
             echo '

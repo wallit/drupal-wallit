@@ -323,6 +323,7 @@ class iMoneza_Admin {
 
 
             $form["#submit"][] = array($this, "save_meta_box_data");
+            var_dump($form);
 
         } catch (Exception $e) {
             $form['imoneza']["imoneza_error"] = array(
@@ -332,16 +333,18 @@ class iMoneza_Admin {
     }
 
     function save_meta_box_data($form, $form_state) {
-
-        var_dump($form_state);
-
 	    // Check the user's permissions.
-	    if (user_access("edit any [content-type] content")){
-            //good to go
+	    if (!user_access("edit any ".$form["#node"]->type." content")){
+            //no permission to be here
+            return;
         }
 
-        if ($_POST['imoneza_isManaged'] != '1') {
-            if ($_POST['imoneza_isManaged_original'] == '1') {
+        $post_id = $form["#node"]->nid;
+
+        $values = &$form_state["values"];
+
+        if ($values['imoneza_isManaged'] != '1') {
+            if ($values['imoneza_isManaged_original'] == '1') {
                 // user unchecked the box for iMoneza to manage the resource
                 $resourceManagement = new iMoneza_ResourceManagement();
                 $data = array(
@@ -360,27 +363,27 @@ class iMoneza_Admin {
         $data = array(
             'ExternalKey' => $post_id,
             'Active' => 1,
-            'Name' => sanitize_text_field($_POST['imoneza_name']),
-            'Title' => sanitize_text_field($_POST['imoneza_title']),
-            'Byline' => sanitize_text_field($_POST['imoneza_byline']),
-            'Description' => sanitize_text_field($_POST['imoneza_description']),
-            'URL' => get_permalink($post_id),
-            'PublicationDate' => get_the_time('c', $post_id),
-            'PricingGroup' => array('PricingGroupID' => sanitize_text_field($_POST['imoneza_pricingGroup'])),
-            'PricingModel' => sanitize_text_field($_POST['imoneza_pricingModel'])
+            'Name' => check_plain($values['imoneza_name']),
+            'Title' => check_plain($values['imoneza_title']),
+            'Byline' => check_plain($values['imoneza_byline']),
+            'Description' => check_plain($values['imoneza_description']),
+            'URL' => url("node/".$post_id),
+            'PublicationDate' => $form["#node"]->date,
+            'PricingGroup' => array('PricingGroupID' => check_plain($values['imoneza_pricingGroup'])),
+            'PricingModel' => check_plain($values['imoneza_pricingModel'])
         );
 
-        if ($_POST['imoneza_pricingModel'] == 'FixedPrice' || $_POST['imoneza_pricingModel'] == 'VariablePrice') {
-            $data['Price'] = sanitize_text_field($_POST['imoneza_price']);
-            $data['ExpirationPeriodUnit'] = sanitize_text_field($_POST['imoneza_expirationPeriodUnit']);
-            if ($_POST['imoneza_expirationPeriodUnit'] != 'Never')
-                $data['ExpirationPeriodValue'] = sanitize_text_field($_POST['imoneza_expirationPeriodValue']);
+        if ($values['imoneza_pricingModel'] == 'FixedPrice' || $values['imoneza_pricingModel'] == 'VariablePrice') {
+            $data['Price'] = check_plain($values['imoneza_price']);
+            $data['ExpirationPeriodUnit'] = check_plain($values['imoneza_expirationPeriodUnit']);
+            if ($values['imoneza_expirationPeriodUnit'] != 'Never')
+                $data['ExpirationPeriodValue'] = check_plain($values['imoneza_expirationPeriodValue']);
         }
 
-        if ($_POST['imoneza_pricingModel'] == 'ViewTiered' || $_POST['imoneza_pricingModel'] == 'TimeTiered') {
-            $tiers = $_POST['imoneza_tier'];
-            $prices = $_POST['imoneza_tier_price'];
-            $multiplier = $_POST['imoneza_tier_price_multiplier'];
+        if ($values['imoneza_pricingModel'] == 'ViewTiered' || $values['imoneza_pricingModel'] == 'TimeTiered') {
+            $tiers = $values['imoneza_tier'];
+            $prices = $values['imoneza_tier_price'];
+            $multiplier = $values['imoneza_tier_price_multiplier'];
             $vals = array();
             for ($i = 0; $i < count($tiers); ++$i)
                 $vals[] = array('Tier' => $tiers[$i] * (isset($multiplier) ? $multiplier[$i] : 1), 'Price' => $prices[$i]);
@@ -617,135 +620,11 @@ class iMoneza_Admin {
 
     public function setUpdatedNotice($notice) {
 
-        $_SESSION['iMoneza_UpdatedNotice'] = $notice;
+        drupal_set_message($notice, "status");
     }
 
     public function setErrorNotice($notice) {
 
-        $_SESSION['iMoneza_ErrorNotice'] = $notice;
-    }
-
-    public function admin_notices() {
-        if (isset($_SESSION['iMoneza_UpdatedNotice']) && $_SESSION['iMoneza_UpdatedNotice'] != '') {
-            ?>
-            <div class="updated">
-                <p><?= $_SESSION['iMoneza_UpdatedNotice'] ?></p>
-            </div>
-            <?php
-            unset($_SESSION['iMoneza_UpdatedNotice']);
-        }
-        if (isset($_SESSION['iMoneza_ErrorNotice']) && $_SESSION['iMoneza_ErrorNotice'] != '') {
-            ?>
-            <div class="error">
-                <p><?= $_SESSION['iMoneza_ErrorNotice'] ?></p>
-            </div>
-            <?php
-            unset($_SESSION['iMoneza_ErrorNotice']);
-        }
-    }
-
-    /** 
-     * Print the Section text
-     */
-    public function print_section_info_ra_api()
-    {
-        print 'You must provide a Resource Access API access key and secret key.';
-    }
-
-    public function print_section_info_rm_api()
-    {
-        print 'You must provide a Resource Management API access key and secret key. Note that these two keys should be different from the Resource Access API access key and secret key.';
-    }
-
-    public function print_section_info_dynamic_resource_creation()
-    {
-        print 'Dynamic resource creation allows pages on your site to be added to iMoneza automatically when users first hit them. To use this feature, make sure the checkbox below is unchecked and that you\'ve checked "Dynamically Create Resources" on the <a href="https://manageui.imoneza.com/Property/Edit#tab_advanced">Property Settings</a> page.';
-    }
-
-    public function print_section_info_access_control()
-    {
-        print 'The access control method specifies how your site will communicate with iMoneza, determine if a user has access to the resource they\'re trying to access, and display the paywall if needed.' .
-               '<ul>' .
-               '<li><strong>None:</strong> No access control is enforced. Visitors to your site will not interact with iMoneza and will never see a paywall. Essentially, iMoneza won\'t be used on your site.</li>' .
-               '<li><strong>Client-side:</strong> The JavaScript Library is run in your users\'s web browsers. You can set whether the paywall appears in a modal window or not on the <a href="https://manageui.imoneza.com/Property/Edit#tab_paywall">Property Settings</a> page.</li>' .
-               '<li><strong>Server-side:</strong> User access is verified on your web server. This is more secure than the client-side approach. If you choose this option, you can also exclude certain user agents (like search engine bots) from being redirected to the paywall.</li>' .
-               '</ul>' .
-               '<p>If you specify user agents to exclude, you can specify one user agent per line.</p>';
-    }
-
-    public function print_section_info_help()
-    {
-        print 'The <a href="https://www.imoneza.com/wordpress-plugin/" target="_blank">iMoneza website</a> has additional information about these settings.';
-        print '<script>' .
-               'function imoneza_update_controls() {' .
-               '  document.getElementById("access_control_excluded_user_agents").disabled = !document.getElementById("access_control_ss").checked; ' .
-               '} ' .
-               'imoneza_update_controls(); ' .
-               '</script>';
-
-    }
-
-    public function ra_api_key_access_callback()
-    {
-        printf(
-            '<input type="text" id="ra_api_key_access" name="imoneza_options[ra_api_key_access]" value="%s" />',
-            isset($this->options['ra_api_key_access']) ? esc_attr( $this->options['ra_api_key_access']) : ''
-        );
-    }
-
-    public function ra_api_key_secret_callback()
-    {
-        printf(
-            '<input type="text" id="ra_api_key_secret" name="imoneza_options[ra_api_key_secret]" value="%s" />',
-            isset($this->options['ra_api_key_secret']) ? esc_attr( $this->options['ra_api_key_secret']) : ''
-        );
-    }
-
-    public function rm_api_key_access_callback()
-    {
-        printf(
-            '<input type="text" id="rm_api_key_access" name="imoneza_options[rm_api_key_access]" value="%s" />',
-            isset($this->options['rm_api_key_access']) ? esc_attr( $this->options['rm_api_key_access']) : ''
-        );
-    }
-
-    public function rm_api_key_secret_callback()
-    {
-        printf(
-            '<input type="text" id="rm_api_key_secret" name="imoneza_options[rm_api_key_secret]" value="%s" />',
-            isset($this->options['rm_api_key_secret']) ? esc_attr( $this->options['rm_api_key_secret']) : ''
-        );
-    }
-
-    public function no_dynamic_callback()
-    {
-        printf(
-            '<input type="checkbox" id="no_dynamic" name="imoneza_options[no_dynamic]" value="1" %s/>',
-            isset($this->options['no_dynamic']) && $this->options['no_dynamic'] == '1' ? ' checked' : ''
-        );
-    }
-
-    public function access_control_callback()
-    {
-        printf(
-            '<input type="radio" id="access_control_none" name="imoneza_options[access_control]" value="None" onclick="imoneza_update_controls();" %s/><label for="access_control_none">None</label><br />',
-            isset($this->options['access_control']) && $this->options['access_control'] == 'None' ? ' checked' : ''
-        );
-        printf(
-            '<input type="radio" id="access_control_js" name="imoneza_options[access_control]" value="JS" onclick="imoneza_update_controls();" %s/><label for="access_control_js">Client-side (JavaScript Library)</label><br />',
-            isset($this->options['access_control']) && $this->options['access_control'] == 'JS' ? ' checked' : ''
-        );
-        printf(
-            '<input type="radio" id="access_control_ss" name="imoneza_options[access_control]" value="SS" onclick="imoneza_update_controls();" %s/><label for="access_control_ss">Server-side</label><br />',
-            isset($this->options['access_control']) && $this->options['access_control'] == 'SS' ? ' checked' : ''
-        );
-    }
-
-    public function access_control_excluded_user_agents_callback()
-    {
-        printf(
-            '<textarea id="access_control_excluded_user_agents" name="imoneza_options[access_control_excluded_user_agents]" rows="5" cols="80">%s</textarea>',
-            isset($this->options['access_control_excluded_user_agents']) ? esc_attr($this->options['access_control_excluded_user_agents']) : ''
-        );
+        drupal_set_message($notice, "error");
     }
 }
