@@ -15,7 +15,7 @@ class iMoneza_Admin {
     }
 
     public function render_form_javascript(){
-        return read_file_contents("post_form_js.html");
+        return read_file_contents("static/post_form_js.html");
     }
 
     public function render_imoneza_meta_box(&$form, $form_state)
