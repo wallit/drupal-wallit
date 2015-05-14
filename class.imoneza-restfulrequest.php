@@ -70,15 +70,18 @@ class iMoneza_RestfulRequest {
         ));
 
 
+        /*
+         * I believe we don't want to force an exception here as 404 is sometimes expected
+         */
 
-        if ($rawResponse->code < 200 || $rawResponse->code > 299) {
-            $exMessage = "An error occurred connecting to an iMoneza API. This may be a temporary connectivity issue; refresh the page to try again.";
-            if (IMONEZA__DEBUG) {
-                $exMessage .= "\r\n\r\nResponse: " . var_export($rawResponse, TRUE);
-            }
-
-            throw new Exception($exMessage);
-        }
+//        if ($rawResponse->code < 200 || $rawResponse->code > 299) {
+//            $exMessage = "An error occurred connecting to an iMoneza API. This may be a temporary connectivity issue; refresh the page to try again.";
+//            if (IMONEZA__DEBUG) {
+//                $exMessage .= "\r\n\r\nResponse: " . var_export($rawResponse, TRUE);
+//            }
+//
+//            throw new Exception($exMessage);
+//        }
 
         return $rawResponse;
     }

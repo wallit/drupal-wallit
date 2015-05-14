@@ -325,7 +325,7 @@ class iMoneza_Admin {
             $form["#submit"][] = array($this, "save_meta_box_data");
 
         } catch (Exception $e) {
-            $imonezaContainer["imoneza_error"] = array(
+            $form['imoneza']["imoneza_error"] = array(
                 "#markup" => t("An error has occurred: " . check_plain($e->getMessage()))
             );
         }
@@ -550,7 +550,7 @@ class iMoneza_Admin {
         $options = array();
 
 
-        $sanitizedInput = $this->sanitize($form_state['values']);//$form_state['values'];
+        $sanitizedInput = $this->sanitize($form_state['values']);
 
         $options['imoneza_ra_api_key_access'] =  $sanitizedInput['imoneza_ra_api_key_access'];
         $options['imoneza_ra_api_key_secret'] = $sanitizedInput["imoneza_ra_api_key_secret"];
