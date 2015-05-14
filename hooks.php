@@ -37,11 +37,40 @@ function imoneza_admin(){
 
 }
 
+/**
+ * <p>Primary hook for controlling whether iMoneza displays the paywall.</p>
+ *
+ * <p>Logic works like this:
+ * <ol>
+ *  <li>Determine how many nodes are being loaded that iMoneza manages</li>
+ *  <li>If there are more than one managed node on this page, or no managed
+ *      nodes on this page, default to open. The reason for this is because
+ *      the home page, searches, section home pages, etc. all load more than
+ *      one node. It will be up to the theme to make sure it only displays
+ *      content the publisher is comfortable giving away for free.</li>
+ *  <li>If the user requesting the node has the 'administer' role or has
+ *      privileges such that the user can edit the content in the node,
+ *      we allow them to view the content with the paywall</li>
+ *</ol>
+ * <p>
+ *  At this point, if we're going to show the paywall, we determine
+ *  whether to display the javascript paywall, or handle it server-side.
+ * </p>
+ * @param $nodes the nodes being loaded
+ * @param $types the types of the nodes being loaded, not used.
+ */
 function imoneza_node_load($nodes, $types){
     //check for resource access
-    //TODO do we want to run this if more than one node is displayed on the page?
 
-    if (count($nodes) > 1 || count($nodes) < 1){
+    $numManagedNodes = 0;
+
+    $imoneza = variable_get("imoneza", new iMoneza());
+
+    foreach ($nodes as $node){
+        if ($imoneza->is_imoneza_managed_node($node))
+            $numManagedNodes++;
+    }
+    if ($numManagedNodes > 1 || $numManagedNodes < 1){
         return;
         //For now, not executing on pages that contain multiple nodes
     }
@@ -52,15 +81,13 @@ function imoneza_node_load($nodes, $types){
         return;
     }
 
-    $imoneza = variable_get("imoneza", new iMoneza());
-
     drupal_add_js(IMONEZA__RA_UI_URL . "/assets/imoneza.js", "file");
 
     if ($imoneza->doDynamic){
         $imoneza->create_dynamic($node);
     }
 
-    if ($imoneza->is_imoneza_managed_node($node) && $imoneza->doServerSideAuth){
+    if ($imoneza->doServerSideAuth){
         $imoneza->imoneza_template_redirect($node);
     }else if ($imoneza->doClientSideAuth){
         drupal_add_js($imoneza->create_snippet($node), "inline");

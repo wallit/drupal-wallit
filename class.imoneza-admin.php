@@ -20,7 +20,7 @@ class iMoneza_Admin {
 
     public function render_imoneza_meta_box(&$form, $form_state)
     {
-        // Add an nonce field so we can check for it later.
+
         try {
 
             $form['imoneza'] = array(
@@ -33,12 +33,8 @@ class iMoneza_Admin {
 
             $post = $form_state["node"];
 
-
-
             //needed for multival
            // $form["#tree"] = TRUE;
-
-
 
             $resourceManagement = new iMoneza_ResourceManagement();
             if (isset($post) && isset($post->nid)){
@@ -118,7 +114,7 @@ class iMoneza_Admin {
                 )
             );
 
-            $form['imoneza']["imoneza_managed_hidden"] = array(
+            $form['imoneza']["imoneza_isManaged_original"] = array(
                 "#type" => "hidden",
                 "#id" => "imoneza_isManaged_original",
                 "#default_value" => $isManaged,
@@ -174,7 +170,7 @@ class iMoneza_Admin {
                 "#type" => "textarea",
                 "#default_value" => t(check_plain(isset($resource['Description']) ? $resource['Description'] : "")),
                 "#title" => "Description",
-                "#description" => t("A short description of the post. Defaults to the post's excerpt."),
+                "#description" => t("A short description of the post. Defaults to the post's summary."),
 
             );
 
@@ -323,7 +319,7 @@ class iMoneza_Admin {
 //            );
 
 
-            $form["#submit"][] = array($this, "save_meta_box_data");
+            $form["actions"]["submit"]["#submit"][] = array($this, "save_meta_box_data");
 
 
         } catch (Exception $e) {
@@ -340,7 +336,7 @@ class iMoneza_Admin {
             return;
         }
 
-        $post_id = $form["#node"]->nid;
+        $post_id = $form_state["nid"];
 
         $values = &$form_state["values"];
 
@@ -360,16 +356,20 @@ class iMoneza_Admin {
         }
 
 	    /* OK, it's safe for us to save the data now. */
-
+        $name = check_plain($values['imoneza_name']) == "" ? $values["title"] : check_plain($values['imoneza_name']);
+        $title = check_plain($values['imoneza_title']) == "" ? $values["title"] : check_plain($values['imoneza_title']);
+        //TODO figure out how to get the actual summary
+        //$description = check_plain($values['imoneza_description']) == "" ? $values["body[und][0][summary]"] : check_plain($values['imoneza_description']);
+        $description = check_plain($values['imoneza_description']);
         $data = array(
             'ExternalKey' => $post_id,
             'Active' => 1,
-            'Name' => check_plain($values['imoneza_name']),
-            'Title' => check_plain($values['imoneza_title']),
+            'Name' => $name,
+            'Title' => $title,
             'Byline' => check_plain($values['imoneza_byline']),
-            'Description' => check_plain($values['imoneza_description']),
+            'Description' => $description,
             'URL' => url("/node/".$post_id, array("absolute"=>true)),
-            'PublicationDate' => $form["#node"]->date,
+            'PublicationDate' => $values["date"] == "" ? date(DATE_ATOM) : $values("date"),
             'PricingGroup' => array('PricingGroupID' => check_plain($values['imoneza_pricingGroup'])),
             'PricingModel' => check_plain($values['imoneza_pricingModel'])
         );
@@ -401,19 +401,11 @@ class iMoneza_Admin {
         }
     }
 
-    public function add_plugin_page()
-    {
-        // This page will be under "Settings"
-        add_options_page('iMoneza', 'iMoneza', 'manage_options', 'imoneza-settings-admin', array( $this, 'create_admin_page' ));
-    }
-
     /**
      * Options page callback
      */
     public function create_admin_page()
     {
-
-
         $form = array();
         $options = variable_get("imoneza_options", array());
         if ($options["imoneza_node_types"] == "0"){
