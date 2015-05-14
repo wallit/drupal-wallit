@@ -21,7 +21,6 @@ class iMoneza {
                 $this->doDynamic = true;
             }
 
-            echo 'access control is '.$this->options['imoneza_access_control'];
             // Perform server-side access control
             if (isset($this->options['imoneza_ra_api_key_secret']) && $this->options['imoneza_ra_api_key_secret'] != '' && isset($this->options['imoneza_access_control']) && $this->options['imoneza_access_control'] == 2) {
                 $this->doServerSideAuth = true;
@@ -41,7 +40,6 @@ class iMoneza {
 
     public function imoneza_template_redirect($node)
     {
-        echo 'in template redirect';
         $resourceValues = $this->get_resource_values($node);
         if ($resourceValues['key'] == '')
             return;
@@ -52,7 +50,6 @@ class iMoneza {
 
     private function get_resource_values($node)
     {
-        global $base_url;
 
         $values = array();
         $values['key'] = $node->nid;
@@ -60,44 +57,8 @@ class iMoneza {
         $values['title'] = $node->title;
         $values['description'] = '';
         $values['publicationDate'] = '';
-        $values['url'] = url($base_url."/node/".$node->nid);
+        $values['url'] = url("/node/".$node->nid, array("absolute"=>true));
         
-//        if (is_page() || is_single()) {
-//            $this_post = get_post();
-//
-//            $values['key'] = $this_post->ID;
-//            $values['name'] = $this_post->post_title;
-//            $values['title'] = $this_post->post_title;
-//            $values['description'] = $this_post->post_excerpt;
-//            $values['publicationDate'] = $this_post->post_date;
-//            $values['url'] = get_permalink($this_post->ID);
-//        } else if (is_category()) {
-//            $cat = get_query_var('cat');
-//            $this_category = get_category($cat);
-//
-//            $values['key'] = 'Category-' . $this_category->cat_ID;
-//            $values['name'] = $this_category->cat_name;
-//            $values['title'] = $this_category->cat_name;
-//            $values['url'] = get_category_link($this_category->cat_ID);
-//        } else if (is_front_page()) {
-//            $values['key'] = 'FrontPage';
-//            $values['name'] = 'Front Page';
-//            $values['title'] = 'Front Page';
-//            $values['url'] = get_home_url();
-//        } else if (is_tag()) {
-//            $tag = get_query_var('tag');
-//            $this_tag = get_term_by('name', $tag, 'post_tag');
-//
-//            $values['key'] = 'Tag-' . $this_tag->term_id;
-//            $values['name'] = $this_tag->name;
-//            $values['title'] = $this_tag->name;
-//            $values['description'] = $this_tag->description;
-//            $values['url'] = get_term_link($this_tag->term_id);
-//        }
-
-        // Ignore archive pages
-        // Ignore feeds
-
         return $values;
     }
 

@@ -36,8 +36,6 @@ class iMoneza_ResourceAccess extends iMoneza_API {
                 };
                 $resourceAccessData = $this->getResourceAccessDataFromExternalKey($externalKey, $resourceURL, $userToken);
             }
-            var_dump($resourceAccessData);
-
             $userToken = $resourceAccessData['UserToken'];
             setcookie('iMonezaUT', $userToken, time() + $this->cookieExpiration);
 

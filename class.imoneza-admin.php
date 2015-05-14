@@ -361,7 +361,6 @@ class iMoneza_Admin {
 
 	    /* OK, it's safe for us to save the data now. */
 
-        global $base_url;
         $data = array(
             'ExternalKey' => $post_id,
             'Active' => 1,
@@ -369,7 +368,7 @@ class iMoneza_Admin {
             'Title' => check_plain($values['imoneza_title']),
             'Byline' => check_plain($values['imoneza_byline']),
             'Description' => check_plain($values['imoneza_description']),
-            'URL' => url($base_url."/node/".$post_id),
+            'URL' => url("/node/".$post_id, array("absolute"=>true)),
             'PublicationDate' => $form["#node"]->date,
             'PricingGroup' => array('PricingGroupID' => check_plain($values['imoneza_pricingGroup'])),
             'PricingModel' => check_plain($values['imoneza_pricingModel'])
