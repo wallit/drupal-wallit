@@ -57,13 +57,13 @@ function imoneza_node_load($nodes, $types){
     drupal_add_js(IMONEZA__RA_UI_URL . "/assets/imoneza.js", "file");
 
     if ($imoneza->doDynamic){
-        drupal_add_js($imoneza->create_dynamic($node), "inline");
+        $imoneza->create_dynamic($node);
     }
 
     if ($imoneza->is_imoneza_managed_node($node) && $imoneza->doServerSideAuth){
         $imoneza->imoneza_template_redirect($node);
     }else if ($imoneza->doClientSideAuth){
-        drupal_add_js($imoneza->create_dynamic($node), "inline");
+        drupal_add_js($imoneza->create_snippet($node), "inline");
     }else{
         //ignore it
         return;

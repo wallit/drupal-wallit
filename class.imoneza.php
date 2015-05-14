@@ -65,18 +65,15 @@ class iMoneza {
     // Adds the iMoneza JavaScript snippet to the HTML head of a page
     public function create_snippet($node)
     {
-        $public_api_key = $this->options['ra_api_key_access'];
+        $public_api_key = $this->options['imoneza_ra_api_key_access'];
         $resourceValues = $this->get_resource_values($node);
 
         if ($resourceValues['key'] != '') {
             $output = '
-                <script src="' . IMONEZA__RA_UI_URL . '/assets/imoneza.js"></script>
-                <script type="text/javascript">
-                    iMoneza.ResourceAccess.init({
-                        ApiKey: "' . $public_api_key . '",
-                        ResourceKey: "' . $resourceValues['key'] . '"
-                    });
-                </script>
+                iMoneza.ResourceAccess.init({
+                    ApiKey: "' . $public_api_key . '",
+                    ResourceKey: "' . $resourceValues['key'] . '"
+                });
             ';
 
             return $output;
@@ -85,28 +82,24 @@ class iMoneza {
         }
     }
 
-    // Adds the iMoneza JavaScript reference to the HTML head of a page
-    public function create_reference()
-    {
-        echo '<script src="' . IMONEZA__RA_UI_URL . '/assets/imoneza.js"></script>';
-    }
 
     // Adds the dynamic resource creation block to the HTML head of a page
     public function create_dynamic($node)
     {
         $resourceValues = $this->get_resource_values($node);
 
+
         if ($resourceValues['key'] != '') {
-            echo '
-                <script type="application/imoneza">
-                    <Resource>
-                        <Name>' . $resourceValues['name'] . '</Name>
-                        <Title>' . $resourceValues['title'] . '</Title>' .
-                        ($resourceValues['description'] == '' ? '' :  '<Description>' . $resourceValues['description'] . '</Description>') . 
-                        ($resourceValues['publicationDate'] == '' ? '' : '<PublicationDate>' . $resourceValues['publicationDate'] . '</PublicationDate>') .
-                    '</Resource>
-                </script>
-            ';
+
+            $output = '<script type="application/imoneza"><Resource><Name>' . $resourceValues['name'] . '</Name><Title>' . $resourceValues['title'] . '</Title>' .($resourceValues['description'] == '' ? '' :  '<Description>' . $resourceValues['description'] . '</Description>') .($resourceValues['publicationDate'] == '' ? '' : '<PublicationDate>' . $resourceValues['publicationDate'] . '</PublicationDate>') .'</Resource> </script>';
+
+            $imoneza_head = array(
+                "#tag" => "script",
+                "#type" => "markup",
+                "#markup" => $output
+            );
+
+            drupal_add_html_head($imoneza_head, "imoneza-dynamic-header");
         }
     }
 }
