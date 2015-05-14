@@ -106,7 +106,7 @@ class iMoneza_Admin {
             if (!$isManaged || ($resource['PricingModel'] != 'TimeTiered' && $resource['PricingModel'] != 'ViewTiered'))
                 $priceTierStyleAttr = ($priceStyleAttr == '' ? ' style="display:none;"' : $priceStyleAttr);
 
-            $form['imoneza']["imoneza_managed"] = array(
+            $form['imoneza']["imoneza_isManaged"] = array(
                 "#type" => "checkbox",
                 '#title' => t('Use iMoneza to manage access to this resource'),
                 '#default_value' => $isManaged,
@@ -323,7 +323,7 @@ class iMoneza_Admin {
 
 
             $form["#submit"][] = array($this, "save_meta_box_data");
-            var_dump($form);
+
 
         } catch (Exception $e) {
             $form['imoneza']["imoneza_error"] = array(
@@ -360,6 +360,7 @@ class iMoneza_Admin {
 
 	    /* OK, it's safe for us to save the data now. */
 
+        global $base_url;
         $data = array(
             'ExternalKey' => $post_id,
             'Active' => 1,
@@ -367,7 +368,7 @@ class iMoneza_Admin {
             'Title' => check_plain($values['imoneza_title']),
             'Byline' => check_plain($values['imoneza_byline']),
             'Description' => check_plain($values['imoneza_description']),
-            'URL' => url("node/".$post_id),
+            'URL' => url($base_url."/node/".$post_id),
             'PublicationDate' => $form["#node"]->date,
             'PricingGroup' => array('PricingGroupID' => check_plain($values['imoneza_pricingGroup'])),
             'PricingModel' => check_plain($values['imoneza_pricingModel'])
