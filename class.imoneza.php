@@ -10,19 +10,20 @@ class iMoneza {
     {
         $this->options = variable_get("imoneza_options", array());
 
-        if (isset($options["imoneza_ra_api_key_access"])){
+        if (isset($this->options["imoneza_ra_api_key_access"])){
             // If there's an Access API access key, and we're using client-side access control, create the JavaScript snippet
-            if (isset($this->options['ra_api_key_access']) && $this->options['ra_api_key_access'] != '' && (!isset($this->options['access_control']) || $this->options['access_control'] == 'JS')) {
+            if (isset($this->options['imoneza_ra_api_key_access']) && $this->options['imoneza_ra_api_key_access'] != '' && (!isset($this->options['imoneza_access_control']) || $this->options['imoneza_access_control'] == 1)) {
                 $this->doClientSideAuth = true;
             }
 
             // If 'no_dynamic' isn't set, then make sure we add the dynamic resource creation block to every page
-            if (!isset($this->options['no_dynamic']) || $this->options['no_dynamic'] != '1') {
+            if (!isset($this->options['imoneza_nodynamic']) || $this->options['imoneza_nodynamic'] != '1') {
                 $this->doDynamic = true;
             }
 
+            echo 'access control is '.$this->options['imoneza_access_control'];
             // Perform server-side access control
-            if (isset($this->options['ra_api_key_secret']) && $this->options['ra_api_key_secret'] != '' && isset($this->options['access_control']) && $this->options['access_control'] == 'SS') {
+            if (isset($this->options['imoneza_ra_api_key_secret']) && $this->options['imoneza_ra_api_key_secret'] != '' && isset($this->options['imoneza_access_control']) && $this->options['imoneza_access_control'] == 2) {
                 $this->doServerSideAuth = true;
             }
         }
@@ -40,6 +41,7 @@ class iMoneza {
 
     public function imoneza_template_redirect($node)
     {
+        echo 'in template redirect';
         $resourceValues = $this->get_resource_values($node);
         if ($resourceValues['key'] == '')
             return;
@@ -50,6 +52,7 @@ class iMoneza {
 
     private function get_resource_values($node)
     {
+        global $base_url;
 
         $values = array();
         $values['key'] = $node->nid;
@@ -57,7 +60,7 @@ class iMoneza {
         $values['title'] = $node->title;
         $values['description'] = '';
         $values['publicationDate'] = '';
-        $values['url'] = '';
+        $values['url'] = url($base_url."/node/".$node->nid);
         
 //        if (is_page() || is_single()) {
 //            $this_post = get_post();

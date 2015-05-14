@@ -6,9 +6,10 @@ class iMoneza_Admin {
     public function __construct()
     {
          $this->options = variable_get('imoneza_options');
-
-         // If Management API public and private keys are set, then add the iMoneza metabox
-         if (isset($this->options['rm_api_key_access']) && $this->options['rm_api_key_access'] != '' && isset($this->options['rm_api_key_secret']) && $this->options['rm_api_key_secret'] != '') {
+         if (isset($this->options['imoneza_rm_api_key_access'])
+                && $this->options['imoneza_rm_api_key_access'] != ''
+                && isset($this->options['imoneza_rm_api_key_secret'])
+                && $this->options['imoneza_rm_api_key_secret'] != '') {
              $this->ready = true;
          }
     }
