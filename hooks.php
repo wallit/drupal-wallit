@@ -31,7 +31,7 @@ function imoneza_menu(){
 }
 
 /**
- * <p>Hook that displays the admin configuratoin page for the iMoneza module.
+ * <p>Hook that displays the admin configuration page for the iMoneza module.
  *  Delegates to the iMoneza_Admin::create_admin_page() method.
  * </p>
  * @return $form corresponding to the admin form for configuring iMoneza
