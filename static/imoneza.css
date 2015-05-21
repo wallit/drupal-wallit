@@ -1,0 +1,22 @@
+.form-item-tier{
+    width: 30%;
+    display: inline-block;
+}
+
+.form-item-price {
+    width: 30% !important;
+    display: inline-block !important;
+}
+
+.tier-wrapper fieldset div div {
+    width: 30% !important;
+    display: inline-block !important;
+}
+
+.tier-wrapper select{
+    display: inline-block !important;
+}
+
+.tier-wrapper fieldset{
+    width:60%;
+}

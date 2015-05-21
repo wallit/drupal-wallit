@@ -12,7 +12,7 @@ define("SERVER_SIDE_ACCESS_CONTROL", 2);
 define('IMONEZA__RA_API_URL', 'https://accessapi.imoneza.com');
 define('IMONEZA__RM_API_URL', 'https://manageapi.imoneza.com');
 define('IMONEZA__RA_UI_URL', 'https://accessui.imoneza.com');
-define('IMONEZA__DEBUG', TRUE);
+define('IMONEZA__DEBUG', FALSE);
 
 require_once('b3_helpers.php');
 require_once('class.imoneza.php');
@@ -25,4 +25,6 @@ require_once("hooks.php");
 
 variable_set("imoneza", new iMoneza());
 variable_set("imoneza_admin", new iMoneza_Admin());
+
+
 

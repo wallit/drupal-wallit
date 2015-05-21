@@ -1,3 +1,5 @@
 name = iMoneza Drupal Plugin
 description = Provides CMS integration for the iMoneza system
 core = 7.x
+
+stylesheets[all][] = static/imoneza.css

@@ -1,5 +1,39 @@
 <script type="text/javascript">
     var $ = jQuery;
+
+    $(document).ready(function(){
+        $(".remove_button").click(function(event){
+            event.preventDefault();
+            if ($(".tier-wrapper").length == 1){
+                //don't allow removal of last tier
+                return false;
+            }
+            var row = this.parentNode.parentNode.parentNode;
+            this.parentNode.parentNode.parentNode.parentNode.removeChild(row);
+            return false;
+        });
+
+        $(".add_tier_btn").click(function(event){
+            event.preventDefault();
+            var element = $($(".tier-wrapper")[0]).clone(true, true);
+            var inputs = $(element).find("input,select");
+            var numInputs = $(".tier-wrapper select").length;
+            for (var i = 0; i < inputs.length; ++i) {
+                var item = inputs[i];
+                $(item).attr("name", $(item).attr("name").replace("[0]", "[" + numInputs + "]"));
+                $(item).attr("id", $(item).attr("id").replace("-0-", "-" + numInputs + "-"));
+            }
+            var addBtn = $(this).clone(true, true);
+            var parent = this.parentNode;
+
+            parent.removeChild(this.parentNode.lastChild);
+            $(element).appendTo(parent);
+            $(addBtn).appendTo(parent);
+            return false;
+        });
+
+        $("#edit-imoneza-pricingmodel").change(imoneza_update_display);
+    });
     function imoneza_update_display() {
 
 
@@ -23,7 +57,15 @@
             var epu = document.getElementById("edit-imoneza-expirationperiodunit");
             var expirationPeriodUnit = epu.options[epu.selectedIndex].value;
             imoneza_toggle_class(".imoneza_row_price_expiration", (selectedPricingModel == "FixedPrice" || selectedPricingModel == "VariablePrice") && (expirationPeriodUnit != "Never"));
+
+            if ($("#edit-imoneza-pricingmodel").val() === "TimeTiered"){
+                $(".tier-wrapper select").show();
+            }else{
+                $(".tier-wrapper select").hide();
+            }
         }
+
+
     }
 
     function imoneza_toggle_class(className, isVisible) {
@@ -44,16 +86,7 @@
             return false;
         }
 
-        var table = document.getElementById("edit-imoneza-tiers");
-        var row = table.insertRow(table.rows.length - 1);
-        var c0 = row.insertCell(0);
-        var c1 = row.insertCell(1);
-        var c2 = row.insertCell(2);
-        if (label == 'minutes')
-            label = '<select name="imoneza_tier_price_multiplier[]"><option value="1">minutes</option><option value="60">hours</option><option value="1440">days</option></select>';
-        c0.innerHTML = "<input type=\"text\" size=\"5\" name=\"imoneza_tier[]\" /> " + label;
-        c1.innerHTML = "<input type=\"text\" name=\"imoneza_tier_price[]\" />";
-        c2.innerHTML = "<a href=\"#\" onclick=\"return imoneza_remove_tier(this);\">Remove</a>";
+
 
         return false;
     }

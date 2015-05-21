@@ -34,7 +34,7 @@ class iMoneza_Admin {
             $post = $form_state["node"];
 
             //needed for multival
-           // $form["#tree"] = TRUE;
+            $form["#tree"] = TRUE;
 
             $resourceManagement = new iMoneza_ResourceManagement();
             if (isset($post) && isset($post->nid)){
@@ -219,6 +219,7 @@ class iMoneza_Admin {
                 "#title" => t("Pricing Model"),
                 "#attributes" => array(
                     "onchange" => "imoneza_update_display()",
+                    "id" => "edit-imoneza-pricingmodel"
                 ),
 
             );
@@ -263,6 +264,7 @@ class iMoneza_Admin {
                 "#title" => t("Expiration Period"),
                 "#attributes" => array(
                     "onchange" => "imoneza_update_display()",
+                    "id" => "edit-imoneza-expirationperiodunit"
 
                 ),
                 "#default_value" => $resource['ExpirationPeriodUnit'] = "Never"
@@ -291,32 +293,94 @@ class iMoneza_Admin {
 
             );
 
+            $tieredPricingContainer["imoneza_tiered_fieldset"] = array(
+                "#type" => "fieldset",
+                "#prefix" => '<div id="tiers-fieldset-wrapper">',
+                "#suffix" => "</div>"
+            );
 
-            //idk what to do with this
-            //$output .=  '<tr class="' . $rowClass . ' ' . $priceTierClass . '"' . $priceTierStyleAttr . '><td colspan="3"><table id="imoneza_tiers"><tbody><tr><th>Tier</th><th>Price</th></tr>';
-//            if (isset($resource['ResourcePricingTiers'])){
-//                foreach ($resource['ResourcePricingTiers'] as $tier) {
-//                    $label = ' views';
-//                    $value = $tier['Tier'];
-//                    if ($resource['PricingModel'] == 'TimeTiered') {
-//                        $label = 'minutes';
-//                        if ($value > 0 && $value % 1440 == 0) {
-//                            $label = 'days';
-//                            $value = $value / 1440;
-//                        } else if ($value > 0 && $value % 60 == 0) {
-//                            $label = 'hours';
-//                            $value = $value / 60;
-//                        }
-//
-//                        $label = '<select name="imoneza_tier_price_multiplier[]"><option value="1"' . ($label == 'minutes' ? ' selected' : '') . '>minutes</option><option value="60"' . ($label == 'hours' ? ' selected' : '') . '>hours</option><option value="1440"' . ($label == 'days' ? ' selected' : '') . '>days</option></select>';
-//                    }
-//                    $output .=  '<tr><td><input type="text" value="' . $value . '" name="imoneza_tier[]" size="5" />' . $label . '</td><td><input type="text" value="' . number_format($tier['Price'], 2) . '" name="imoneza_tier_price[]" /></td><td>' . ($tier['Tier'] > 0 ? '<a href="#" onclick="return imoneza_remove_tier(this);">Remove Tier</a>' : '') . '</td></tr>';
-//                }
-//            }
-//
-//            $form['imoneza']["imoneza_addTier"] = array(
-//                "#markup" => "<a href=\"#\" onclick=\"return imoneza_add_tier();\">Add Tier</a>"
-//            );
+            $fieldset = &$tieredPricingContainer["imoneza_tiered_fieldset"];
+
+            if (isset($resource['ResourcePricingTiers']) && is_array($resource['ResourcePricingTiers'])){
+                $form_state["imoneza_num_tiers"] = count($resource['ResourcePricingTiers']);
+                for($i = 0; $i < count($resource['ResourcePricingTiers']); $i++){
+                    $fieldset[$i] = array(
+                        "#type" => "fieldset",
+                        "#prefix" => '<div class="tier-wrapper">',
+                        "#suffix" => "</div>"
+                    );
+
+                    $wrapper = &$fieldset[$i];
+                    $wrapper["tier"] = array(
+                        "#type" => "textfield",
+                        "#default_value" => $resource['ResourcePricingTiers'][$i]["Tier"]
+                    );
+                    $options = array(
+                        "minutes" => "minutes",
+                        "hours" => "hours",
+                        "days" => "days"
+                    );
+                    $wrapper["scale_val"] = array(
+                        "#type" => "select",
+                        "#options" => $options,
+                        "#attributes" => array(
+                            "class" => array(
+                                "time_scale_selector"
+                            )
+                        )
+                    );
+                    $wrapper["price"] = array(
+                        "#type" => "textfield",
+                        "#default_value" => $resource['ResourcePricingTiers'][$i]["Price"]
+                    );
+
+                    if ($i == 0){
+                        $wrapper["tier"]["#title"] = t("Value");
+                        $wrapper["price"]["#title"] = t("Price");
+                    }
+
+                    $wrapper['remove'] = array(
+                        "#type" => "button",
+
+                        "#value" => t("Remove"),
+                        "#attributes" => array(
+                            "class" => array(
+                                "remove_button"
+                            )
+                        )
+
+                    );
+
+                }
+            }else {
+                if (!isset($form_state["imoneza_num_tiers"])){
+                    $form_state["imoneza_num_tiers"] = 1;
+                }
+
+                for($i = 0; $i < $form_state["imoneza_num_tiers"]; $i++){
+                    $fieldset[$i] = array();
+                    $fieldset[$i]["tier"] = array(
+                        "#type" => "textfield",
+                        "#title" => t("Value"),
+                    );
+                    $fieldset[$i]["price"] = array(
+                        "#type" => "textfield",
+                        "#title" => t("Price"),
+                    );
+                }
+            }
+
+            $fieldset["imoneza_add_tier"] = array(
+                "#type" => "button",
+                "#value" => t("Add Tier"),
+                "#attributes" => array(
+                    "class" => array(
+                        "add_tier_btn"
+                    )
+                ),
+
+
+            );
 
 
             $form["actions"]["submit"]["#submit"][] = array($this, "save_meta_box_data");
@@ -338,7 +402,7 @@ class iMoneza_Admin {
 
         $post_id = $form_state["nid"];
 
-        $values = &$form_state["values"];
+        $values = &$form_state["values"]["imoneza"];
 
         if ($values['imoneza_isManaged'] != '1') {
             if ($values['imoneza_isManaged_original'] == '1') {
@@ -355,12 +419,16 @@ class iMoneza_Admin {
             return;
         }
 
+        $values = &$values["imoneza_meta_container"];
+
+
 	    /* OK, it's safe for us to save the data now. */
         $name = check_plain($values['imoneza_name']) == "" ? $values["title"] : check_plain($values['imoneza_name']);
         $title = check_plain($values['imoneza_title']) == "" ? $values["title"] : check_plain($values['imoneza_title']);
         //TODO figure out how to get the actual summary
         //$description = check_plain($values['imoneza_description']) == "" ? $values["body[und][0][summary]"] : check_plain($values['imoneza_description']);
         $description = check_plain($values['imoneza_description']);
+        error_log(print_r($_POST, true));
         $data = array(
             'ExternalKey' => $post_id,
             'Active' => 1,
@@ -369,7 +437,7 @@ class iMoneza_Admin {
             'Byline' => check_plain($values['imoneza_byline']),
             'Description' => $description,
             'URL' => url("/node/".$post_id, array("absolute"=>true)),
-            'PublicationDate' => $values["date"] == "" ? date(DATE_ATOM) : $values("date"),
+            'PublicationDate' => $form_state["values"]["created"] == "" ? date(DATE_ATOM) : date(DATE_ATOM, $form_state["values"]["created"]),
             'PricingGroup' => array('PricingGroupID' => check_plain($values['imoneza_pricingGroup'])),
             'PricingModel' => check_plain($values['imoneza_pricingModel'])
         );
@@ -382,12 +450,21 @@ class iMoneza_Admin {
         }
 
         if ($values['imoneza_pricingModel'] == 'ViewTiered' || $values['imoneza_pricingModel'] == 'TimeTiered') {
-            $tiers = $values['imoneza_tier'];
-            $prices = $values['imoneza_tier_price'];
-            $multiplier = $values['imoneza_tier_price_multiplier'];
+            $tiers = $_POST["imoneza"]["imoneza_meta_container"]["imoneza_tiered_pricing_container"]["imoneza_tiered_fieldset"];
+            $doMultiply = $values['imoneza_pricingModel'] == 'TimeTiered';
+
             $vals = array();
-            for ($i = 0; $i < count($tiers); ++$i)
-                $vals[] = array('Tier' => $tiers[$i] * (isset($multiplier) ? $multiplier[$i] : 1), 'Price' => $prices[$i]);
+            for ($i = 0; $i < count($tiers); ++$i) {
+                $multiplier = 1;
+                if ($doMultiply) {
+                    if ($tiers[$i]["scale_val"] == "hours") {
+                        $multiplier = 60;
+                    }else if ($tiers[$i]["scale_val"] == "days"){
+                        $multiplier = 1440;
+                    }
+                }
+                $vals[] = array('Tier' => $tiers[$i]["tier"] * ($multiplier), 'Price' => $tiers[$i]["price"]);
+            }
 
             $data['ResourcePricingTiers'] = $vals;
         }
