@@ -345,14 +345,19 @@ class iMoneza_Admin {
                             )
                         ),
                         "#default_value" => $scalingFactor,
-                        "#suffix" => "<br />"
+                        "#prefix" => '<div class="tier-selector-wrapper">',
+                        "#suffix" => "</div>"
+                    );
+                    $wrapper["view_text"] = array(
+                        "#markup" => '<div class="view_text">views</div>'
                     );
                     $wrapper["price"] = array(
                         "#type" => "textfield",
-                        "#default_value" => $resource['ResourcePricingTiers'][$i]["Price"]
+                        "#default_value" => $resource['ResourcePricingTiers'][$i]["Price"],
+                        "#prefix" => "<br />"
                     );
 
-                    $wrapper["tier"]["#title"] = t("Tier");
+                    $wrapper["tier"]["#title"] = t("Tier &nbsp;");
                     $wrapper["price"]["#title"] = t("Price");
 
                     $wrapper['remove'] = array(

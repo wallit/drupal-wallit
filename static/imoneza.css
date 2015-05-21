@@ -1,10 +1,6 @@
 
-.tier-wrapper fieldset div div {
-   display: inline-block !important;
-}
-
 .tier-wrapper select{
-    display: inline-block !important;
+    display: inline-block;
 }
 
 .tier-wrapper input[type=text] {
@@ -17,4 +13,12 @@
 
 #tiers-fieldset-wrapper{
     width:100%;
+}
+
+.view_text{
+    display:inline-block;
+}
+
+.tier-selector-wrapper{
+    margin-bottom: 10px;
 }

@@ -59,9 +59,11 @@
             imoneza_toggle_class(".imoneza_row_price_expiration", (selectedPricingModel == "FixedPrice" || selectedPricingModel == "VariablePrice") && (expirationPeriodUnit != "Never"));
 
             if ($("#edit-imoneza-pricingmodel").val() === "TimeTiered"){
-                $(".tier-wrapper select").show();
+                $(".tier-selector-wrapper").show();
+                $(".view_text").hide();
             }else{
-                $(".tier-wrapper select").hide();
+                $(".tier-selector-wrapper").hide();
+                $(".view_text").show();
             }
         }
 
