@@ -60,8 +60,10 @@ class iMoneza_Admin {
 
             if (!$isManaged) {
                 $property = $resourceManagement->getProperty();
+                $form["imoneza"]["#description"] = t("Not managed by iMoneza");
             } else {
                 $property = $resource['Property'];
+                $form["imoneza"]["#description"] = t("Managed by iMoneza");
             }
 
             if (IMONEZA__DEBUG) {
@@ -288,13 +290,10 @@ class iMoneza_Admin {
 
             $tieredPricingContainer = &$imonezaContainer["imoneza_tiered_pricing_container"];
 
-            $tieredPricingContainer["imoneza_tierd_header"] = array(
-                "#markup" => "<strong>Pricing Tiers</strong><br /><small>You must have at least one tier, and there must be one tier of 0 minutes or 0 views.</small>",
-
-            );
-
             $tieredPricingContainer["imoneza_tiered_fieldset"] = array(
                 "#type" => "fieldset",
+                "#title" => "Pricing Tiers",
+                "#description" => "You must have at least one tier, and there must be one tier of 0 minutes or 0 views.",
                 "#prefix" => '<div id="tiers-fieldset-wrapper">',
                 "#suffix" => "</div>"
             );
@@ -306,14 +305,31 @@ class iMoneza_Admin {
                 for($i = 0; $i < count($resource['ResourcePricingTiers']); $i++){
                     $fieldset[$i] = array(
                         "#type" => "fieldset",
+
                         "#prefix" => '<div class="tier-wrapper">',
-                        "#suffix" => "</div>"
+                        "#suffix" => "</div>",
+                        "#attributes" => array(
+                            "class" => array('container-inline')
+                        )
+
                     );
 
                     $wrapper = &$fieldset[$i];
+
+                    $scalingFactor = "minutes";
+                    $tierVal = $resource['ResourcePricingTiers'][$i]["Tier"];
+                    if ($resource['ResourcePricingTiers'][$i]["Tier"] > 60){
+                        $scalingFactor = "hours";
+                        $tierVal = $resource['ResourcePricingTiers'][$i]["Tier"]/60.0;
+                    }
+
+                    if ($resource['ResourcePricingTiers'][$i]["Tier"] > 1440){
+                        $scalingFactor = "days";
+                        $tierVal = $resource['ResourcePricingTiers'][$i]["Tier"] /1440.0;
+                    }
                     $wrapper["tier"] = array(
                         "#type" => "textfield",
-                        "#default_value" => $resource['ResourcePricingTiers'][$i]["Tier"]
+                        "#default_value" => $tierVal
                     );
                     $options = array(
                         "minutes" => "minutes",
@@ -327,17 +343,17 @@ class iMoneza_Admin {
                             "class" => array(
                                 "time_scale_selector"
                             )
-                        )
+                        ),
+                        "#default_value" => $scalingFactor,
+                        "#suffix" => "<br />"
                     );
                     $wrapper["price"] = array(
                         "#type" => "textfield",
                         "#default_value" => $resource['ResourcePricingTiers'][$i]["Price"]
                     );
 
-                    if ($i == 0){
-                        $wrapper["tier"]["#title"] = t("Value");
-                        $wrapper["price"]["#title"] = t("Price");
-                    }
+                    $wrapper["tier"]["#title"] = t("Tier");
+                    $wrapper["price"]["#title"] = t("Price");
 
                     $wrapper['remove'] = array(
                         "#type" => "button",
