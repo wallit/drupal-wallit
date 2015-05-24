@@ -172,7 +172,7 @@ class iMoneza_Admin {
                 "#type" => "textarea",
                 "#default_value" => t(check_plain(isset($resource['Description']) ? $resource['Description'] : "")),
                 "#title" => "Description",
-                "#description" => t("A short description of the post. Defaults to the post's summary."),
+                "#description" => t("A short description of the post. Defaults to the first 100 words."),
 
             );
 
@@ -421,6 +421,8 @@ class iMoneza_Admin {
             return;
         }
 
+
+
         $post_id = $form_state["nid"];
 
         $values = &$form_state["values"]["imoneza"];
@@ -444,12 +446,14 @@ class iMoneza_Admin {
 
 
 	    /* OK, it's safe for us to save the data now. */
-        $name = check_plain($values['imoneza_name']) == "" ? $values["title"] : check_plain($values['imoneza_name']);
-        $title = check_plain($values['imoneza_title']) == "" ? $values["title"] : check_plain($values['imoneza_title']);
+        $name = check_plain($values['imoneza_name']) == "" ? $form_state["values"]["title"] : check_plain($values['imoneza_name']);
+        $title = check_plain($values['imoneza_title']) == "" ? $form_state["values"]["title"] : check_plain($values['imoneza_title']);
         //TODO figure out how to get the actual summary
-        //$description = check_plain($values['imoneza_description']) == "" ? $values["body[und][0][summary]"] : check_plain($values['imoneza_description']);
         $description = check_plain($values['imoneza_description']);
-        error_log(print_r($_POST, true));
+        if ($description == ""){
+            $description = implode(" ", array_slice(explode(" ",$form_state["values"]["body"]["und"]["0"]["value"]), 0, 100));
+        }
+
         $data = array(
             'ExternalKey' => $post_id,
             'Active' => 1,
