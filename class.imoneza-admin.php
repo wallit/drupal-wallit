@@ -451,7 +451,7 @@ class iMoneza_Admin {
         //TODO figure out how to get the actual summary
         $description = check_plain($values['imoneza_description']);
         if ($description == ""){
-            $description = implode(" ", array_slice(explode(" ",$form_state["values"]["body"]["und"]["0"]["value"]), 0, 100));
+            $description = implode(" ", array_slice(explode(" ",$form_state["values"]["body"]["und"]["0"]["value"]), 0, 100))."...";
         }
 
         $data = array(
