@@ -101,6 +101,7 @@ function imoneza_node_load($nodes, $types){
         $imoneza->create_dynamic($node);
     }
 
+    echo "do server side auth is ".$imoneza->doServerSideAuth;
     if ($imoneza->doServerSideAuth){
         $imoneza->imoneza_template_redirect($node);
     }else if ($imoneza->doClientSideAuth){
