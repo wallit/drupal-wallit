@@ -41,8 +41,12 @@ class iMoneza {
     public function imoneza_template_redirect($node)
     {
         $resourceValues = $this->get_resource_values($node);
-        if ($resourceValues['key'] == '')
+        if ($resourceValues['key'] == ''){
+            echo "key was empty";
             return;
+
+        }
+
 
         $resourceAccess = new iMoneza_ResourceAccess();
         $response = $resourceAccess->getResourceAccess($resourceValues['key'], $resourceValues['url']);

@@ -79,7 +79,6 @@ function imoneza_node_load($nodes, $types){
     $numManagedNodes = 0;
 
     $imoneza = variable_get("imoneza", new iMoneza());
-    var_dump($imoneza);
     foreach ($nodes as $node){
         if ($imoneza->is_imoneza_managed_node($node)){
             $numManagedNodes++;
@@ -105,7 +104,6 @@ function imoneza_node_load($nodes, $types){
     }
 
     if ($imoneza->doServerSideAuth){
-        echo "attempting redirect";
         $imoneza->imoneza_template_redirect($node);
     }else if ($imoneza->doClientSideAuth){
         drupal_add_js($imoneza->create_snippet($node), "inline");
