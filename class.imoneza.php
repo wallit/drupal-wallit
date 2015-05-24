@@ -42,7 +42,6 @@ class iMoneza {
     {
         $resourceValues = $this->get_resource_values($node);
         if ($resourceValues['key'] == ''){
-            echo "key was empty";
             return;
 
         }
