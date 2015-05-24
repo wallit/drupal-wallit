@@ -556,7 +556,7 @@ class iMoneza_Admin {
         $form['imoneza_rm_api_key_access'] = array(
             '#type' => 'textfield',
             '#title' => t('Access Key'),
-            '#default_value' => issert($options['imoneza_rm_api_key_access']) ? $options['imoneza_rm_api_key_access'] : "",
+            '#default_value' => isset($options['imoneza_rm_api_key_access']) ? $options['imoneza_rm_api_key_access'] : "",
             '#size' => 36,
             '#maxlength' => 100,
             '#description' => t("Resource Management API Access Key"),
