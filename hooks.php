@@ -80,15 +80,19 @@ function imoneza_node_load($nodes, $types){
 
     $imoneza = variable_get("imoneza", new iMoneza());
 
+
     foreach ($nodes as $node){
-        if ($imoneza->is_imoneza_managed_node($node))
+        if ($imoneza->is_imoneza_managed_node($node)){
             $numManagedNodes++;
+            $managedNode = $node;
+        }
+
     }
     if ($numManagedNodes > 1 || $numManagedNodes < 1){
         return;
         //For now, not executing on pages that contain multiple nodes
     }
-    $node = array_pop($nodes);
+    $node = $managedNode;
 
     if (user_access("administer") || user_access("edit any $node->type content")){
         //allow admins to access anything
@@ -101,7 +105,6 @@ function imoneza_node_load($nodes, $types){
         $imoneza->create_dynamic($node);
     }
 
-    echo "do server side auth is ".$imoneza->doServerSideAuth;
     if ($imoneza->doServerSideAuth){
         $imoneza->imoneza_template_redirect($node);
     }else if ($imoneza->doClientSideAuth){
