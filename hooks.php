@@ -105,6 +105,7 @@ function imoneza_node_load($nodes, $types){
     }
 
     if ($imoneza->doServerSideAuth){
+        echo "attempting redirect";
         $imoneza->imoneza_template_redirect($node);
     }else if ($imoneza->doClientSideAuth){
         drupal_add_js($imoneza->create_snippet($node), "inline");
