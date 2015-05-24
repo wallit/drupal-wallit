@@ -499,6 +499,7 @@ class iMoneza_Admin {
         }
     }
 
+
     /**
      * Options page callback
      */
@@ -506,7 +507,7 @@ class iMoneza_Admin {
     {
         $form = array();
         $options = variable_get("imoneza_options", array());
-        if ($options["imoneza_node_types"] == "0"){
+        if (!isset($options["imoneza_node_types"]) || $options["imoneza_node_types"] == "0"){
             $options["imoneza_node_types"] = array();
         }
 
@@ -531,7 +532,7 @@ class iMoneza_Admin {
         $form['imoneza_ra_api_key_access'] = array(
             '#type' => 'textfield',
             '#title' => t('Access Key'),
-            '#default_value' => $options['imoneza_ra_api_key_access'] ?: "",
+            '#default_value' => isset($options['imoneza_ra_api_key_access']) ? $options['imoneza_ra_api_key_access']: "",
             '#size' => 36,
             '#maxlength' => 100,
             '#description' => t("Resource Access API Access Key"),
@@ -541,7 +542,7 @@ class iMoneza_Admin {
         $form['imoneza_ra_api_key_secret'] = array(
             '#type' => 'textfield',
             '#title' => t('Secret Key'),
-            '#default_value' => $options['imoneza_ra_api_key_secret'] ?: "",
+            '#default_value' => isset($options['imoneza_ra_api_key_secret']) ? $options['imoneza_ra_api_key_secret'] : "",
             '#size' => 65,
             '#maxlength' => 100,
             '#description' => t("Resource Access API Secret Key"),
@@ -555,7 +556,7 @@ class iMoneza_Admin {
         $form['imoneza_rm_api_key_access'] = array(
             '#type' => 'textfield',
             '#title' => t('Access Key'),
-            '#default_value' => $options['imoneza_rm_api_key_access'] ?: "",
+            '#default_value' => issert($options['imoneza_rm_api_key_access']) ? $options['imoneza_rm_api_key_access'] : "",
             '#size' => 36,
             '#maxlength' => 100,
             '#description' => t("Resource Management API Access Key"),
@@ -565,7 +566,7 @@ class iMoneza_Admin {
         $form['imoneza_rm_api_key_secret'] = array(
             '#type' => 'textfield',
             '#title' => t('Secret Key'),
-            '#default_value' => $options['imoneza_rm_api_key_secret'] ?: "",
+            '#default_value' => isset($options['imoneza_rm_api_key_secret']) ? $options['imoneza_rm_api_key_secret'] : "",
             '#size' => 65,
             '#maxlength' => 100,
             '#description' => t("Resource Management API Secret Key"),
@@ -579,7 +580,7 @@ class iMoneza_Admin {
         $form['imoneza_nodynamic'] = array(
             '#type' => 'checkbox',
             '#title' => t('Disable Dynamic Resource Creation'),
-            '#default_value' => $options['imoneza_nodynamic'] ?: FALSE,
+            '#default_value' => isset($options['imoneza_nodynamic']) ? $options['imoneza_nodynamic'] : FALSE,
             '#description' => t("Do not include dynamic resource creation block on every page"),
             '#required' => FALSE,
           );
@@ -595,7 +596,7 @@ class iMoneza_Admin {
         $form['imoneza_access_control'] = array(
             '#type' => 'radios',
             '#title' => t('Access Control Method'),
-            '#default_value' => $options['imoneza_access_control'] ?: 0,
+            '#default_value' => isset($options['imoneza_access_control']) ? $options['imoneza_access_control']  : 0,
             '#options' => $radioOptions,
             '#required' => FALSE,
           );
@@ -604,7 +605,7 @@ class iMoneza_Admin {
             "#type" => "textarea",
             "#title" => "Excluded User Agents",
             "#description" => "Comma-separated list of user agents to allow unlimited access to your resources",
-            "#default_value" => $options['imoneza_access_control_excluded_user_agents'] ?: ""
+            "#default_value" => isset($options['imoneza_access_control_excluded_user_agents']) ? $options['imoneza_access_control_excluded_user_agents']: ""
         );
 
         $nodeTypes = node_type_get_types();

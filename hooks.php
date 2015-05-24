@@ -21,7 +21,7 @@ function imoneza_menu(){
   $items = array();
   $items["admin/settings/imoneza"] = array(
       "title" => "iMoneza",
-      "description" => "TBD description",
+      "description" => "iMoneza Settings",
       "page callback" => "drupal_get_form",
       "page arguments" => array("imoneza_admin"),
       "access arguments" => array("administer imoneza settings"),
