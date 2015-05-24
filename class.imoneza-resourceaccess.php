@@ -66,7 +66,6 @@ class iMoneza_ResourceAccess extends iMoneza_API {
         if ($response->code == '404') {
             throw new Exception('An error occurred with the Resource Access API key. Make sure you have valid Access Management API keys set in the iMoneza plugin settings.');
         } else {
-            var_dump($response->data);
             return json_decode($response->data, true);
         }
     }
