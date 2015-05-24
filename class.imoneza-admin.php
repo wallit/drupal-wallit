@@ -468,7 +468,7 @@ class iMoneza_Admin {
         );
 
         if ($values['imoneza_pricingModel'] == 'FixedPrice' || $values['imoneza_pricingModel'] == 'VariablePrice') {
-            $data['Price'] = check_plain($values["imnoeza_custom_pricing_container"]['imoneza_price']);
+            $data['Price'] = check_plain($values["imoneza_custom_pricing_container"]['imoneza_price']);
             $data['ExpirationPeriodUnit'] = check_plain($values["imoneza_custom_pricing_container"]['imoneza_expirationPeriodUnit']);
             if ($values["imoneza_custom_pricing_container"]['imoneza_expirationPeriodUnit'] != 'Never')
                 $data['ExpirationPeriodValue'] = check_plain($values["imoneza_custom_pricing_container"]['imoneza_expirationPeriodValue']);
