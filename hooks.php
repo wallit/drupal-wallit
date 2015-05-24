@@ -79,8 +79,7 @@ function imoneza_node_load($nodes, $types){
     $numManagedNodes = 0;
 
     $imoneza = variable_get("imoneza", new iMoneza());
-
-
+    var_dump($imoneza);
     foreach ($nodes as $node){
         if ($imoneza->is_imoneza_managed_node($node)){
             $numManagedNodes++;
