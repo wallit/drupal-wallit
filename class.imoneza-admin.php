@@ -469,9 +469,9 @@ class iMoneza_Admin {
 
         if ($values['imoneza_pricingModel'] == 'FixedPrice' || $values['imoneza_pricingModel'] == 'VariablePrice') {
             $data['Price'] = check_plain($values["imnoeza_custom_pricing_container"]['imoneza_price']);
-            $data['ExpirationPeriodUnit'] = check_plain($values["imnoeza_custom_pricing_container"]['imoneza_expirationPeriodUnit']);
-            if ($values['imoneza_expirationPeriodUnit'] != 'Never')
-                $data['ExpirationPeriodValue'] = check_plain($values["imnoeza_custom_pricing_container"]['imoneza_expirationPeriodValue']);
+            $data['ExpirationPeriodUnit'] = check_plain($values["imoneza_custom_pricing_container"]['imoneza_expirationPeriodUnit']);
+            if ($values["imoneza_custom_pricing_container"]['imoneza_expirationPeriodUnit'] != 'Never')
+                $data['ExpirationPeriodValue'] = check_plain($values["imoneza_custom_pricing_container"]['imoneza_expirationPeriodValue']);
         }
 
         if ($values['imoneza_pricingModel'] == 'ViewTiered' || $values['imoneza_pricingModel'] == 'TimeTiered') {
