@@ -24,7 +24,7 @@ function imoneza_menu(){
       "description" => "TBD description",
       "page callback" => "drupal_get_form",
       "page arguments" => array("imoneza_admin"),
-      "access arguments" => array("administer imoneza settings"),
+      "access arguments" => array("administer settings"),
       "type" => MENU_NORMAL_ITEM,
     );
   return $items;
