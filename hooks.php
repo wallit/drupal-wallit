@@ -24,10 +24,19 @@ function imoneza_menu(){
       "description" => "TBD description",
       "page callback" => "drupal_get_form",
       "page arguments" => array("imoneza_admin"),
-      "access arguments" => array("administer settings"),
+      "access arguments" => array("administer imoneza settings"),
       "type" => MENU_NORMAL_ITEM,
     );
   return $items;
+}
+
+function imoneza_permission(){
+    return array(
+        "administer imoneza settings" => array(
+            "title" => t("Administer iMoneza Global Settings"),
+            "description" => t("Configure iMoneza, including API keys and site-wide defaults")
+        )
+    );
 }
 
 /**
