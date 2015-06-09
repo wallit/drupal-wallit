@@ -244,8 +244,7 @@ class iMoneza_Admin {
                 "#type" => "textfield",
                 "#size" => 25,
                 "#title" => t("Pricing"),
-
-
+                "#default_value" => isset($resource["Price"]) ? $resource["Price"] : t("0.0")
             );
 
             $expirationOptions = array(

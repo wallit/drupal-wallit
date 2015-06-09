@@ -10,11 +10,17 @@ function imoneza_help($path, $arg){
 }
  
 function imoneza_form_alter(&$form, $form_state, $form_id){
-
-	if (strcmp($form_id, "article_node_form") == 0 || strcmp($form_id, "page_node_form") == 0){
-        $admin = variable_get("imoneza_admin", new iMoneza_Admin());
-        $admin->render_imoneza_meta_box($form, $form_state);
+    if (isset($form["type"]) && isset($form["type"]["#value"])){
+        $holder = new stdObject();
+        $holder->type = $form["type"]["#value"];
+        $imoneza = variable_get("imoneza", new iMoneza());
+        if ($imoneza->is_imoneza_managed_node($holder)){
+            $admin = variable_get("imoneza_admin", new iMoneza_Admin());
+            $admin->render_imoneza_meta_box($form, $form_state);
+        }
     }
+
+
 }
 
 function imoneza_menu(){
@@ -35,6 +41,10 @@ function imoneza_permission(){
         "administer imoneza settings" => array(
             "title" => t("Administer iMoneza Global Settings"),
             "description" => t("Configure iMoneza, including API keys and site-wide defaults")
+        ),
+        "bypass imoneza paywall" => array(
+            "title" => t("Bypass iMoneza Paywall"),
+            "description" => t("Allow users of this type to bypass iMoneza checks for all content types")
         )
     );
 }
@@ -92,10 +102,16 @@ function imoneza_node_load($nodes, $types){
     }
     $node = $managedNode;
 
-    if (user_access("administer") || user_access("edit any $node->type content")){
-        //allow admins to access anything
+    if (user_access("bypass imoneza paywall")){
+        error_log("Letting user access content due to permissions");
+        //allow them access no matter what
         return;
     }
+
+//    if (user_access("administer") || user_access("edit any $node->type content")){
+//        //allow admins to access anything
+//        return;
+//    }
 
     drupal_add_js(IMONEZA__RA_UI_URL . "/assets/imoneza.js", "file");
 
@@ -104,6 +120,7 @@ function imoneza_node_load($nodes, $types){
     }
 
     if ($imoneza->doServerSideAuth){
+        error_log("Doing iMoneza redirect");
         $imoneza->imoneza_template_redirect($node);
     }else if ($imoneza->doClientSideAuth){
         drupal_add_js($imoneza->create_snippet($node), "inline");
