@@ -103,15 +103,9 @@ function imoneza_node_load($nodes, $types){
     $node = $managedNode;
 
     if (user_access("bypass imoneza paywall") || path_is_admin(current_path())){
-        error_log("Letting user access content due to permissions");
         //allow them access no matter what
         return;
     }
-
-//    if (user_access("administer") || user_access("edit any $node->type content")){
-//        //allow admins to access anything
-//        return;
-//    }
 
     drupal_add_js(IMONEZA__RA_UI_URL . "/assets/imoneza.js", "file");
 
