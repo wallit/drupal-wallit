@@ -14,7 +14,7 @@ function read_file_contents($file){
     return  $retVal;
 }
 
-class stdObject {
+class ImonezaStdObject {
     public function __construct(array $arguments = array()) {
         if (!empty($arguments)) {
             foreach ($arguments as $property => $argument) {
