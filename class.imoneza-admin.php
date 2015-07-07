@@ -409,7 +409,7 @@ class IMonezaAdmin {
     }
     catch (Exception $e) {
       $form['imoneza']["imoneza_error"] = array(
-        "#markup" => t("An error has occurred: @error ", array("@errro" => check_plain($e->getMessage())))
+        "#markup" => t("An error has occurred: @error", array("@errro" => check_plain($e->getMessage()))),
       );
     }
 
@@ -418,11 +418,15 @@ class IMonezaAdmin {
   /**
    * Handler to save form data.
    *
-   * @param $form
-   * @param $form_state
+   * @param mixed $form
+   *    Form being saved.
+   * @param mixed $form_state
+   *    Form state for the form.
+   *
    * @throws Exception
+   *    Throws an exception on I/O issues.
    */
-  function saveMetaBoxData($form, $form_state) {
+  public function saveMetaBoxData($form, $form_state) {
     // Check the user's permissions.
     if (!user_access("edit any " . $form["#node"]->type . " content")) {
       // No permission to be here.
@@ -435,7 +439,7 @@ class IMonezaAdmin {
 
     if ($values['imoneza_isManaged'] != '1') {
       if ($values['imoneza_isManaged_original'] == '1') {
-        // user unchecked the box for iMoneza to manage the resource
+        // User unchecked the box for iMoneza to manage the resource.
         $resource_management = new IMonezaResourceManagement();
         $data = array(
           'ExternalKey' => $post_id,
@@ -463,8 +467,7 @@ class IMonezaAdmin {
     if ($description == "") {
       $description = implode(" ", array_slice(
           explode(" ",
-            $form_state["values"]["body"]
-            [LANGUAGE_NONE]["0"]["value"]), 0, 100)) . "...";
+            $form_state["values"]["body"][LANGUAGE_NONE]["0"]["value"]), 0, 100)) . "...";
     }
 
     $data = array(
@@ -475,11 +478,8 @@ class IMonezaAdmin {
       'Byline' => check_plain($values['imoneza_byline']),
       'Description' => $description,
       'URL' => url("/node/" . $post_id, array("absolute" => TRUE)),
-      'PublicationDate' => $form_state["values"]["created"] == ""
-        ? date(DATE_ATOM)
-        : date(DATE_ATOM, $form_state["values"]["created"]),
-      'PricingGroup' => array('PricingGroupID' =>
-        check_plain($values['imoneza_pricingGroup'])),
+      'PublicationDate' => $form_state["values"]["created"] == "" ? date(DATE_ATOM) : date(DATE_ATOM, $form_state["values"]["created"]),
+      'PricingGroup' => array('PricingGroupID' => check_plain($values['imoneza_pricingGroup'])),
       'PricingModel' => check_plain($values['imoneza_pricingModel']),
     );
 
@@ -491,21 +491,18 @@ class IMonezaAdmin {
         $values["imoneza_custom_pricing_container"]['imoneza_price']);
 
       $data['ExpirationPeriodUnit'] = check_plain(
-        $values["imoneza_custom_pricing_container"]
-        ['imoneza_expirationPeriodUnit']);
+        $values["imoneza_custom_pricing_container"]['imoneza_expirationPeriodUnit']);
 
       if ($values["imoneza_custom_pricing_container"]['imoneza_expirationPeriodUnit'] != 'Never') {
         $data['ExpirationPeriodValue'] = check_plain(
-          $values["imoneza_custom_pricing_container"]
-          ['imoneza_expirationPeriodValue']);
+          $values["imoneza_custom_pricing_container"]['imoneza_expirationPeriodValue']);
       }
     }
 
     if ($values['imoneza_pricingModel'] == 'ViewTiered'
       || $values['imoneza_pricingModel'] == 'TimeTiered'
     ) {
-      $tiers = $_POST["imoneza"]["imoneza_meta_container"]
-      ["imoneza_tiered_pricing_container"]["imoneza_tiered_fieldset"];
+      $tiers = $_POST["imoneza"]["imoneza_meta_container"]["imoneza_tiered_pricing_container"]["imoneza_tiered_fieldset"];
 
       $do_multiply = $values['imoneza_pricingModel'] == 'TimeTiered';
 
