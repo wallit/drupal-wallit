@@ -44,12 +44,11 @@ function imoneza_admin_object() {
 
 /**
  * Implements hook_help().
- **/
+ */
 function imoneza_help($path, $arg) {
   switch ($path) {
     case "admin/help#imoneza":
-      return "<p>" . t("This plugin integrates your Drupal site with the iMoneza service") . "</p>";
-      break;
+    return "<p>" . t("This plugin integrates your Drupal site with the iMoneza service") . "</p>";
 
   }
 }
@@ -94,11 +93,11 @@ function imoneza_permission() {
   return array(
     "administer imoneza settings" => array(
       "title" => t("Administer iMoneza Global Settings"),
-      "description" => t("Configure iMoneza, including API keys and site-wide defaults")
+      "description" => t("Configure iMoneza, including API keys and site-wide defaults"),
     ),
     "bypass imoneza paywall" => array(
       "title" => t("Bypass iMoneza Paywall"),
-      "description" => t("Allow users of this type to bypass iMoneza checks for all content types")
+      "description" => t("Allow users of this type to bypass iMoneza checks for all content types"),
     )
   );
 }
@@ -106,10 +105,9 @@ function imoneza_permission() {
 /**
  * Implements hook_admin().
  *
- * <p>Hook that displays the admin configuration page for the iMoneza module.
+ * Hook that displays the admin configuration page for the iMoneza module.
  *  Delegates to the IMonezaAdmin::create_admin_page() method and implementation
  * of hook_admin().
- * </p>
  */
 function imoneza_admin() {
   $imoneza_admin = imoneza_admin_object();
@@ -121,8 +119,8 @@ function imoneza_admin() {
 /**
  * Implements hook_node_load().
  *
- * <p>Primary hook for controlling whether iMoneza displays the paywall
- * and implementation of hook_node_load().</p>
+ * Primary hook for controlling whether iMoneza displays the paywall
+ * and implementation of hook_node_load().
  *
  * <p>Logic works like this:
  * <ol>
@@ -135,32 +133,32 @@ function imoneza_admin() {
  *  <li>If the user requesting the node has the 'administer' role or has
  *      privileges such that the user can edit the content in the node,
  *      we allow them to view the content with the paywall</li>
- *</ol>
+ * </ol>
  * <p>
  *  At this point, if we're going to show the paywall, we determine
  *  whether to display the javascript paywall, or handle it server-side.
  * </p>
  */
 function imoneza_node_load($nodes, $types) {
-  //check for resource access
+  // Check for resource access.
   $num_managed_nodes = 0;
 
   $imoneza = imoneza_object();
   foreach ($nodes as $node) {
     if ($imoneza->is_imoneza_managed_node($node)) {
       $num_managed_nodes++;
-      $managedNode = $node;
+      $managed_node = $node;
     }
 
   }
   if ($num_managed_nodes > 1 || $num_managed_nodes < 1) {
     return;
-    //For now, not executing on pages that contain multiple nodes.
+    // For now, not executing on pages that contain multiple nodes.
   }
-  $node = $managedNode;
+  $node = $managed_node;
 
   if (user_access("bypass imoneza paywall") || path_is_admin(current_path())) {
-    //allow them access no matter what.
+    //  Allow them access no matter what.
     return;
   }
 
@@ -179,7 +177,7 @@ function imoneza_node_load($nodes, $types) {
       drupal_add_js($imoneza->create_snippet($node), "inline");
     }
     else {
-      //ignore it.
+      // Ignore it.
       return;
     }
   }
