@@ -67,7 +67,8 @@ class IMoneza {
 
     if (is_array($this->options['imoneza_node_types'])) {
       return in_array($node->type, $this->options['imoneza_node_types']);
-    } else {
+    }
+    else {
       return $node->type == $this->options['imoneza_node_types'];
     }
 
@@ -93,6 +94,7 @@ class IMoneza {
 
   /**
    * Returns values stored in iMoneza service.
+   *
    * @param $node
    * @return array
    */
@@ -111,6 +113,7 @@ class IMoneza {
 
   /**
    * Adds the iMoneza JavaScript snippet to the HTML head of a page.
+   *
    * @param $node
    * @return string
    */
@@ -127,13 +130,15 @@ class IMoneza {
             ';
 
       return $output;
-    } else {
+    }
+    else {
       return '';
     }
   }
 
   /**
    * Adds the dynamic resource creation block to the HTML head of a page.
+   *
    * @param $node
    */
   public function createDynamic($node) {
