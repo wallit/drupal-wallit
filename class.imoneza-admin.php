@@ -10,7 +10,7 @@
  * Provides an interface for admin functionality, like creating resources
  * etc.
  */
-class iMonezaAdmin {
+class IMonezaAdmin {
   private $options;
 
   /**
@@ -88,12 +88,12 @@ class iMonezaAdmin {
         count($resource['ResourcePricingTiers']) == 0
       ) {
         $resource['ResourcePricingTiers'] = array(
-          array('Tier' => 0, 'Price' => '0.00')
+          array('Tier' => 0, 'Price' => '0.00'),
         );
       }
 
       $form['imoneza']['imoneza_js_area'] = array(
-        "#markup" => $this->renderFormJavascript()
+        "#markup" => $this->renderFormJavascript(),
       );
 
       $form['imoneza']["imoneza_isManaged"] = array(
@@ -118,7 +118,7 @@ class iMonezaAdmin {
         "#type" => "container",
         "#attributes" => array(
           "class" => array(
-            "imoneza_row"
+            "imoneza_row",
           ),
         ),
       );
@@ -138,9 +138,7 @@ class iMonezaAdmin {
         "#default_value" => t(check_plain(isset($resource['Name'])
           ? $resource['Name'] : "")),
         "#title" => t("Name"),
-        "#description" => t("A friendly name for the resource to help "
-          . "you identify it. This name is never displayed publicly "
-          . "to consumers. Defaults to the article title."),
+        "#description" => t("A friendly name for the resource to help you identify it. This name is never displayed publicly to consumers. Defaults to the article title."),
       );
 
       $imoneza_container["imoneza_title"] = array(
@@ -149,8 +147,7 @@ class iMonezaAdmin {
         "#default_value" => t(check_plain(isset($resource['Title'])
           ? $resource['Title'] : "")),
         "#title" => t("Title"),
-        "#description" => t("The title of the resource which gets "
-          . "displayed to consumers. Defaults to the article title."),
+        "#description" => t("The title of the resource which gets displayed to consumers. Defaults to the article title."),
       );
 
       $imoneza_container["imoneza_byline"] = array(

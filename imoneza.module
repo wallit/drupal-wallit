@@ -36,7 +36,7 @@ function imoneza_object() {
 function imoneza_admin_object() {
   static $imoneza_admin = NULL;
   if (empty($imoneza_admin)) {
-    $imoneza_admin = new iMonezaAdmin();
+    $imoneza_admin = new IMonezaAdmin();
   }
 
   return $imoneza_admin;
@@ -62,7 +62,7 @@ function imoneza_form_alter(&$form, $form_state, $form_id) {
     $holder->type = $form["type"]["#value"];
     $imoneza = variable_get("imoneza", new IMoneza());
     if ($imoneza->is_imoneza_managed_node($holder)) {
-      $admin = variable_get("imoneza_admin", new iMonezaAdmin());
+      $admin = variable_get("imoneza_admin", new IMonezaAdmin());
       $admin->render_imoneza_meta_box($form, $form_state);
     }
   }
