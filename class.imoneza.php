@@ -58,9 +58,10 @@ class IMoneza {
    * Returns boolean indicating whether node type is managed.
    *
    * @param object $node
-   * The node in question.
+   *    The node in question.
    *
-   * @return bool indicating whether this node is managed by iMoneza
+   * @return bool
+   *    Indicating whether this node is managed by iMoneza.
    */
   public function isImonezaManagedNode($node) {
 
