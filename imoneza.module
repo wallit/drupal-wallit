@@ -43,7 +43,7 @@ function imoneza_admin_object() {
 }
 
 /**
- * Implementation of hook_help().
+ * Implements hook_help().
  *
  * @param string $path
  *    Drupal url path.
@@ -63,7 +63,7 @@ function imoneza_help($path, $arg) {
 }
 
 /**
- * Implementation of hook_form_alter().
+ * Implements hook_form_alter().
  *
  * @param array $form
  *    Nested array of form elements.
@@ -86,7 +86,7 @@ function imoneza_form_alter(&$form, $form_state, $form_id) {
 }
 
 /**
- * Implementation of hook_menu().
+ * Implements hook_menu().
  *
  * @return array
  *    Array containing iMoneza menu items.
@@ -106,7 +106,7 @@ function imoneza_menu() {
 }
 
 /**
- * Implementation of hook_permission().
+ * Implements hook_permission().
  *
  * @return array
  *    Permission values.
@@ -125,7 +125,7 @@ function imoneza_permission() {
 }
 
 /**
- * Implementation of hook_admin().
+ * Implements hook_admin().
  *
  * <p>Hook that displays the admin configuration page for the iMoneza module.
  *  Delegates to the IMonezaAdmin::create_admin_page() method and implementation
@@ -143,7 +143,7 @@ function imoneza_admin() {
 }
 
 /**
- * Implementation of the hook_node_load().
+ * Implements hook_node_load().
  *
  * <p>Primary hook for controlling whether iMoneza displays the paywall
  * and implementation of hook_node_load().</p>
