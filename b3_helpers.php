@@ -32,7 +32,7 @@ class ImonezaStdObject {
   /**
    * Constructor.
    *
-   * @param array $argumens
+   * @param mixed $arguments
    *    Arguments to be made into properties.
    */
   public function __construct(array $arguments = array()) {
