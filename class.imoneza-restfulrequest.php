@@ -5,7 +5,7 @@
  */
 
 /**
- * Class iMonezaRestfulRequest
+ * Class iMonezaRestfulRequest.
  *
  * Represents a request any iMoneza API.
  */
@@ -80,7 +80,9 @@ class IMonezaRestfulRequest {
     $param_strings = $this->getParamString($sorted_params);
 
     $base_string = implode("\n", array($this->method, $timestamp,
-      strtolower($this->uri), $param_strings));
+        strtolower($this->uri), $param_strings
+      )
+    );
 
     $hash = base64_encode(
       hash_hmac('sha256', $base_string, $this->api->secretKey, TRUE));
@@ -88,8 +90,9 @@ class IMonezaRestfulRequest {
     $url = $this->api->server . $this->uri;
     if (count($this->getParameters) > 0) {
       $get_param_strings = array();
-      foreach ($this->getParameters as $key => $value)
+      foreach ($this->getParameters as $key => $value) {
         $get_param_strings[] = $key . '=' . rawurlencode($value);
+      }
 
       $url .= '?' . implode('&', $get_param_strings);
     }
@@ -101,7 +104,7 @@ class IMonezaRestfulRequest {
         'Timestamp' => $timestamp,
         'Authentication' => $this->api->accessKey . ':' . $hash,
         'Accept' => $this->accept,
-        'Content-Type' => $this->contentType
+        'Content-Type' => $this->contentType,
       )
     ));
 
@@ -109,16 +112,17 @@ class IMonezaRestfulRequest {
   }
 
   /**
-   * Sorts the stored parameters sorted in the proper order for
-   * authentication.
+   * Sorts the stored parameters sorted in the proper order for authentication.
    *
    * @return array
    *    Sorted array of parameters stored for this request.
    */
   private function getSortedParams() {
     $sorted_params = array();
-    foreach ($this->getParameters as $key => $value)
+    foreach ($this->getParameters as $key => $value) {
       $sorted_params[strtolower($key)] = strtolower($value);
+    }
+
     ksort($sorted_params);
 
     return $sorted_params;
@@ -135,8 +139,9 @@ class IMonezaRestfulRequest {
    */
   private function getParamString($sorted_params) {
     $param_strings = array();
-    foreach ($sorted_params as $key => $value)
+    foreach ($sorted_params as $key => $value) {
       $param_strings[] = $key . '=' . $value;
+    }
 
     return implode('&', $param_strings);
   }
