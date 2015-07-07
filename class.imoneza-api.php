@@ -1,8 +1,6 @@
 <?php
 /**
- * @file
- * Contains the iMonezaApi base class.
- *
+ * @file Contains the iMonezaApi base class.
  */
 
 /**
