@@ -27,7 +27,7 @@ class iMonezaResourceManagement extends iMonezaApi
      * @throws Exception
      */
     public function getProperty() {
-        $request = new iMonezaRestfulRequest($this);
+        $request = new IMonezaRestfulRequest($this);
         $request->method = 'GET';
         $request->uri = '/api/Property/' . $this->accessKey;
 
@@ -50,7 +50,7 @@ class iMonezaResourceManagement extends iMonezaApi
      * @throws Exception
      */
     public function getResource($external_key, $include_property_data = false) {
-        $request = new iMonezaRestfulRequest($this);
+        $request = new IMonezaRestfulRequest($this);
         $request->method = 'GET';
         $request->uri = '/api/Property/' . $this->accessKey . '/Resource/' .
             $external_key;
@@ -77,7 +77,7 @@ class iMonezaResourceManagement extends iMonezaApi
      * @throws Exception
      */
     public function putResource($external_key, $data) {
-        $request = new iMonezaRestfulRequest($this);
+        $request = new IMonezaRestfulRequest($this);
         $request->method = 'PUT';
         $request->uri = '/api/Property/' . $this->accessKey . '/Resource/' . $external_key;
         $request->body = json_encode($data);

@@ -94,7 +94,7 @@ class iMonezaResourceAccess extends iMonezaApi
    */
   public function getResourceAccessDataFromExternalKey(
     $external_key, $resource_url, $user_token) {
-    $request = new iMonezaRestfulRequest($this);
+    $request = new IMonezaRestfulRequest($this);
     $request->method = 'GET';
     $request->uri = '/api/Resource/' . $this->accessKey . '/' . $external_key;
     $request->getParameters['ResourceURL'] = $resource_url;
@@ -121,7 +121,7 @@ class iMonezaResourceAccess extends iMonezaApi
    */
   public function getResourceAccessDataFromTemporaryUserToken(
     $external_key, $resource_url, $temporary_user_token) {
-    $request = new iMonezaRestfulRequest($this);
+    $request = new IMonezaRestfulRequest($this);
     $request->method = 'GET';
     $request->uri = '/api/TemporaryUserToken/'
       . $this->accessKey . '/' . $temporary_user_token;

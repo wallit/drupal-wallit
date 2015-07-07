@@ -2,6 +2,7 @@
 /**
  * File containing the iMoneza class object used for resource access.
  * @file class.imoneza.php
+ *
  */
 
 /**
@@ -57,7 +58,8 @@ class IMoneza {
 
   /**
    * Returns boolean indicating whether node type is managed.
-   * @param $node
+   * @param Node $node
+   *  Drupal Node object
    * @return bool indicating whether this node is managed by iMoneza
    */
   public function isImonezaManagedNode($node) {

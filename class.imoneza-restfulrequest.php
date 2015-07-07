@@ -2,13 +2,15 @@
 /**
  * Contains the generic request structure for API requests.
  * @file class.imoneza-restfulrequest.php
+ *
  */
+
 /**
  * Class iMonezaRestfulRequest
  *
  * Represents a request any iMoneza API.
  */
-class iMonezaRestfulRequest {
+class IMonezaRestfulRequest {
 
   private $api;
 
@@ -21,7 +23,7 @@ class iMonezaRestfulRequest {
 
   /**
    * Constructor.
-   * @param $api
+   * @param IMonezaAPI $api
    */
   public function __construct($api) {
     $this->api = $api;
@@ -41,40 +43,42 @@ class iMonezaRestfulRequest {
     $this->method = strtoupper($this->method);
     if ($this->method != 'GET' && $this->method != 'POST'
       && $this->method != 'PUT' && $this->method != 'DELETE'
-    )
-
+    ) {
       throw new Exception('Invalid method');
+    }
 
     if ($this->method != 'POST' && $this->method != 'PUT'
       && $this->body != ''
-    )
-
+    ) {
       throw new Exception('You can only specify a body with a POST');
+    }
 
     if ($this->method != 'POST' && $this->method != 'PUT'
       && $this->contentType != ''
-    )
-
+    ) {
       throw new Exception('You can only specify a content type with a POST');
+    }
 
-    if ($this->body != '' && $this->contentType == '')
+    if ($this->body != '' && $this->contentType == '') {
       throw new Exception('You must provide a content type with a body');
+    }
 
-    if (strpos($this->uri, '?') !== FALSE)
+    if (strpos($this->uri, '?') !== FALSE) {
       throw new Exception('Illegal character in URI - make sure you '
         . 'include query string parameters in the getParams dictionary, '
         . 'not the URI');
+    }
 
     $timestamp = gmdate('D, d M Y H:i:s \G\M\T');
 
-    $sortedParams = $this->getSortedParams();
-    $paramStrings = $this->getParamString($sortedParams);
+    $sorted_params = $this->getSortedParams();
+    $param_strings = $this->getParamString($sorted_params);
 
-    $baseString = implode("\n", array($this->method, $timestamp,
-      strtolower($this->uri), $paramStrings));
+    $base_string = implode("\n", array($this->method, $timestamp,
+      strtolower($this->uri), $param_strings));
 
     $hash = base64_encode(
-      hash_hmac('sha256', $baseString, $this->api->secretKey, TRUE));
+      hash_hmac('sha256', $base_string, $this->api->secretKey, TRUE));
 
     $url = $this->api->server . $this->uri;
     if (count($this->getParameters) > 0) {
