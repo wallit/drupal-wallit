@@ -35,7 +35,7 @@ class ImonezaStdObject {
    * @param mixed $arguments
    *    Arguments to be made into properties.
    */
-  public function __construct(array $arguments = array()) {
+  public function __construct($arguments = array()) {
     if (!empty($arguments)) {
       foreach ($arguments as $property => $argument) {
         $this->{$property} = $argument;
