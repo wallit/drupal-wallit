@@ -4,9 +4,9 @@
  * This plugin provides integration the iMoneza System.
  */
 
-define("NO_ACCESS_CONTROL", 0);
-define("CLIENT_SIDE_ACCESS_CONTROL", 1);
-define("SERVER_SIDE_ACCESS_CONTROL", 2);
+define("IMONEZA_NO_ACCESS_CONTROL", 0);
+define("IMONEZA_CLIENT_SIDE_ACCESS_CONTROL", 1);
+define("IMONEZA_SERVER_SIDE_ACCESS_CONTROL", 2);
 define('IMONEZA__RA_API_URL', 'https://accessapi.imoneza.com');
 define('IMONEZA__RM_API_URL', 'https://manageapi.imoneza.com');
 define('IMONEZA__RA_UI_URL', 'https://accessui.imoneza.com');

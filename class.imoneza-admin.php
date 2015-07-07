@@ -637,9 +637,9 @@ class iMonezaAdmin {
     );
 
     $radio_options = array(
-      NO_ACCESS_CONTROL => t("None"),
-      CLIENT_SIDE_ACCESS_CONTROL => t("Client-side (JavaScript)"),
-      SERVER_SIDE_ACCESS_CONTROL => t("Server-side"));
+      IMONEZA_NO_ACCESS_CONTROL => t("None"),
+      IMONEZA_CLIENT_SIDE_ACCESS_CONTROL => t("Client-side (JavaScript)"),
+      IMONEZA_SERVER_SIDE_ACCESS_CONTROL => t("Server-side"));
 
     $form['imoneza_access_control_description'] = array(
       "#markup" => read_file_contents("static/access_control_description.html")
