@@ -48,7 +48,7 @@ function imoneza_admin_object() {
 function imoneza_help($path, $arg) {
   switch ($path) {
     case "admin/help#imoneza":
-    return "<p>" . t("This plugin integrates your Drupal site with the iMoneza service") . "</p>";
+      return "<p>" . t("This plugin integrates your Drupal site with the iMoneza service") . "</p>";
 
   }
 }
@@ -98,7 +98,7 @@ function imoneza_permission() {
     "bypass imoneza paywall" => array(
       "title" => t("Bypass iMoneza Paywall"),
       "description" => t("Allow users of this type to bypass iMoneza checks for all content types"),
-    )
+    ),
   );
 }
 
@@ -183,7 +183,3 @@ function imoneza_node_load($nodes, $types) {
   }
 
 }
-
-
-
-
