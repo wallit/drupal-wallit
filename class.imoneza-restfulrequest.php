@@ -76,8 +76,7 @@ class IMonezaRestfulRequest {
 
     $timestamp = gmdate('D, d M Y H:i:s \G\M\T');
 
-    $sorted_params = $this->getSortedParams();
-    $param_strings = $this->getParamString($sorted_params);
+    $param_strings = $this->getParamString();
 
     $base_string = implode("\n", array(
         $this->method,
@@ -135,15 +134,12 @@ class IMonezaRestfulRequest {
   /**
    * Creates the REST parameter string.
    *
-   * @param string[] $sorted_params
-   *    Sorted array of parameters to be inserted into a query string.
-   *
    * @return string
    *    The query string query portion.
    */
-  private function getParamString($sorted_params) {
+  private function getParamString() {
     $param_strings = array();
-    foreach ($sorted_params as $key => $value) {
+    foreach ($this->getSortedParams() as $key => $value) {
       $param_strings[] = $key . '=' . $value;
     }
 
