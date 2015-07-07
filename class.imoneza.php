@@ -77,8 +77,11 @@ class IMoneza {
   /**
    * Peforms a redirect based on whether the user has access.
    *
-   * @param $node
+   * @param object $node
+   *    The node being loaded.
+   *
    * @throws Exception
+   *    Exception thrown for I/O errors.
    */
   public function imonezaTemplateRedirect($node) {
     $resource_values = $this->getResourceValues($node);
@@ -95,8 +98,11 @@ class IMoneza {
   /**
    * Returns values stored in iMoneza service.
    *
-   * @param $node
+   * @param object $node
+   *    The node to return resource values for.
+   *
    * @return array
+   *    Array of resource values.
    */
   private function getResourceValues($node) {
 
@@ -114,8 +120,11 @@ class IMoneza {
   /**
    * Adds the iMoneza JavaScript snippet to the HTML head of a page.
    *
-   * @param $node
+   * @param object $node
+   *    Node to add JavaScript snippet to.
+   *
    * @return string
+   *    The JavaScript snippet.
    */
   public function createSnippet($node) {
     $public_api_key = $this->options['imoneza_ra_api_key_access'];
@@ -139,7 +148,8 @@ class IMoneza {
   /**
    * Adds the dynamic resource creation block to the HTML head of a page.
    *
-   * @param $node
+   * @param object $node
+   *    Node to add dynamic resource creation snipped to.
    */
   public function createDynamic($node) {
     $resource_values = $this->getResourceValues($node);
