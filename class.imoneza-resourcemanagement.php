@@ -10,10 +10,10 @@
  * Provides access to the Resource Management API for creating resources,
  * managing pricing, etc.
  */
-class iMonezaResourceManagement extends iMonezaApi {
+class IMonezaResourceManagement extends iMonezaApi {
 
   /**
-   * Constructor
+   * Constructor.
    */
   public function __construct() {
     $options = variable_get('imoneza_options');
@@ -52,7 +52,6 @@ class iMonezaResourceManagement extends iMonezaApi {
    *
    * @param string $external_key
    *    External key corresponding to the resource in the iMoneza system.
-   *
    * @param bool $include_property_data
    *    Boolean indicating whether to include property data in the response.
    *
@@ -78,10 +77,10 @@ class iMonezaResourceManagement extends iMonezaApi {
       return array('IsManaged' => 0);
     }
     else {
-      $retObj = json_decode($response->data, TRUE);
-      $retObj['IsManaged'] = 1;
+      $ret_obj = json_decode($response->data, TRUE);
+      $ret_obj['IsManaged'] = 1;
 
-      return $retObj;
+      return $ret_obj;
     }
   }
 
@@ -90,7 +89,6 @@ class iMonezaResourceManagement extends iMonezaApi {
    *
    * @param string $external_key
    *    External key corresponding to the resource to be stored in iMoneza.
-   *
    * @param object $data
    *    Resource metadata.
    *

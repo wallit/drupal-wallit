@@ -58,7 +58,7 @@ class iMonezaAdmin {
       //needed for multival.
       $form["#tree"] = TRUE;
 
-      $resource_management = new iMonezaResourceManagement();
+      $resource_management = new IMonezaResourceManagement();
       if (isset($post) && isset($post->nid)) {
         $resource = $resource_management->getResource($post->nid, TRUE);
       } else {
@@ -439,7 +439,7 @@ class iMonezaAdmin {
     if ($values['imoneza_isManaged'] != '1') {
       if ($values['imoneza_isManaged_original'] == '1') {
         // user unchecked the box for iMoneza to manage the resource
-        $resource_management = new iMonezaResourceManagement();
+        $resource_management = new IMonezaResourceManagement();
         $data = array(
           'ExternalKey' => $post_id,
           'Active' => 0
@@ -530,7 +530,7 @@ class iMonezaAdmin {
       $data['ResourcePricingTiers'] = $vals;
     }
 
-    $resource_management = new iMonezaResourceManagement();
+    $resource_management = new IMonezaResourceManagement();
     try {
       $resource_management->putResource($post_id, $data);
       $this->setUpdatedNotice('iMoneza settings for the resource "
