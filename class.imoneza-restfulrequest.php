@@ -79,8 +79,11 @@ class IMonezaRestfulRequest {
     $sorted_params = $this->getSortedParams();
     $param_strings = $this->getParamString($sorted_params);
 
-    $base_string = implode("\n", array($this->method, $timestamp,
-        strtolower($this->uri), $param_strings
+    $base_string = implode("\n", array(
+        $this->method,
+        $timestamp,
+        strtolower($this->uri),
+        $param_strings,
       )
     );
 
@@ -97,16 +100,17 @@ class IMonezaRestfulRequest {
       $url .= '?' . implode('&', $get_param_strings);
     }
 
-    $raw_response = drupal_http_request($url, array(
-      'method' => $this->method,
-      'data' => $this->body,
-      'headers' => array(
-        'Timestamp' => $timestamp,
-        'Authentication' => $this->api->accessKey . ':' . $hash,
-        'Accept' => $this->accept,
-        'Content-Type' => $this->contentType,
-      )
-    ));
+    $raw_response = drupal_http_request($url,
+      array(
+        'method' => $this->method,
+        'data' => $this->body,
+        'headers' => array(
+          'Timestamp' => $timestamp,
+          'Authentication' => $this->api->accessKey . ':' . $hash,
+          'Accept' => $this->accept,
+          'Content-Type' => $this->contentType,
+        ),
+      ));
 
     return $raw_response;
   }
