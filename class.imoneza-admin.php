@@ -583,8 +583,7 @@ class IMonezaAdmin {
     $form['imoneza_ra_api_key_secret'] = array(
       '#type' => 'textfield',
       '#title' => t('Secret Key'),
-      '#default_value' => isset($options['imoneza_ra_api_key_secret'])
-        ? $options['imoneza_ra_api_key_secret'] : "",
+      '#default_value' => isset($options['imoneza_ra_api_key_secret']) ? $options['imoneza_ra_api_key_secret'] : "",
       '#size' => 65,
       '#maxlength' => 100,
       '#description' => t("Resource Access API Secret Key"),
