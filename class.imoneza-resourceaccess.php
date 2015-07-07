@@ -15,7 +15,7 @@ class IMonezaResourceAccess extends IMonezaApi {
   protected $cookieExpiration;
 
   /**
-   * Constructor
+   * Constructor.
    */
   public function __construct() {
     $options = variable_get('imoneza_options');
@@ -24,13 +24,12 @@ class IMonezaResourceAccess extends IMonezaApi {
       $options['imoneza_ra_api_key_secret'],
       IMONEZA__RA_API_URL);
 
-    // 14 days
+    // 14 days.
     $this->cookieExpiration = 60 * 60 * 24 * 14;
   }
 
   /**
-   * Either allows access to a resource or forwards to iMoneza for access
-   * control.
+   * Allows access to a resource or forwards to iMoneza for access control.
    *
    * @param string $external_key
    *    External key used to reference the resource with iMoneza.
@@ -49,10 +48,7 @@ class IMonezaResourceAccess extends IMonezaApi {
         &&
         $this->options['access_control_excluded_user_agents'] != ''
       ) {
-        foreach (explode("\n",
-          $this->options['access_control_excluded_user_agents'])
-                 as $user_agent) {
-
+        foreach (explode("\n", $this->options['access_control_excluded_user_agents']) as $user_agent) {
           if ($user_agent == $_SERVER['HTTP_USER_AGENT']) {
             return;
           }
@@ -63,16 +59,15 @@ class IMonezaResourceAccess extends IMonezaApi {
         // The user just authenticated at iMoneza, and
         // iMoneza is sending the temporary user token back to us.
         $temporary_user_token = $_REQUEST['iMonezaTUT'];
-        $resource_access_data =
-          $this->getResourceAccessDataFromTemporaryUserToken(
+        $resource_access_data
+          = $this->getResourceAccessDataFromTemporaryUserToken(
             $external_key, $resource_url, $temporary_user_token);
       }
       else {
         if (isset($_COOKIE['iMonezaUT'])) {
           $user_token = $_COOKIE['iMonezaUT'];
         };
-        $resource_access_data =
-          $this->getResourceAccessDataFromExternalKey(
+        $resource_access_data = $this->getResourceAccessDataFromExternalKey(
             $external_key, $resource_url, $user_token);
       }
       $user_token = $resource_access_data['UserToken'];
