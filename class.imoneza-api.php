@@ -20,17 +20,17 @@ abstract class IMonezaApi {
    *
    * @param object $options
    *    Array of API options for the particular api.
-   * @param string $accessKey
+   * @param string $access_key
    *    Access key for API.
-   * @param string $secretKey
+   * @param string $secret_key
    *    Secret key for API.
    * @param string $server
    *    Fully qualified server name.
    */
-  protected function __construct($options, $accessKey, $secretKey, $server) {
+  protected function __construct($options, $access_key, $secret_key, $server) {
     $this->options = $options;
-    $this->accessKey = $accessKey;
-    $this->secretKey = $secretKey;
+    $this->accessKey = $access_key;
+    $this->secretKey = $secret_key;
     $this->server = $server;
   }
 
