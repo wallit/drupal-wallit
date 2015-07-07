@@ -57,7 +57,8 @@ class IMoneza {
   /**
    * Returns boolean indicating whether node type is managed.
    *
-   * @param \Node $node the node in question
+   * @param object $node
+   * The node in question.
    *
    * @return bool indicating whether this node is managed by iMoneza
    */
