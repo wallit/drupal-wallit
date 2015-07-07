@@ -48,7 +48,7 @@ class ImonezaStdObject {
    *
    * @param string $method
    *    Method name.
-   * @param array $arguments
+   * @param mixed $arguments
    *    Arguments.
    *
    * @return mixed
