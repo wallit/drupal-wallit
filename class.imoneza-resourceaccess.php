@@ -85,7 +85,7 @@ class iMonezaResourceAccess extends iMonezaApi
   }
 
   /**
-   *
+   * Returns access decision from iMoneza based on external key.
    * @param $external_key
    * @param $resource_url
    * @param $user_token
@@ -112,6 +112,7 @@ class iMonezaResourceAccess extends iMonezaApi
   }
 
   /**
+   * Returns data from iMoneza based on tempoary token.
    * @param $external_key
    * @param $resource_url
    * @param $temporary_user_token

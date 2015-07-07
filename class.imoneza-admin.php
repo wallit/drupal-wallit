@@ -1,6 +1,7 @@
 <?php
 /**
- * Contains the iMoneza Admin class
+ * Contains the iMoneza Admin class.
+ * @file class.imoneza-admin.php
  */
 
 /**
@@ -9,12 +10,11 @@
  * Provides an interface for admin functionality, like creating resources
  * etc.
  */
-class iMonezaAdmin
-{
+class iMonezaAdmin {
   private $options;
 
   /**
-   * Constructor
+   * Constructor.
    */
   public function __construct() {
     $this->options = variable_get('imoneza_options');
@@ -28,7 +28,7 @@ class iMonezaAdmin
   }
 
   /**
-   * Returns contents of the Form Javascript
+   * Returns contents of the Form Javascript.
    * @return string
    */
   public function renderFormJavascript() {
@@ -36,7 +36,7 @@ class iMonezaAdmin
   }
 
   /**
-   * Renders the iMoneza box on a node
+   * Renders the iMoneza box on a node.
    * @param $form
    * @param $form_state
    */
@@ -419,7 +419,7 @@ class iMonezaAdmin
   }
 
   /**
-   * Handler to save form data
+   * Handler to save form data.
    * @param $form
    * @param $form_state
    * @throws Exception
@@ -540,7 +540,7 @@ class iMonezaAdmin
   }
 
   /**
-   * Options page callback
+   * Options page callback.
    */
   public function createAdminPage() {
     $form = array();
@@ -697,7 +697,7 @@ class iMonezaAdmin
   }
 
   /**
-   * Handler to save configuration
+   * Handler to save configuration.
    * @param $form
    * @param $form_state
    */
@@ -729,7 +729,7 @@ class iMonezaAdmin
   }
 
   /**
-   * Sanitize each setting field as needed
+   * Sanitize each setting field as needed.
    *
    * @param  array $input Contains all settings fields as array keys
    * @return array similar to $input with sanitized values
@@ -804,7 +804,7 @@ class iMonezaAdmin
   }
 
   /**
-   * Displays a notice to the user
+   * Displays a notice to the user.
    * @param $notice
    */
   public function setUpdatedNotice($notice) {
@@ -813,7 +813,7 @@ class iMonezaAdmin
   }
 
   /**
-   * Displays an error notice to the user
+   * Displays an error notice to the user.
    * @param $notice
    */
   public function setErrorNotice($notice) {

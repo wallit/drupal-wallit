@@ -1,6 +1,7 @@
 <?php
 /**
  * Contains the iMonezaApi base class.
+ * @file class.imoneza-api.php
  */
 
 /**
@@ -8,8 +9,7 @@
  *
  * Abstract base class for all API classes
  */
-abstract class iMonezaApi
-{
+abstract class iMonezaApi {
   public $options;
   public $privateKey;
   public $publicKey;
@@ -17,7 +17,7 @@ abstract class iMonezaApi
 
   /**
    *
-   * Constructor
+   * Constructor.
    *
    * @param $options
    * @param $accessKey

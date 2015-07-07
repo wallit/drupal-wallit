@@ -1,6 +1,7 @@
 <?php
 /**
  * File containing the iMoneza class object used for resource access.
+ * @file class.imoneza.php
  */
 
 /**
@@ -9,8 +10,8 @@
  *
  * Contains general client-facing functionality for iMoneza.
  */
-class IMoneza
-{
+class IMoneza {
+
   private $options;
   public $doClientSideAuth = FALSE;
   public $doServerSideAuth = FALSE;
@@ -55,7 +56,7 @@ class IMoneza
   }
 
   /**
-   *
+   * Returns boolean indicating whether node type is managed.
    * @param $node
    * @return bool indicating whether this node is managed by iMoneza
    */
@@ -70,6 +71,7 @@ class IMoneza
   }
 
   /**
+   * Peforms a redirect based on whether the user has access.
    * @param $node
    * @throws Exception
    */
@@ -86,6 +88,7 @@ class IMoneza
   }
 
   /**
+   * Returns values stored in iMoneza service.
    * @param $node
    * @return array
    */
@@ -103,7 +106,7 @@ class IMoneza
   }
 
   /**
-   * Adds the iMoneza JavaScript snippet to the HTML head of a page
+   * Adds the iMoneza JavaScript snippet to the HTML head of a page.
    * @param $node
    * @return string
    */
@@ -126,7 +129,7 @@ class IMoneza
   }
 
   /**
-   * Adds the dynamic resource creation block to the HTML head of a page
+   * Adds the dynamic resource creation block to the HTML head of a page.
    * @param $node
    */
   public function createDynamic($node) {

@@ -1,5 +1,8 @@
 <?php
-
+/**
+ * Contains the iMoneza resource management api
+ * @file class.imoneza-resourcemanagement.php
+ */
 /**
  * Class iMonezaResourceManagement
  *
@@ -19,6 +22,7 @@ class iMonezaResourceManagement extends iMonezaApi
     }
 
     /**
+     * Get the property metadata from iMoneza.
      * @return mixed
      * @throws Exception
      */
@@ -39,6 +43,7 @@ class iMonezaResourceManagement extends iMonezaApi
     }
 
     /**
+     * Get the resource metadata from iMoneza.
      * @param $external_key
      * @param bool $include_property_data
      * @return array|mixed
@@ -65,6 +70,7 @@ class iMonezaResourceManagement extends iMonezaApi
     }
 
     /**
+     * Creates a resource with iMoneza.
      * @param $external_key
      * @param $data
      * @return object
