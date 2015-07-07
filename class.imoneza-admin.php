@@ -355,8 +355,7 @@ class IMonezaAdmin {
           );
           $wrapper["price"] = array(
             "#type" => "textfield",
-            "#default_value" =>
-              $resource['ResourcePricingTiers'][$i]["Price"],
+            "#default_value" => $resource['ResourcePricingTiers'][$i]["Price"],
             "#prefix" => "<br />",
           );
 
