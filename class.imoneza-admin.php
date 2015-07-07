@@ -287,8 +287,7 @@ class IMonezaAdmin {
       $tiered_pricing_container["imoneza_tiered_fieldset"] = array(
         "#type" => "fieldset",
         "#title" => "Pricing Tiers",
-        "#description" => t("You must have at least one tier, and "
-          . "there must be one tier of 0 minutes or 0 views."),
+        "#description" => t("You must have at least one tier, and there must be one tier of 0 minutes or 0 views."),
         "#prefix" => '<div id="tiers-fieldset-wrapper">',
         "#suffix" => "</div>",
       );
@@ -326,8 +325,8 @@ class IMonezaAdmin {
 
           if ($resource['ResourcePricingTiers'][$i]["Tier"] > 1440) {
             $scaling_factor = "days";
-            $tier_val =
-              $resource['ResourcePricingTiers'][$i]["Tier"]
+            $tier_val
+              = $resource['ResourcePricingTiers'][$i]["Tier"]
               / 1440.0;
           }
           $wrapper["tier"] = array(
@@ -413,6 +412,7 @@ class IMonezaAdmin {
         "#markup" => t("An error has occurred: " . check_plain($e->getMessage()))
       );
     }
+
   }
 
   /**
