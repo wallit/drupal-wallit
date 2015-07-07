@@ -1,7 +1,8 @@
 <?php
 /**
+ * @file
  * Contains the iMoneza Admin class.
- * @file class.imoneza-admin.php
+ *
  */
 
 /**

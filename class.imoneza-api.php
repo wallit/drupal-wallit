@@ -1,7 +1,8 @@
 <?php
 /**
+ * @file
  * Contains the iMonezaApi base class.
- * @file class.imoneza-api.php
+ *
  */
 
 /**
