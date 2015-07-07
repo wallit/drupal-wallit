@@ -44,15 +44,7 @@ function imoneza_admin_object() {
 
 /**
  * Implements hook_help().
- *
- * @param string $path
- *    Drupal url path.
- * @param string $arg
- *    Unused argument.
- *
- * @return string
- *    String to be displayed as 'help'.
- */
+ **/
 function imoneza_help($path, $arg) {
   switch ($path) {
     case "admin/help#imoneza":
@@ -64,13 +56,6 @@ function imoneza_help($path, $arg) {
 
 /**
  * Implements hook_form_alter().
- *
- * @param array $form
- *    Nested array of form elements.
- * @param array $form_state
- *    Nested array of formstate elements.
- * @param string $form_id
- *    String indicating the id of the form.
  */
 function imoneza_form_alter(&$form, $form_state, $form_id) {
   if (isset($form["type"]) && isset($form["type"]["#value"])) {
@@ -87,9 +72,6 @@ function imoneza_form_alter(&$form, $form_state, $form_id) {
 
 /**
  * Implements hook_menu().
- *
- * @return array
- *    Array containing iMoneza menu items.
  */
 function imoneza_menu() {
   $items = array();
@@ -107,9 +89,6 @@ function imoneza_menu() {
 
 /**
  * Implements hook_permission().
- *
- * @return array
- *    Permission values.
  */
 function imoneza_permission() {
   return array(
@@ -131,9 +110,6 @@ function imoneza_permission() {
  *  Delegates to the IMonezaAdmin::create_admin_page() method and implementation
  * of hook_admin().
  * </p>
- *
- * @return array
- *   The form corresponding to the admin form.
  */
 function imoneza_admin() {
   $imoneza_admin = imoneza_admin_object();
@@ -164,11 +140,6 @@ function imoneza_admin() {
  *  At this point, if we're going to show the paywall, we determine
  *  whether to display the javascript paywall, or handle it server-side.
  * </p>
- *
- * @param $nodes
- *    The nodes being loaded.
- * @param $types
- *    The types of the nodes being loaded, not used.
  */
 function imoneza_node_load($nodes, $types) {
   //check for resource access
