@@ -6,7 +6,7 @@
  * Time: 11:33 AM
  */
 
-function read_file_contents($file) {
+function imoneza_read_file_contents($file) {
     ob_start();
     include $file;
     $retVal = ob_get_contents();

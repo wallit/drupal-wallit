@@ -5,7 +5,6 @@
  * This plugin provides integration the iMoneza System
  */
 
-
 define("NO_ACCESS_CONTROL", 0);
 define("CLIENT_SIDE_ACCESS_CONTROL", 1);
 define("SERVER_SIDE_ACCESS_CONTROL", 2);
@@ -14,31 +13,30 @@ define('IMONEZA__RM_API_URL', 'https://manageapi.imoneza.com');
 define('IMONEZA__RA_UI_URL', 'https://accessui.imoneza.com');
 define('IMONEZA__DEBUG', FALSE);
 
-
 /**
  * Factory method to return the global iMoneza object
  * @return IMoneza
  */
 function imoneza_object() {
-    static $imoneza = NULL;
-    if (empty($imoneza)) {
-        $imoneza = new IMoneza();
-    }
+  static $imoneza = NULL;
+  if (empty($imoneza)) {
+    $imoneza = new IMoneza();
+  }
 
-    return $imoneza;
+  return $imoneza;
 }
-
 
 /**
  * Factory method to return the global iMonezaAdmin object
  * @return iMonezaAdmin
  */
 function imoneza_admin_object() {
-    static $imoneza_admin = NULL;
-    if (empty($imoneza_admin)) {
-        $imoneza_admin = new iMonezaAdmin();
-    }
-    return $imoneza_admin;
+  static $imoneza_admin = NULL;
+  if (empty($imoneza_admin)) {
+    $imoneza_admin = new iMonezaAdmin();
+  }
+
+  return $imoneza_admin;
 }
 
 /**
@@ -48,12 +46,12 @@ function imoneza_admin_object() {
  * @return string
  */
 function imoneza_help($path, $arg) {
-    switch ($path) {
-        case "admin/help#imoneza":
-            return "<p>" . t("This plugin integrates your Drupal site with the iMoneza service") . "</p>";
-            break;
+  switch ($path) {
+    case "admin/help#imoneza":
+      return "<p>" . t("This plugin integrates your Drupal site with the iMoneza service") . "</p>";
+      break;
 
-    }
+  }
 }
 
 /**
@@ -63,16 +61,15 @@ function imoneza_help($path, $arg) {
  * @param $form_id
  */
 function imoneza_form_alter(&$form, $form_state, $form_id) {
-    if (isset($form["type"]) && isset($form["type"]["#value"])) {
-        $holder = new ImonezaStdObject();
-        $holder->type = $form["type"]["#value"];
-        $imoneza = variable_get("imoneza", new IMoneza());
-        if ($imoneza->is_imoneza_managed_node($holder)) {
-            $admin = variable_get("imoneza_admin", new iMonezaAdmin());
-            $admin->render_imoneza_meta_box($form, $form_state);
-        }
+  if (isset($form["type"]) && isset($form["type"]["#value"])) {
+    $holder = new ImonezaStdObject();
+    $holder->type = $form["type"]["#value"];
+    $imoneza = variable_get("imoneza", new IMoneza());
+    if ($imoneza->is_imoneza_managed_node($holder)) {
+      $admin = variable_get("imoneza_admin", new iMonezaAdmin());
+      $admin->render_imoneza_meta_box($form, $form_state);
     }
-
+  }
 
 }
 
@@ -81,16 +78,17 @@ function imoneza_form_alter(&$form, $form_state, $form_id) {
  * @return array
  */
 function imoneza_menu() {
-    $items = array();
-    $items["admin/settings/imoneza"] = array(
-        "title" => "iMoneza",
-        "description" => "iMoneza Settings",
-        "page callback" => "drupal_get_form",
-        "page arguments" => array("imoneza_admin"),
-        "access arguments" => array("administer imoneza settings"),
-        "type" => MENU_NORMAL_ITEM,
-    );
-    return $items;
+  $items = array();
+  $items["admin/settings/imoneza"] = array(
+    "title" => "iMoneza",
+    "description" => "iMoneza Settings",
+    "page callback" => "drupal_get_form",
+    "page arguments" => array("imoneza_admin"),
+    "access arguments" => array("administer imoneza settings"),
+    "type" => MENU_NORMAL_ITEM,
+  );
+
+  return $items;
 }
 
 /**
@@ -98,16 +96,16 @@ function imoneza_menu() {
  * @return array
  */
 function imoneza_permission() {
-    return array(
-        "administer imoneza settings" => array(
-            "title" => t("Administer iMoneza Global Settings"),
-            "description" => t("Configure iMoneza, including API keys and site-wide defaults")
-        ),
-        "bypass imoneza paywall" => array(
-            "title" => t("Bypass iMoneza Paywall"),
-            "description" => t("Allow users of this type to bypass iMoneza checks for all content types")
-        )
-    );
+  return array(
+    "administer imoneza settings" => array(
+      "title" => t("Administer iMoneza Global Settings"),
+      "description" => t("Configure iMoneza, including API keys and site-wide defaults")
+    ),
+    "bypass imoneza paywall" => array(
+      "title" => t("Bypass iMoneza Paywall"),
+      "description" => t("Allow users of this type to bypass iMoneza checks for all content types")
+    )
+  );
 }
 
 /**
@@ -118,8 +116,9 @@ function imoneza_permission() {
  * @return array, the form corresponding to the admin form
  */
 function imoneza_admin() {
-    $imoneza_admin = imoneza_admin_object();
-    return $imoneza_admin->createAdminPage();
+  $imoneza_admin = imoneza_admin_object();
+
+  return $imoneza_admin->createAdminPage();
 
 }
 
@@ -147,43 +146,43 @@ function imoneza_admin() {
  * @param $types the types of the nodes being loaded, not used.
  */
 function imoneza_node_load($nodes, $types) {
-    //check for resource access
-    $numManagedNodes = 0;
+  //check for resource access
+  $numManagedNodes = 0;
 
-    $imoneza = imoneza_object();
-    foreach ($nodes as $node) {
-        if ($imoneza->is_imoneza_managed_node($node)) {
-            $numManagedNodes++;
-            $managedNode = $node;
-        }
-
-    }
-    if ($numManagedNodes > 1 || $numManagedNodes < 1) {
-        return;
-        //For now, not executing on pages that contain multiple nodes.
-    }
-    $node = $managedNode;
-
-    if (user_access("bypass imoneza paywall") || path_is_admin(current_path())) {
-        //allow them access no matter what.
-        return;
+  $imoneza = imoneza_object();
+  foreach ($nodes as $node) {
+    if ($imoneza->is_imoneza_managed_node($node)) {
+      $numManagedNodes++;
+      $managedNode = $node;
     }
 
-    drupal_add_js(IMONEZA__RA_UI_URL . "/assets/imoneza.js", "file");
+  }
+  if ($numManagedNodes > 1 || $numManagedNodes < 1) {
+    return;
+    //For now, not executing on pages that contain multiple nodes.
+  }
+  $node = $managedNode;
 
-    if ($imoneza->doDynamic) {
-        $imoneza->create_dynamic($node);
-    }
+  if (user_access("bypass imoneza paywall") || path_is_admin(current_path())) {
+    //allow them access no matter what.
+    return;
+  }
 
-    if ($imoneza->doServerSideAuth) {
-        error_log("Doing iMoneza redirect");
-        $imoneza->imoneza_template_redirect($node);
-    } else if ($imoneza->doClientSideAuth) {
-        drupal_add_js($imoneza->create_snippet($node), "inline");
-    } else {
-        //ignore it.
-        return;
-    }
+  drupal_add_js(IMONEZA__RA_UI_URL . "/assets/imoneza.js", "file");
+
+  if ($imoneza->doDynamic) {
+    $imoneza->create_dynamic($node);
+  }
+
+  if ($imoneza->doServerSideAuth) {
+    error_log("Doing iMoneza redirect");
+    $imoneza->imoneza_template_redirect($node);
+  } else if ($imoneza->doClientSideAuth) {
+    drupal_add_js($imoneza->create_snippet($node), "inline");
+  } else {
+    //ignore it.
+    return;
+  }
 
 }
 

@@ -1,4 +1,7 @@
 <?php
+/**
+ * Contains the iMonezaApi base class.
+ */
 
 /**
  * Class iMonezaApi
@@ -7,24 +10,24 @@
  */
 abstract class iMonezaApi
 {
-    public $options;
-    public $privateKey;
-    public $publicKey;
-    public $server;
+  public $options;
+  public $privateKey;
+  public $publicKey;
+  public $server;
 
-    /**
-     *
-     * Constructor
-     *
-     * @param $options
-     * @param $accessKey
-     * @param $secretKey
-     * @param $server
-     */
-    protected function __construct($options, $accessKey, $secretKey, $server) {
-        $this->options = $options;
-        $this->accessKey = $accessKey;
-        $this->secretKey = $secretKey;
-        $this->server = $server;
-    }
+  /**
+   *
+   * Constructor
+   *
+   * @param $options
+   * @param $accessKey
+   * @param $secretKey
+   * @param $server
+   */
+  protected function __construct($options, $accessKey, $secretKey, $server) {
+    $this->options = $options;
+    $this->accessKey = $accessKey;
+    $this->secretKey = $secretKey;
+    $this->server = $server;
+  }
 }
