@@ -351,7 +351,7 @@ class IMonezaAdmin {
             "#suffix" => "</div>",
           );
           $wrapper["view_text"] = array(
-            "#markup" => '<div class="view_text">views</div>'
+            "#markup" => '<div class="view_text">views</div>',
           );
           $wrapper["price"] = array(
             "#type" => "textfield",
@@ -648,7 +648,7 @@ class IMonezaAdmin {
       "#type" => "textarea",
       "#title" => "Excluded User Agents",
       "#description" => t("Comma-separated list of user agents to allow unlimited access to your resources"),
-      "#default_value" => isset($options['imoneza_access_control_excluded_user_agents']) ? $options['imoneza_access_control_excluded_user_agents'] : ""
+      "#default_value" => isset($options['imoneza_access_control_excluded_user_agents']) ? $options['imoneza_access_control_excluded_user_agents'] : "",
     );
 
     $node_types = node_type_get_types();
@@ -720,7 +720,7 @@ class IMonezaAdmin {
   /**
    * Sanitize each setting field as needed.
    *
-   * @param  mixed $input
+   * @param mixed $input
    *    Array containing all settings fields as array keys.
    *
    * @return array
@@ -731,21 +731,21 @@ class IMonezaAdmin {
     $new_input = array();
 
     if (isset($input['imoneza_rm_api_key_access'])) {
-      $new_input['imoneza_rm_api_key_access'] =
-        check_plain($input['imoneza_rm_api_key_access']);
+      $new_input['imoneza_rm_api_key_access']
+        = check_plain($input['imoneza_rm_api_key_access']);
     }
     if (isset($input['imoneza_rm_api_key_secret'])) {
-      $new_input['imoneza_rm_api_key_secret'] =
-        check_plain($input['imoneza_rm_api_key_secret']);
+      $new_input['imoneza_rm_api_key_secret']
+        = check_plain($input['imoneza_rm_api_key_secret']);
     }
 
     if (isset($input['imoneza_ra_api_key_access'])) {
-      $new_input['imoneza_ra_api_key_access'] =
-        check_plain($input['imoneza_ra_api_key_access']);
+      $new_input['imoneza_ra_api_key_access']
+        = check_plain($input['imoneza_ra_api_key_access']);
     }
     if (isset($input['imoneza_ra_api_key_secret'])) {
-      $new_input['imoneza_ra_api_key_secret'] =
-        check_plain($input['imoneza_ra_api_key_secret']);
+      $new_input['imoneza_ra_api_key_secret']
+        = check_plain($input['imoneza_ra_api_key_secret']);
     }
 
     if (isset($input['imoneza_nodynamic'])
@@ -767,8 +767,8 @@ class IMonezaAdmin {
     }
 
     if (isset($input['imoneza_access_control'])) {
-      $new_input['imoneza_access_control'] =
-        check_plain($input['imoneza_access_control']);
+      $new_input['imoneza_access_control']
+        = check_plain($input['imoneza_access_control']);
     }
 
     if (isset($input['imoneza_node_types'])) {
