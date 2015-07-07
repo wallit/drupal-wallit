@@ -1,12 +1,13 @@
 <?php
 /**
- * @file Contains the iMonezaApi base class.
+ * @file
+ * Contains the iMonezaApi base class.
  */
 
 /**
- * Class iMonezaApi
+ * Class iMonezaApi.
  *
- * Abstract base class for all API classes
+ * Abstract base class for all API classes.
  */
 abstract class iMonezaApi {
   public $options;
@@ -18,10 +19,14 @@ abstract class iMonezaApi {
    *
    * Constructor.
    *
-   * @param $options
-   * @param $accessKey
-   * @param $secretKey
-   * @param $server
+   * @param array $options
+   *    Array of API options for the particular api.
+   * @param string $accessKey
+   *    Access key for API.
+   * @param string $secretKey
+   *    Secret key for API.
+   * @param string $server
+   *    Fully qualified server name.
    */
   protected function __construct($options, $accessKey, $secretKey, $server) {
     $this->options = $options;
@@ -29,4 +34,5 @@ abstract class iMonezaApi {
     $this->secretKey = $secretKey;
     $this->server = $server;
   }
+
 }
