@@ -406,9 +406,10 @@ class IMonezaAdmin {
 
       $form["actions"]["submit"]["#submit"][] = array($this, "saveMetaBoxData");
 
-    } catch (Exception $e) {
+    }
+    catch (Exception $e) {
       $form['imoneza']["imoneza_error"] = array(
-        "#markup" => t("An error has occurred: " . check_plain($e->getMessage()))
+        "#markup" => t("An error has occurred: @error ", array("@errro" => check_plain($e->getMessage())))
       );
     }
 
@@ -535,7 +536,8 @@ class IMonezaAdmin {
       $resource_management->putResource($post_id, $data);
       $this->setUpdatedNotice('iMoneza settings for the resource "
                 . "were successfully updated.');
-    } catch (Exception $e) {
+    }
+    catch (Exception $e) {
       $this->setErrorNotice($e->getMessage());
     }
   }
