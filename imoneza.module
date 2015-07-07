@@ -158,7 +158,7 @@ function imoneza_node_load($nodes, $types) {
   $node = $managed_node;
 
   if (user_access("bypass imoneza paywall") || path_is_admin(current_path())) {
-    //  Allow them access no matter what.
+    // Allow them access no matter what.
     return;
   }
 
