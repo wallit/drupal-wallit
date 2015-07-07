@@ -169,10 +169,11 @@ class IMoneza {
       $imoneza_head = array(
         "#tag" => "script",
         "#type" => "markup",
-        "#markup" => $output
+        "#markup" => $output,
       );
 
       drupal_add_html_head($imoneza_head, "imoneza-dynamic-header");
     }
   }
+
 }
