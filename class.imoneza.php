@@ -5,7 +5,6 @@
  */
 
 /**
- *
  * Class IMoneza
  *
  * Contains general client-facing functionality for iMoneza.
@@ -57,8 +56,8 @@ class IMoneza {
 
   /**
    * Returns boolean indicating whether node type is managed.
+   *
    * @param Node $node
-   *  Drupal Node object
    * @return bool indicating whether this node is managed by iMoneza
    */
   public function isImonezaManagedNode($node) {
@@ -73,6 +72,7 @@ class IMoneza {
 
   /**
    * Peforms a redirect based on whether the user has access.
+   *
    * @param $node
    * @throws Exception
    */
