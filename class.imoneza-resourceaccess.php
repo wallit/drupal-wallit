@@ -6,7 +6,7 @@
  * Resource Access API implementation. Has methods for determining whether
  * a user has access to a given resource.
  */
-class iMonezaResourceAccess extends iMonezaApi
+class iMonezaResourceAccess extends IMonezaApi
 {
 
   protected $cookieExpiration;

@@ -10,7 +10,7 @@
  * Provides access to the Resource Management API for creating resources,
  * managing pricing, etc.
  */
-class IMonezaResourceManagement extends iMonezaApi {
+class IMonezaResourceManagement extends IMonezaApi {
 
   /**
    * Constructor.

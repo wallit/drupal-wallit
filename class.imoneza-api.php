@@ -9,17 +9,16 @@
  *
  * Abstract base class for all API classes.
  */
-abstract class iMonezaApi {
+abstract class IMonezaApi {
   public $options;
   public $privateKey;
   public $publicKey;
   public $server;
 
   /**
-   *
    * Constructor.
    *
-   * @param array $options
+   * @param object $options
    *    Array of API options for the particular api.
    * @param string $accessKey
    *    Access key for API.
