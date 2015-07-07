@@ -1,88 +1,140 @@
 <?php
-    
-class iMoneza_ResourceAccess extends iMoneza_API {
+
+/**
+ * Class iMonezaResourceAccess
+ *
+ * Resource Access API implementation. Has methods for determining whether
+ * a user has access to a given resource.
+ */
+class iMonezaResourceAccess extends iMonezaApi
+{
 
     protected $cookieExpiration;
 
-    public function __construct()
-    {
+    /**
+     * Constructor
+     */
+    public function __construct() {
         $options = variable_get('imoneza_options');
-        parent::__construct($options, $options['imoneza_ra_api_key_access'], $options['imoneza_ra_api_key_secret'], IMONEZA__RA_API_URL);
+        parent::__construct($options,
+            $options['imoneza_ra_api_key_access'],
+            $options['imoneza_ra_api_key_secret'],
+            IMONEZA__RA_API_URL);
 
         // 14 days
         $this->cookieExpiration = 60 * 60 * 24 * 14;
     }
 
-    public function getResourceAccess($externalKey, $resourceURL)
-    {
+    /**
+     * Either allows access to a resource or forwards to iMoneza for access
+     * control.
+     * @param $external_key
+     * @param $resource_url
+     * @throws Exception
+     */
+    public function getResourceAccess($external_key, $resource_url) {
         try {
-            $userToken = '';
+            $user_token = '';
 
-            // Check for excluded user agents
-            if (isset($this->options['access_control_excluded_user_agents']) && $this->options['access_control_excluded_user_agents'] != '') {
-                foreach (explode("\n", $this->options['access_control_excluded_user_agents']) as $userAgent) {
-                    if ($userAgent == $_SERVER['HTTP_USER_AGENT'])
+            // Check for excluded user agents.
+            if (isset($this->options['access_control_excluded_user_agents'])
+                &&
+                $this->options['access_control_excluded_user_agents'] != ''
+            ) {
+                foreach (explode("\n",
+                    $this->options['access_control_excluded_user_agents'])
+                         as $user_agent) {
+
+                    if ($user_agent == $_SERVER['HTTP_USER_AGENT'])
                         return;
                 }
             }
 
             if (isset($_REQUEST['iMonezaTUT'])) {
-                // The user just authenticated at iMoneza, and iMoneza is sending the temporary user token back to us
-                $temporaryUserToken = $_REQUEST['iMonezaTUT'];
-                $resourceAccessData = $this->getResourceAccessDataFromTemporaryUserToken($externalKey, $resourceURL, $temporaryUserToken);
+                // The user just authenticated at iMoneza, and
+                // iMoneza is sending the temporary user token back to us.
+                $temporary_user_token = $_REQUEST['iMonezaTUT'];
+                $resource_access_data =
+                    $this->getResourceAccessDataFromTemporaryUserToken(
+                        $external_key, $resource_url, $temporary_user_token);
             } else {
-                if (isset($_COOKIE['iMonezaUT'])){
-                    $userToken = $_COOKIE['iMonezaUT'];
+                if (isset($_COOKIE['iMonezaUT'])) {
+                    $user_token = $_COOKIE['iMonezaUT'];
                 };
-                $resourceAccessData = $this->getResourceAccessDataFromExternalKey($externalKey, $resourceURL, $userToken);
+                $resource_access_data =
+                    $this->getResourceAccessDataFromExternalKey(
+                        $external_key, $resource_url, $user_token);
             }
-            $userToken = $resourceAccessData['UserToken'];
-            setcookie('iMonezaUT', $userToken, time() + $this->cookieExpiration);
+            $user_token = $resource_access_data['UserToken'];
+            setcookie('iMonezaUT', $user_token, time() + $this->cookieExpiration);
 
-            if ($resourceAccessData['AccessActionURL'] && strlen($resourceAccessData['AccessActionURL']) > 0)
-            {
-                $url = $resourceAccessData['AccessActionURL'];
-                $url = $url . '&OriginalURL=' . rawurlencode($resourceURL);
+            if ($resource_access_data['AccessActionURL']
+                && strlen($resource_access_data['AccessActionURL']) > 0
+            ) {
+                $url = $resource_access_data['AccessActionURL'];
+                $url = $url . '&OriginalURL=' . rawurlencode($resource_url);
                 drupal_goto($url);
                 exit;
             }
         } catch (Exception $e) {
-            // Default to open access if there's some sort of exception
-            error_log(print_r($e, true));
+            // Default to open access if there's some sort of exception.
+            error_log(print_r($e, TRUE));
             if (IMONEZA__DEBUG)
                 throw $e;
         }
     }
 
-    public function getResourceAccessDataFromExternalKey($externalKey, $resourceURL, $userToken) {
-        $request = new iMoneza_RestfulRequest($this);
+    /**
+     *
+     * @param $external_key
+     * @param $resource_url
+     * @param $user_token
+     * @return mixed
+     * @throws Exception
+     */
+    public function getResourceAccessDataFromExternalKey(
+        $external_key, $resource_url, $user_token) {
+        $request = new iMonezaRestfulRequest($this);
         $request->method = 'GET';
-        $request->uri = '/api/Resource/' . $this->accessKey . '/' . $externalKey;
-        $request->getParameters['ResourceURL'] = $resourceURL;
-        $request->getParameters['UserToken'] = $userToken;
+        $request->uri = '/api/Resource/' . $this->accessKey . '/' . $external_key;
+        $request->getParameters['ResourceURL'] = $resource_url;
+        $request->getParameters['UserToken'] = $user_token;
 
         $response = $request->getResponse();
 
         if ($response->code == '404') {
-            throw new Exception('An error occurred with the Resource Access API key. Make sure you have valid Access Management API keys set in the iMoneza plugin settings.');
+            throw new Exception('An error occurred with the Resource Access '
+                . 'API key. Make sure you have valid Access Management API keys'
+                . ' set in the iMoneza plugin settings.');
         } else {
-            return json_decode($response->data, true);
+            return json_decode($response->data, TRUE);
         }
     }
 
-    public function getResourceAccessDataFromTemporaryUserToken($externalKey, $resourceURL, $temporaryUserToken) {
-        $request = new iMoneza_RestfulRequest($this);
+    /**
+     * @param $external_key
+     * @param $resource_url
+     * @param $temporary_user_token
+     * @return mixed
+     * @throws Exception
+     */
+    public function getResourceAccessDataFromTemporaryUserToken(
+        $external_key, $resource_url, $temporary_user_token) {
+        $request = new iMonezaRestfulRequest($this);
         $request->method = 'GET';
-        $request->uri = '/api/TemporaryUserToken/' . $this->accessKey . '/' . $temporaryUserToken;
-        $request->getParameters['ResourceKey'] = $externalKey;
-        $request->getParameters['ResourceURL'] = $resourceURL;
+        $request->uri = '/api/TemporaryUserToken/'
+            . $this->accessKey . '/' . $temporary_user_token;
+        $request->getParameters['ResourceKey'] = $external_key;
+        $request->getParameters['ResourceURL'] = $resource_url;
 
         $response = $request->getResponse();
 
         if ($response->code == '404') {
-            throw new Exception('An error occurred with the Resource Access API key. Make sure you have valid Access Management API keys set in the iMoneza plugin settings.');
+            throw new Exception('An error occurred with the Resource Access '
+                . 'API key. Make sure you have valid Access Management API '
+                . 'keys set in the iMoneza plugin settings.');
         } else {
-            return json_decode($response->data, true);
+            return json_decode($response->data, TRUE);
         }
     }
 }

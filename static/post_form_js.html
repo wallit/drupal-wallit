@@ -1,10 +1,10 @@
 <script type="text/javascript">
     var $ = jQuery;
 
-    $(document).ready(function(){
-        $(".remove_button").click(function(event){
+    $(document).ready(function () {
+        $(".remove_button").click(function (event) {
             event.preventDefault();
-            if ($(".tier-wrapper").length == 1){
+            if ($(".tier-wrapper").length == 1) {
                 //don't allow removal of last tier
                 return false;
             }
@@ -13,7 +13,7 @@
             return false;
         });
 
-        $(".add_tier_btn").click(function(event){
+        $(".add_tier_btn").click(function (event) {
             event.preventDefault();
             var element = $($(".tier-wrapper")[0]).clone(true, true);
             var inputs = $(element).find("input,select");
@@ -58,10 +58,10 @@
             var expirationPeriodUnit = epu.options[epu.selectedIndex].value;
             imoneza_toggle_class(".imoneza_row_price_expiration", (selectedPricingModel == "FixedPrice" || selectedPricingModel == "VariablePrice") && (expirationPeriodUnit != "Never"));
 
-            if ($("#edit-imoneza-pricingmodel").val() === "TimeTiered"){
+            if ($("#edit-imoneza-pricingmodel").val() === "TimeTiered") {
                 $(".tier-selector-wrapper").show();
                 $(".view_text").hide();
-            }else{
+            } else {
                 $(".tier-selector-wrapper").hide();
                 $(".view_text").show();
             }
@@ -79,15 +79,14 @@
 
     function imoneza_add_tier() {
         var select = document.getElementById("edit-imoneza-pricingmodel").value;
-        if (select === "ViewTiered"){
+        if (select === "ViewTiered") {
 
-        }else if (select === "TimeTiered"){
+        } else if (select === "TimeTiered") {
 
-        }else{
+        } else {
             //skip it, called by mistake
             return false;
         }
-
 
 
         return false;
@@ -101,7 +100,7 @@
     }
 
 
-    $(document).ready(function(){
+    $(document).ready(function () {
         imoneza_update_display();
     });
 

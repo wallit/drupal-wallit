@@ -1,9 +1,15 @@
 <?php
 
-class iMoneza_RestfulRequest {
+/**
+ * Class iMonezaRestfulRequest
+ *
+ * Represents a request any iMoneza API.
+ */
+class iMonezaRestfulRequest
+{
 
     private $api;
-    
+
     public $method;
     public $uri;
     public $getParameters;
@@ -11,8 +17,7 @@ class iMoneza_RestfulRequest {
     public $body;
     public $contentType;
 
-    public function __construct($api)
-    {
+    public function __construct($api) {
         $this->api = $api;
         $this->getParameters = array();
         $this->method = 'GET';
@@ -21,44 +26,53 @@ class iMoneza_RestfulRequest {
         $this->contentType = '';
     }
 
-    public function getResponse()
-    {
+    public function getResponse() {
         $this->method = strtoupper($this->method);
-        if ($this->method != 'GET' && $this->method != 'POST' && $this->method != 'PUT' && $this->method != 'DELETE')
+        if ($this->method != 'GET' && $this->method != 'POST'
+            && $this->method != 'PUT' && $this->method != 'DELETE')
+
             throw new Exception('Invalid method');
 
-        if ($this->method != 'POST' && $this->method != 'PUT' && $this->body != '')
+        if ($this->method != 'POST' && $this->method != 'PUT'
+            && $this->body != '')
+
             throw new Exception('You can only specify a body with a POST');
 
-        if ($this->method != 'POST' && $this->method != 'PUT' && $this->contentType != '')
+        if ($this->method != 'POST' && $this->method != 'PUT'
+            && $this->contentType != '')
+
             throw new Exception('You can only specify a content type with a POST');
 
         if ($this->body != '' && $this->contentType == '')
             throw new Exception('You must provide a content type with a body');
 
         if (strpos($this->uri, '?') !== FALSE)
-            throw new Exception('Illegal character in URI - make sure you include query string parameters in the getParams dictionary, not the URI');
+            throw new Exception('Illegal character in URI - make sure you '
+            . 'include query string parameters in the getParams dictionary, '
+            . 'not the URI');
 
         $timestamp = gmdate('D, d M Y H:i:s \G\M\T');
 
         $sortedParams = $this->getSortedParams();
         $paramStrings = $this->getParamString($sortedParams);
 
-        $baseString = implode("\n", array($this->method, $timestamp, strtolower($this->uri), $paramStrings));
-        $hash = base64_encode(hash_hmac('sha256', $baseString, $this->api->secretKey, true));
+        $baseString = implode("\n", array($this->method, $timestamp,
+            strtolower($this->uri), $paramStrings));
+
+        $hash = base64_encode(
+            hash_hmac('sha256', $baseString, $this->api->secretKey, true));
 
 
         $url = $this->api->server . $this->uri;
-        if (count($this->getParameters) > 0)
-        {
-            $getParamStrings = array();
+        if (count($this->getParameters) > 0) {
+            $get_param_strings = array();
             foreach ($this->getParameters as $key => $value)
-                $getParamStrings[] = $key . '=' . rawurlencode($value);
+                $get_param_strings[] = $key . '=' . rawurlencode($value);
 
-            $url .= '?' . implode('&', $getParamStrings);
+            $url .= '?' . implode('&', $get_param_strings);
         }
 
-        $rawResponse = drupal_http_request($url, array(
+        $raw_response = drupal_http_request($url, array(
             'method' => $this->method,
             'data' => $this->body,
             'headers' => array(
@@ -69,27 +83,34 @@ class iMoneza_RestfulRequest {
             )
         ));
 
-        return $rawResponse;
+        return $raw_response;
     }
 
-    private function getSortedParams()
-    {
-        $sortedParams = array();
-        // This won't handle conflicting GET/POST params the same way as the .NET module
+    /**
+     * Sorts the stored parameters sorted in the proper order for
+     * authentication.
+     *
+     * @return array
+     */
+    private function getSortedParams() {
+        $sorted_params = array();
         foreach ($this->getParameters as $key => $value)
-            $sortedParams[strtolower($key)] = strtolower($value);
-        ksort($sortedParams);
+            $sorted_params[strtolower($key)] = strtolower($value);
+        ksort($sorted_params);
 
-        return $sortedParams;
+        return $sorted_params;
     }
 
-    private function getParamString($sortedParams)
-    {
-        $paramStrings = array();
-        foreach ($sortedParams as $key => $value)
-            $paramStrings[] = $key . '=' . $value;
+    /**
+     * @param $sorted_params
+     * @return string
+     */
+    private function getParamString($sorted_params) {
+        $param_strings = array();
+        foreach ($sorted_params as $key => $value)
+            $param_strings[] = $key . '=' . $value;
 
-        return implode('&', $paramStrings);
+        return implode('&', $param_strings);
     }
 
 }

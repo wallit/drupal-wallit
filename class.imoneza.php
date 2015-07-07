@@ -1,58 +1,92 @@
 <?php
-    
-class iMoneza {
-	private $options;
-    public $doClientSideAuth = false;
-    public $doServerSideAuth = false;
-    public $doDynamic = false;
 
-    public function __construct()
-    {
+/**
+ *
+ * Class IMoneza
+ *
+ * Contains general client-facing functionality for iMoneza
+ */
+class IMoneza
+{
+    private $options;
+    public $doClientSideAuth = FALSE;
+    public $doServerSideAuth = FALSE;
+    public $doDynamic = FALSE;
+
+    /**
+     * Constructor
+     */
+    public function __construct() {
+
         $this->options = variable_get("imoneza_options", array());
-
-        if (isset($this->options["imoneza_ra_api_key_access"])){
-            // If there's an Access API access key, and we're using client-side access control, create the JavaScript snippet
-            if (isset($this->options['imoneza_ra_api_key_access']) && $this->options['imoneza_ra_api_key_access'] != '' && (!isset($this->options['imoneza_access_control']) || $this->options['imoneza_access_control'] == 1)) {
-                $this->doClientSideAuth = true;
+        if (isset($this->options["imoneza_ra_api_key_access"])) {
+            // If there's an Access API access key, and we're using client-side
+            // access control, create the JavaScript snippet.
+            if (
+                isset($this->options['imoneza_ra_api_key_access'])
+                && $this->options['imoneza_ra_api_key_access'] != ''
+                &&
+                (!isset($this->options['imoneza_access_control'])
+                    || $this->options['imoneza_access_control'] == 1)
+            ) {
+                $this->doClientSideAuth = TRUE;
             }
 
-            // If 'no_dynamic' isn't set, then make sure we add the dynamic resource creation block to every page
-            if (!isset($this->options['imoneza_nodynamic']) || $this->options['imoneza_nodynamic'] != '1') {
-                $this->doDynamic = true;
+            // If 'no_dynamic' isn't set, then make sure we add the dynamic
+            // resource creation block to every page.
+            if (!isset($this->options['imoneza_nodynamic'])
+                || $this->options['imoneza_nodynamic'] != '1'
+            ) {
+                $this->doDynamic = TRUE;
             }
 
-            // Perform server-side access control
-            if (isset($this->options['imoneza_ra_api_key_secret']) && $this->options['imoneza_ra_api_key_secret'] != '' && isset($this->options['imoneza_access_control']) && $this->options['imoneza_access_control'] == 2) {
-                $this->doServerSideAuth = true;
+            // Perform server-side access control.
+            if (isset($this->options['imoneza_ra_api_key_secret'])
+                && $this->options['imoneza_ra_api_key_secret'] != ''
+                && isset($this->options['imoneza_access_control'])
+                && $this->options['imoneza_access_control'] == 2
+            ) {
+                $this->doServerSideAuth = TRUE;
             }
         }
     }
 
-    public function is_imoneza_managed_node($node){
+    /**
+     *
+     * @param $node
+     * @return bool indicating whether this node is managed by iMoneza
+     */
+    public function isImonezaManagedNode($node) {
 
-        if (is_array($this->options['imoneza_node_types'])){
+        if (is_array($this->options['imoneza_node_types'])) {
             return in_array($node->type, $this->options['imoneza_node_types']);
-        }else{
+        } else {
             return $node->type == $this->options['imoneza_node_types'];
         }
 
     }
 
-    public function imoneza_template_redirect($node)
-    {
-        $resourceValues = $this->get_resource_values($node);
-        if ($resourceValues['key'] == ''){
+    /**
+     * @param $node
+     * @throws Exception
+     */
+    public function imonezaTemplateRedirect($node) {
+        $resource_values = $this->getResourceValues($node);
+        if ($resource_values['key'] == '') {
             return;
 
         }
 
-
-        $resourceAccess = new iMoneza_ResourceAccess();
-        $response = $resourceAccess->getResourceAccess($resourceValues['key'], $resourceValues['url']);
+        $resource_access = new iMonezaResourceAccess();
+        $resource_access->getResourceAccess($resource_values['key'],
+            $resource_values['url']);
     }
 
-    private function get_resource_values($node)
-    {
+    /**
+     * @param $node
+     * @return array
+     */
+    private function getResourceValues($node) {
 
         $values = array();
         $values['key'] = $node->nid;
@@ -60,41 +94,52 @@ class iMoneza {
         $values['title'] = $node->title;
         $values['description'] = '';
         $values['publicationDate'] = '';
-        $values['url'] = url("/node/".$node->nid, array("absolute"=>true));
-        
+        $values['url'] = url("/node/" . $node->nid, array("absolute" => TRUE));
+
         return $values;
     }
 
-    // Adds the iMoneza JavaScript snippet to the HTML head of a page
-    public function create_snippet($node)
-    {
+    /**
+     * Adds the iMoneza JavaScript snippet to the HTML head of a page
+     * @param $node
+     * @return string
+     */
+    public function createSnippet($node) {
         $public_api_key = $this->options['imoneza_ra_api_key_access'];
-        $resourceValues = $this->get_resource_values($node);
+        $resource_values = $this->getResourceValues($node);
 
-        if ($resourceValues['key'] != '') {
+        if ($resource_values['key'] != '') {
             $output = '
                 iMoneza.ResourceAccess.init({
                     ApiKey: "' . $public_api_key . '",
-                    ResourceKey: "' . $resourceValues['key'] . '"
+                    ResourceKey: "' . $resource_values['key'] . '"
                 });
             ';
 
             return $output;
-        }else{
+        } else {
             return '';
         }
     }
 
+    /**
+     * Adds the dynamic resource creation block to the HTML head of a page
+     * @param $node
+     */
+    public function createDynamic($node) {
+        $resource_values = $this->getResourceValues($node);
 
-    // Adds the dynamic resource creation block to the HTML head of a page
-    public function create_dynamic($node)
-    {
-        $resourceValues = $this->get_resource_values($node);
+        if ($resource_values['key'] != '') {
 
-
-        if ($resourceValues['key'] != '') {
-
-            $output = '<script type="application/imoneza"><Resource><Name>' . $resourceValues['name'] . '</Name><Title>' . $resourceValues['title'] . '</Title>' .($resourceValues['description'] == '' ? '' :  '<Description>' . $resourceValues['description'] . '</Description>') .($resourceValues['publicationDate'] == '' ? '' : '<PublicationDate>' . $resourceValues['publicationDate'] . '</PublicationDate>') .'</Resource> </script>';
+            $output = '<script type="application/imoneza"><Resource><Name>' .
+                $resource_values['name'] . '</Name><Title>' .
+                $resource_values['title'] . '</Title>' .
+                ($resource_values['description'] == '' ? '' : '<Description>' .
+                    $resource_values['description'] . '</Description>') .
+                ($resource_values['publicationDate'] == '' ? '' :
+                    '<PublicationDate>' .
+                    $resource_values['publicationDate'] . '</PublicationDate>')
+                . '</Resource> </script>';
 
             $imoneza_head = array(
                 "#tag" => "script",

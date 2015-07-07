@@ -1,35 +1,56 @@
 <?php
-    
-class iMoneza_ResourceManagement extends iMoneza_API {
 
-    public function __construct()
-    {
+/**
+ * Class iMonezaResourceManagement
+ *
+ * Provides access to the Resource Management API for creating resources,
+ * managing pricing, etc.
+ */
+class iMonezaResourceManagement extends iMonezaApi
+{
+
+    /**
+     * Constructor
+     */
+    public function __construct() {
         $options = variable_get('imoneza_options');
-        parent::__construct($options, $options['imoneza_rm_api_key_access'], $options['imoneza_rm_api_key_secret'], IMONEZA__RM_API_URL);
+        parent::__construct($options, $options['imoneza_rm_api_key_access'],
+            $options['imoneza_rm_api_key_secret'], IMONEZA__RM_API_URL);
     }
 
-    public function getProperty()
-    {
-        $request = new iMoneza_RestfulRequest($this);
+    /**
+     * @return mixed
+     * @throws Exception
+     */
+    public function getProperty() {
+        $request = new iMonezaRestfulRequest($this);
         $request->method = 'GET';
         $request->uri = '/api/Property/' . $this->accessKey;
 
         $response = $request->getResponse();
 
         if ($response->code == '404') {
-            throw new Exception('An error occurred with the Resource Management API key. Make sure you have valid Resource Management API keys set in the iMoneza plugin settings.');
+            throw new Exception('An error occurred with the Resource '
+                . 'Management API key. Make sure you have valid Resource '
+                . 'Management API keys set in the iMoneza plugin settings.');
         } else {
             return json_decode($response->data, true);
         }
     }
 
-    public function getResource($externalKey, $includePropertyData = false)
-    {
-        $request = new iMoneza_RestfulRequest($this);
+    /**
+     * @param $external_key
+     * @param bool $include_property_data
+     * @return array|mixed
+     * @throws Exception
+     */
+    public function getResource($external_key, $include_property_data = false) {
+        $request = new iMonezaRestfulRequest($this);
         $request->method = 'GET';
-        $request->uri = '/api/Property/' . $this->accessKey . '/Resource/' . $externalKey;
+        $request->uri = '/api/Property/' . $this->accessKey . '/Resource/' .
+            $external_key;
 
-        if ($includePropertyData)
+        if ($include_property_data)
             $request->getParameters['includePropertyData'] = 'true';
 
         $response = $request->getResponse();
@@ -43,11 +64,16 @@ class iMoneza_ResourceManagement extends iMoneza_API {
         }
     }
 
-    public function putResource($externalKey, $data)
-    {
-        $request = new iMoneza_RestfulRequest($this);
+    /**
+     * @param $external_key
+     * @param $data
+     * @return object
+     * @throws Exception
+     */
+    public function putResource($external_key, $data) {
+        $request = new iMonezaRestfulRequest($this);
         $request->method = 'PUT';
-        $request->uri = '/api/Property/' . $this->accessKey . '/Resource/' . $externalKey;
+        $request->uri = '/api/Property/' . $this->accessKey . '/Resource/' . $external_key;
         $request->body = json_encode($data);
         $request->contentType = 'application/json';
 
@@ -65,9 +91,11 @@ class iMoneza_ResourceManagement extends iMoneza_API {
                     if (isset($obj->Message))
                         throw new Exception($obj->Message);
                     else
-                        throw new Exception('An error occurred while sending your changes to iMoneza.');
+                        throw new Exception('An error occurred while sending '
+                        . 'your changes to iMoneza.');
                 } else {
-                    throw new Exception('An error occurred while sending your changes to iMoneza.');
+                    throw new Exception('An error occurred while sending your '
+                        . 'changes to iMoneza.');
                 }
             }
         }

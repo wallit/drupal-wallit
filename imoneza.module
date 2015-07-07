@@ -14,34 +14,61 @@ define('IMONEZA__RM_API_URL', 'https://manageapi.imoneza.com');
 define('IMONEZA__RA_UI_URL', 'https://accessui.imoneza.com');
 define('IMONEZA__DEBUG', FALSE);
 
-require_once('b3_helpers.php');
-require_once('class.imoneza.php');
-require_once('class.imoneza-api.php');
-require_once('class.imoneza-admin.php');
-require_once('class.imoneza-resourceaccess.php');
-require_once('class.imoneza-restfulrequest.php');
-require_once('class.imoneza-resourcemanagement.php');
+
+/**
+ * Factory method to return the global iMoneza object
+ * @return IMoneza
+ */
+function imoneza_object() {
+    static $imoneza = NULL;
+    if (empty($imoneza)) {
+        $imoneza = new IMoneza();
+    }
+
+    return $imoneza;
+}
 
 
-variable_set("imoneza", new iMoneza());
-variable_set("imoneza_admin", new iMoneza_Admin());
+/**
+ * Factory method to return the global iMonezaAdmin object
+ * @return iMonezaAdmin
+ */
+function imoneza_admin_object() {
+    static $imoneza_admin = NULL;
+    if (empty($imoneza_admin)) {
+        $imoneza_admin = new iMonezaAdmin();
+    }
+    return $imoneza_admin;
+}
 
-function imoneza_help($path, $arg){
-    switch($path){
+/**
+ * Help hook. Implementation of hook_help().
+ * @param $path
+ * @param $arg
+ * @return string
+ */
+function imoneza_help($path, $arg) {
+    switch ($path) {
         case "admin/help#imoneza":
-            return "<p>".t("This plugin integrates your Drupal site with the iMoneza service")."</p>";
+            return "<p>" . t("This plugin integrates your Drupal site with the iMoneza service") . "</p>";
             break;
 
     }
 }
 
-function imoneza_form_alter(&$form, $form_state, $form_id){
-    if (isset($form["type"]) && isset($form["type"]["#value"])){
+/**
+ * Form alter hook. Implementation of hook_form_alter().
+ * @param $form
+ * @param $form_state
+ * @param $form_id
+ */
+function imoneza_form_alter(&$form, $form_state, $form_id) {
+    if (isset($form["type"]) && isset($form["type"]["#value"])) {
         $holder = new ImonezaStdObject();
         $holder->type = $form["type"]["#value"];
-        $imoneza = variable_get("imoneza", new iMoneza());
-        if ($imoneza->is_imoneza_managed_node($holder)){
-            $admin = variable_get("imoneza_admin", new iMoneza_Admin());
+        $imoneza = variable_get("imoneza", new IMoneza());
+        if ($imoneza->is_imoneza_managed_node($holder)) {
+            $admin = variable_get("imoneza_admin", new iMonezaAdmin());
             $admin->render_imoneza_meta_box($form, $form_state);
         }
     }
@@ -49,7 +76,11 @@ function imoneza_form_alter(&$form, $form_state, $form_id){
 
 }
 
-function imoneza_menu(){
+/**
+ * Menu hook. Implementation of hook_menu().
+ * @return array
+ */
+function imoneza_menu() {
     $items = array();
     $items["admin/settings/imoneza"] = array(
         "title" => "iMoneza",
@@ -62,7 +93,11 @@ function imoneza_menu(){
     return $items;
 }
 
-function imoneza_permission(){
+/**
+ * Permission hook. Implementation of hook_permission().
+ * @return array
+ */
+function imoneza_permission() {
     return array(
         "administer imoneza settings" => array(
             "title" => t("Administer iMoneza Global Settings"),
@@ -77,18 +112,20 @@ function imoneza_permission(){
 
 /**
  * <p>Hook that displays the admin configuration page for the iMoneza module.
- *  Delegates to the iMoneza_Admin::create_admin_page() method.
+ *  Delegates to the IMonezaAdmin::create_admin_page() method and implementation
+ * of hook_admin().
  * </p>
- * @return $form corresponding to the admin form for configuring iMoneza
+ * @return array, the form corresponding to the admin form
  */
-function imoneza_admin(){
-    $imoneza_admin = variable_get("imoneza_admin", new iMoneza_Admin());
-    return $imoneza_admin->create_admin_page();
+function imoneza_admin() {
+    $imoneza_admin = imoneza_admin_object();
+    return $imoneza_admin->createAdminPage();
 
 }
 
 /**
- * <p>Primary hook for controlling whether iMoneza displays the paywall.</p>
+ * <p>Primary hook for controlling whether iMoneza displays the paywall
+ * and implementation of hook_node_load().</p>
  *
  * <p>Logic works like this:
  * <ol>
@@ -109,42 +146,42 @@ function imoneza_admin(){
  * @param $nodes the nodes being loaded
  * @param $types the types of the nodes being loaded, not used.
  */
-function imoneza_node_load($nodes, $types){
+function imoneza_node_load($nodes, $types) {
     //check for resource access
     $numManagedNodes = 0;
 
-    $imoneza = variable_get("imoneza", new iMoneza());
-    foreach ($nodes as $node){
-        if ($imoneza->is_imoneza_managed_node($node)){
+    $imoneza = imoneza_object();
+    foreach ($nodes as $node) {
+        if ($imoneza->is_imoneza_managed_node($node)) {
             $numManagedNodes++;
             $managedNode = $node;
         }
 
     }
-    if ($numManagedNodes > 1 || $numManagedNodes < 1){
+    if ($numManagedNodes > 1 || $numManagedNodes < 1) {
         return;
-        //For now, not executing on pages that contain multiple nodes
+        //For now, not executing on pages that contain multiple nodes.
     }
     $node = $managedNode;
 
-    if (user_access("bypass imoneza paywall") || path_is_admin(current_path())){
-        //allow them access no matter what
+    if (user_access("bypass imoneza paywall") || path_is_admin(current_path())) {
+        //allow them access no matter what.
         return;
     }
 
     drupal_add_js(IMONEZA__RA_UI_URL . "/assets/imoneza.js", "file");
 
-    if ($imoneza->doDynamic){
+    if ($imoneza->doDynamic) {
         $imoneza->create_dynamic($node);
     }
 
-    if ($imoneza->doServerSideAuth){
+    if ($imoneza->doServerSideAuth) {
         error_log("Doing iMoneza redirect");
         $imoneza->imoneza_template_redirect($node);
-    }else if ($imoneza->doClientSideAuth){
+    } else if ($imoneza->doClientSideAuth) {
         drupal_add_js($imoneza->create_snippet($node), "inline");
-    }else{
-        //ignore it
+    } else {
+        //ignore it.
         return;
     }
 

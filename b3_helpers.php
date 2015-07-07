@@ -6,15 +6,16 @@
  * Time: 11:33 AM
  */
 
-function read_file_contents($file){
+function read_file_contents($file) {
     ob_start();
     include $file;
     $retVal = ob_get_contents();
     ob_end_clean();
-    return  $retVal;
+    return $retVal;
 }
 
-class ImonezaStdObject {
+class ImonezaStdObject
+{
     public function __construct(array $arguments = array()) {
         if (!empty($arguments)) {
             foreach ($arguments as $property => $argument) {
