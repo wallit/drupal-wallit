@@ -1,24 +1,23 @@
-
 .tier-wrapper select {
-    display: inline-block;
+  display: inline-block;
 }
 
 .tier-wrapper input[type=text] {
-    width: 50px !important;
+  width: 50px !important;
 }
 
 .tier-wrapper fieldset {
-    width: 100%;
+  width: 100%;
 }
 
 #tiers-fieldset-wrapper {
-    width: 100%;
+  width: 100%;
 }
 
 .view_text {
-    display: inline-block;
+  display: inline-block;
 }
 
 .tier-selector-wrapper {
-    margin-bottom: 10px;
+  margin-bottom: 10px;
 }
