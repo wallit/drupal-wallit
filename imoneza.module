@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * This plugin provides integration the iMoneza System
+ * This plugin provides integration the iMoneza System.
  */
 
 define("NO_ACCESS_CONTROL", 0);
@@ -13,8 +13,10 @@ define('IMONEZA__RA_UI_URL', 'https://accessui.imoneza.com');
 define('IMONEZA__DEBUG', FALSE);
 
 /**
- * Factory method to return the global iMoneza object
- * @return IMoneza
+ * Factory method to return the global iMoneza object.
+ *
+ * @return object
+ *    iMoneza object.
  */
 function imoneza_object() {
   static $imoneza = NULL;
@@ -26,8 +28,10 @@ function imoneza_object() {
 }
 
 /**
- * Factory method to return the global iMonezaAdmin object
- * @return iMonezaAdmin
+ * Factory method to return the global iMonezaAdmin object.
+ *
+ * @return object
+ *    iMonezaAdmin object.
  */
 function imoneza_admin_object() {
   static $imoneza_admin = NULL;
@@ -39,10 +43,15 @@ function imoneza_admin_object() {
 }
 
 /**
- * Help hook. Implementation of hook_help().
- * @param $path
- * @param $arg
+ * Implementation of hook_help().
+ *
+ * @param string $path
+ *    Drupal url path.
+ * @param string $arg
+ *    Unused argument.
+ *
  * @return string
+ *    String to be displayed as 'help'.
  */
 function imoneza_help($path, $arg) {
   switch ($path) {
@@ -54,10 +63,14 @@ function imoneza_help($path, $arg) {
 }
 
 /**
- * Form alter hook. Implementation of hook_form_alter().
- * @param $form
- * @param $form_state
- * @param $form_id
+ * Implementation of hook_form_alter().
+ *
+ * @param array $form
+ *    Nested array of form elements.
+ * @param array $form_state
+ *    Nested array of formstate elements.
+ * @param string $form_id
+ *    String indicating the id of the form.
  */
 function imoneza_form_alter(&$form, $form_state, $form_id) {
   if (isset($form["type"]) && isset($form["type"]["#value"])) {
@@ -73,8 +86,10 @@ function imoneza_form_alter(&$form, $form_state, $form_id) {
 }
 
 /**
- * Menu hook. Implementation of hook_menu().
+ * Implementation of hook_menu().
+ *
  * @return array
+ *    Array containing iMoneza menu items.
  */
 function imoneza_menu() {
   $items = array();
@@ -91,8 +106,10 @@ function imoneza_menu() {
 }
 
 /**
- * Permission hook. Implementation of hook_permission().
+ * Implementation of hook_permission().
+ *
  * @return array
+ *    Permission values.
  */
 function imoneza_permission() {
   return array(
@@ -108,11 +125,15 @@ function imoneza_permission() {
 }
 
 /**
+ * Implementation of hook_admin().
+ *
  * <p>Hook that displays the admin configuration page for the iMoneza module.
  *  Delegates to the IMonezaAdmin::create_admin_page() method and implementation
  * of hook_admin().
  * </p>
- * @return array, the form corresponding to the admin form
+ *
+ * @return array
+ *   The form corresponding to the admin form.
  */
 function imoneza_admin() {
   $imoneza_admin = imoneza_admin_object();
@@ -122,6 +143,8 @@ function imoneza_admin() {
 }
 
 /**
+ * Implementation of the hook_node_load().
+ *
  * <p>Primary hook for controlling whether iMoneza displays the paywall
  * and implementation of hook_node_load().</p>
  *
@@ -141,22 +164,25 @@ function imoneza_admin() {
  *  At this point, if we're going to show the paywall, we determine
  *  whether to display the javascript paywall, or handle it server-side.
  * </p>
- * @param $nodes the nodes being loaded
- * @param $types the types of the nodes being loaded, not used.
+ *
+ * @param $nodes
+ *    The nodes being loaded.
+ * @param $types
+ *    The types of the nodes being loaded, not used.
  */
 function imoneza_node_load($nodes, $types) {
   //check for resource access
-  $numManagedNodes = 0;
+  $num_managed_nodes = 0;
 
   $imoneza = imoneza_object();
   foreach ($nodes as $node) {
     if ($imoneza->is_imoneza_managed_node($node)) {
-      $numManagedNodes++;
+      $num_managed_nodes++;
       $managedNode = $node;
     }
 
   }
-  if ($numManagedNodes > 1 || $numManagedNodes < 1) {
+  if ($num_managed_nodes > 1 || $num_managed_nodes < 1) {
     return;
     //For now, not executing on pages that contain multiple nodes.
   }
@@ -176,11 +202,15 @@ function imoneza_node_load($nodes, $types) {
   if ($imoneza->doServerSideAuth) {
     error_log("Doing iMoneza redirect");
     $imoneza->imoneza_template_redirect($node);
-  } else if ($imoneza->doClientSideAuth) {
-    drupal_add_js($imoneza->create_snippet($node), "inline");
-  } else {
-    //ignore it.
-    return;
+  }
+  else {
+    if ($imoneza->doClientSideAuth) {
+      drupal_add_js($imoneza->create_snippet($node), "inline");
+    }
+    else {
+      //ignore it.
+      return;
+    }
   }
 
 }
