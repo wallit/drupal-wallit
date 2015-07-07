@@ -22,6 +22,7 @@ class IMonezaRestfulRequest {
 
   /**
    * Constructor.
+   *
    * @param object $api
    *    API object we're operating with.
    */
