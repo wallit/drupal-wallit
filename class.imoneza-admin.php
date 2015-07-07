@@ -164,15 +164,14 @@ class IMonezaAdmin {
         "#default_value" => t(check_plain(isset(
           $resource['Description']) ? $resource['Description'] : "")),
         "#title" => "Description",
-        "#description" => t("A short description of the post. "
-          . "Defaults to the first 100 words."),
+        "#description" => t("A short description of the post. Defaults to the first 100 words."),
       );
 
       $imoneza_container["imoneza_pricing"] = array(
         "#markup" => "<strong>Pricing</strong>",
       );
 
-      $pricingOptions = array(
+      $pricing_options = array(
         "Inherit" => "Inherit",
         "Free" => "Free",
         "FixedPrice" => "Fixed Price",
@@ -211,7 +210,7 @@ class IMonezaAdmin {
 
       $imoneza_container["imoneza_pricingModel"] = array(
         "#type" => "select",
-        "#options" => $pricingOptions,
+        "#options" => $pricing_options,
         "#default_value" => $resource['PricingModel'],
         "#title" => t("Pricing Model"),
         "#attributes" => array(
@@ -230,8 +229,8 @@ class IMonezaAdmin {
         ),
       );
 
-      $custom_pricing_container =
-            &$imoneza_container["imoneza_custom_pricing_container"];
+      $custom_pricing_container
+        = &$imoneza_container["imoneza_custom_pricing_container"];
 
       $custom_pricing_container["imoneza_custom_pricing"] = array(
         "#markup" => "<strong>Custom Pricing</strong>",
@@ -241,8 +240,7 @@ class IMonezaAdmin {
         "#type" => "textfield",
         "#size" => 25,
         "#title" => t("Pricing"),
-        "#default_value" => isset($resource["Price"]) ?
-          $resource["Price"] : t("0.0"),
+        "#default_value" => isset($resource["Price"]) ? $resource["Price"] : t("0.0"),
       );
 
       $expiration_options = array(
