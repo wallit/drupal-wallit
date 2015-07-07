@@ -1,8 +1,7 @@
 <?php
 /**
+ * @file
  * Contains the generic request structure for API requests.
- * @file class.imoneza-restfulrequest.php
- *
  */
 
 /**
@@ -23,7 +22,8 @@ class IMonezaRestfulRequest {
 
   /**
    * Constructor.
-   * @param IMonezaAPI $api
+   * @param object $api
+   *    API object we're operating with.
    */
   public function __construct($api) {
     $this->api = $api;
@@ -36,8 +36,12 @@ class IMonezaRestfulRequest {
 
   /**
    * Returns the response from the API request.
+   *
    * @return object
+   *    Response object.
+   *
    * @throws Exception
+   *    Exception thrown for I/O issues.
    */
   public function getResponse() {
     $this->method = strtoupper($this->method);
@@ -108,6 +112,7 @@ class IMonezaRestfulRequest {
    * authentication.
    *
    * @return array
+   *    Sorted array of parameters stored for this request.
    */
   private function getSortedParams() {
     $sorted_params = array();
@@ -120,8 +125,12 @@ class IMonezaRestfulRequest {
 
   /**
    * Creates the REST parameter string.
-   * @param $sorted_params
+   *
+   * @param array $sorted_params
+   *    Sorted array of parameters to be inserted into a query string.
+   *
    * @return string
+   *    The query string query portion.
    */
   private function getParamString($sorted_params) {
     $param_strings = array();
