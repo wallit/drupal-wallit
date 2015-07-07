@@ -791,7 +791,7 @@ class IMonezaAdmin {
             )
           )
         )
-      );
+        );
     }
 
     return $new_input;

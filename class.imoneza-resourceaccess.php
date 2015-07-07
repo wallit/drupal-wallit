@@ -1,13 +1,16 @@
 <?php
+/**
+ * @file
+ * Contains the iMoneza Resource Access class.
+ */
 
 /**
- * Class iMonezaResourceAccess
+ * Class iMonezaResourceAccess.
  *
  * Resource Access API implementation. Has methods for determining whether
  * a user has access to a given resource.
  */
-class iMonezaResourceAccess extends IMonezaApi
-{
+class IMonezaResourceAccess extends IMonezaApi {
 
   protected $cookieExpiration;
 
@@ -28,9 +31,14 @@ class iMonezaResourceAccess extends IMonezaApi
   /**
    * Either allows access to a resource or forwards to iMoneza for access
    * control.
-   * @param $external_key
-   * @param $resource_url
+   *
+   * @param string $external_key
+   *    External key used to reference the resource with iMoneza.
+   * @param string $resource_url
+   *    URL of the resource at the property.
+   *
    * @throws Exception
+   *    Throws an exception on I/O issues.
    */
   public function getResourceAccess($external_key, $resource_url) {
     try {
@@ -45,8 +53,9 @@ class iMonezaResourceAccess extends IMonezaApi
           $this->options['access_control_excluded_user_agents'])
                  as $user_agent) {
 
-          if ($user_agent == $_SERVER['HTTP_USER_AGENT'])
+          if ($user_agent == $_SERVER['HTTP_USER_AGENT']) {
             return;
+          }
         }
       }
 
@@ -57,7 +66,8 @@ class iMonezaResourceAccess extends IMonezaApi
         $resource_access_data =
           $this->getResourceAccessDataFromTemporaryUserToken(
             $external_key, $resource_url, $temporary_user_token);
-      } else {
+      }
+      else {
         if (isset($_COOKIE['iMonezaUT'])) {
           $user_token = $_COOKIE['iMonezaUT'];
         };
@@ -76,21 +86,31 @@ class iMonezaResourceAccess extends IMonezaApi
         drupal_goto($url);
         exit;
       }
-    } catch (Exception $e) {
+    }
+    catch (Exception $e) {
       // Default to open access if there's some sort of exception.
       error_log(print_r($e, TRUE));
-      if (IMONEZA__DEBUG)
+      if (IMONEZA__DEBUG) {
         throw $e;
+      }
     }
   }
 
   /**
    * Returns access decision from iMoneza based on external key.
-   * @param $external_key
-   * @param $resource_url
-   * @param $user_token
+   *
+   * @param string $external_key
+   *    External key used to reference the resource with iMoneza.
+   * @param string $resource_url
+   *    URL of the resource at the property.
+   * @param string $user_token
+   *    Token issued by iMoneza.
+   *
    * @return mixed
+   *    Returns an object corresponding to the iMoneza response.
+   *
    * @throws Exception
+   *    Throws an exception on I/O issues.
    */
   public function getResourceAccessDataFromExternalKey(
     $external_key, $resource_url, $user_token) {
@@ -106,18 +126,27 @@ class iMonezaResourceAccess extends IMonezaApi
       throw new Exception('An error occurred with the Resource Access '
         . 'API key. Make sure you have valid Access Management API keys'
         . ' set in the iMoneza plugin settings.');
-    } else {
+    }
+    else {
       return json_decode($response->data, TRUE);
     }
   }
 
   /**
-   * Returns data from iMoneza based on tempoary token.
-   * @param $external_key
-   * @param $resource_url
-   * @param $temporary_user_token
+   * Returns data from iMoneza based on temporary token.
+   *
+   * @param string $external_key
+   *    External key used to reference the resource with iMoneza.
+   * @param string $resource_url
+   *    URL of the resource at the property.
+   * @param string $temporary_user_token
+   *    Temporary token issued by iMoneza.
+   *
    * @return mixed
+   *    Object corresponding to the response from iMoneza.
+   *
    * @throws Exception
+   *    Throws exception on I/O issues.
    */
   public function getResourceAccessDataFromTemporaryUserToken(
     $external_key, $resource_url, $temporary_user_token) {
@@ -134,8 +163,10 @@ class iMonezaResourceAccess extends IMonezaApi
       throw new Exception('An error occurred with the Resource Access '
         . 'API key. Make sure you have valid Access Management API '
         . 'keys set in the iMoneza plugin settings.');
-    } else {
+    }
+    else {
       return json_decode($response->data, TRUE);
     }
   }
+
 }

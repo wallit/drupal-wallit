@@ -90,7 +90,7 @@ class IMoneza {
 
     }
 
-    $resource_access = new iMonezaResourceAccess();
+    $resource_access = new IMonezaResourceAccess();
     $resource_access->getResourceAccess($resource_values['key'],
       $resource_values['url']);
   }
