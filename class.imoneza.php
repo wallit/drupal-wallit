@@ -1,9 +1,6 @@
 <?php
 /**
- * @file
- * File containing the iMoneza class object used for resource access.
- *
- *
+ * @file File containing the iMoneza class object used for resource access.
  */
 
 /**
