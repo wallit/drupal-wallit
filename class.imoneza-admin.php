@@ -567,15 +567,13 @@ class IMonezaAdmin {
     }
 
     $form['imoneza_ra_header'] = array(
-      "#markup" =>
-        read_file_contents("static/resource_access_api_header.html"),
+      "#markup" => read_file_contents("static/resource_access_api_header.html"),
     );
 
     $form['imoneza_ra_api_key_access'] = array(
       '#type' => 'textfield',
       '#title' => t('Access Key'),
-      '#default_value' => isset($options['imoneza_ra_api_key_access'])
-        ? $options['imoneza_ra_api_key_access'] : "",
+      '#default_value' => isset($options['imoneza_ra_api_key_access']) ? $options['imoneza_ra_api_key_access'] : "",
       '#size' => 36,
       '#maxlength' => 100,
       '#description' => t("Resource Access API Access Key"),
@@ -594,15 +592,13 @@ class IMonezaAdmin {
     );
 
     $form['imoneza_rm_api_header'] = array(
-      "#markup" =>
-        read_file_contents("static/resource_management_api_header.html"),
+      "#markup" => read_file_contents("static/resource_management_api_header.html"),
     );
 
     $form['imoneza_rm_api_key_access'] = array(
       '#type' => 'textfield',
       '#title' => t('Access Key'),
-      '#default_value' => isset($options['imoneza_rm_api_key_access'])
-        ? $options['imoneza_rm_api_key_access'] : "",
+      '#default_value' => isset($options['imoneza_rm_api_key_access']) ? $options['imoneza_rm_api_key_access'] : "",
       '#size' => 36,
       '#maxlength' => 100,
       '#description' => t("Resource Management API Access Key"),
@@ -612,8 +608,7 @@ class IMonezaAdmin {
     $form['imoneza_rm_api_key_secret'] = array(
       '#type' => 'textfield',
       '#title' => t('Secret Key'),
-      '#default_value' => isset($options['imoneza_rm_api_key_secret'])
-        ? $options['imoneza_rm_api_key_secret'] : "",
+      '#default_value' => isset($options['imoneza_rm_api_key_secret']) ? $options['imoneza_rm_api_key_secret'] : "",
       '#size' => 65,
       '#maxlength' => 100,
       '#description' => t("Resource Management API Secret Key"),
@@ -621,17 +616,14 @@ class IMonezaAdmin {
     );
 
     $form['imoneza_dynamic_resources_header'] = array(
-      "#markup" =>
-        read_file_contents("static/dynamic_resource_header.html"),
+      "#markup" => read_file_contents("static/dynamic_resource_header.html"),
     );
 
     $form['imoneza_nodynamic'] = array(
       '#type' => 'checkbox',
       '#title' => t('Disable Dynamic Resource Creation'),
-      '#default_value' => isset($options['imoneza_nodynamic'])
-        ? $options['imoneza_nodynamic'] : FALSE,
-      '#description' => t("Do not include dynamic resource creation "
-        . "block on every page"),
+      '#default_value' => isset($options['imoneza_nodynamic']) ? $options['imoneza_nodynamic'] : FALSE,
+      '#description' => t("Do not include dynamic resource creation block on every page"),
       '#required' => FALSE,
     );
 
@@ -648,8 +640,7 @@ class IMonezaAdmin {
     $form['imoneza_access_control'] = array(
       '#type' => 'radios',
       '#title' => t('Access Control Method'),
-      '#default_value' => isset($options['imoneza_access_control'])
-        ? $options['imoneza_access_control'] : 0,
+      '#default_value' => isset($options['imoneza_access_control']) ? $options['imoneza_access_control'] : 0,
       '#options' => $radio_options,
       '#required' => FALSE,
     );
@@ -657,12 +648,8 @@ class IMonezaAdmin {
     $form['imoneza_access_control_excluded_user_agents'] = array(
       "#type" => "textarea",
       "#title" => "Excluded User Agents",
-      "#description" => t("Comma-separated list of user agents to "
-        . "allow unlimited access to your resources"),
-      "#default_value" =>
-        isset($options['imoneza_access_control_excluded_user_agents'])
-          ? $options['imoneza_access_control_excluded_user_agents']
-          : ""
+      "#description" => t("Comma-separated list of user agents to allow unlimited access to your resources"),
+      "#default_value" => isset($options['imoneza_access_control_excluded_user_agents']) ? $options['imoneza_access_control_excluded_user_agents'] : ""
     );
 
     $node_types = node_type_get_types();
@@ -678,8 +665,7 @@ class IMonezaAdmin {
       "#options" => $node_options,
       "#default_value" => $options['imoneza_node_types'],
       "#title" => "Node Types",
-      "#description" => t("Use this to select which node types you "
-        . "want iMoneza to control"),
+      "#description" => t("Use this to select which node types you want iMoneza to control"),
     );
 
     $form['imoneza_config_submit'] = array(
