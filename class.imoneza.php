@@ -5,7 +5,7 @@
  */
 
 /**
- * Class IMoneza
+ * Class IMoneza.
  *
  * Contains general client-facing functionality for iMoneza.
  */
@@ -57,7 +57,8 @@ class IMoneza {
   /**
    * Returns boolean indicating whether node type is managed.
    *
-   * @param Node $node
+   * @param \Node $node the node in question
+   *
    * @return bool indicating whether this node is managed by iMoneza
    */
   public function isImonezaManagedNode($node) {
