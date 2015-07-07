@@ -135,7 +135,7 @@ class IMonezaRestfulRequest {
   /**
    * Creates the REST parameter string.
    *
-   * @param array $sorted_params
+   * @param string[] $sorted_params
    *    Sorted array of parameters to be inserted into a query string.
    *
    * @return string
