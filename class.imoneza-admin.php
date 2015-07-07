@@ -2,11 +2,10 @@
 /**
  * @file
  * Contains the iMoneza Admin class.
- *
  */
 
 /**
- * Class iMonezaAdmin
+ * Class iMonezaAdmin.
  *
  * Provides an interface for admin functionality, like creating resources
  * etc.
@@ -30,7 +29,9 @@ class iMonezaAdmin {
 
   /**
    * Returns contents of the Form Javascript.
+   *
    * @return string
+   *    Contents of the form javascript to be rendered.
    */
   public function renderFormJavascript() {
     return read_file_contents("static/post_form_js.html");
@@ -38,8 +39,11 @@ class iMonezaAdmin {
 
   /**
    * Renders the iMoneza box on a node.
-   * @param $form
-   * @param $form_state
+   *
+   * @param mixed $form
+   *    Form to render the box on.
+   * @param mixed $form_state
+   *    Form state for the form.
    */
   public function renderImonezaMetaBox(&$form, $form_state) {
 
@@ -50,18 +54,19 @@ class iMonezaAdmin {
         '#title' => t('iMoneza'),
         '#collapsible' => TRUE,
         '#collapsed' => TRUE,
-        '#group' => 'additional_settings'
+        '#group' => 'additional_settings',
       );
 
       $post = $form_state["node"];
 
-      //needed for multival.
+      // Needed for multival.
       $form["#tree"] = TRUE;
 
       $resource_management = new IMonezaResourceManagement();
       if (isset($post) && isset($post->nid)) {
         $resource = $resource_management->getResource($post->nid, TRUE);
-      } else {
+      }
+      else {
         $resource = array("IsManaged" => 0);
       }
 
@@ -71,7 +76,8 @@ class iMonezaAdmin {
       if (!$is_managed) {
         $property = $resource_management->getProperty();
         $form["imoneza"]["#description"] = t("Not managed by iMoneza");
-      } else {
+      }
+      else {
         $property = $resource['Property'];
         $form["imoneza"]["#description"] = t("Managed by iMoneza");
       }
@@ -98,7 +104,7 @@ class iMonezaAdmin {
         "#attributes" => array(
           "onclick" => "imoneza_update_display()",
           "id" => "imoneza_isManaged",
-        )
+        ),
       );
 
       $form['imoneza']["imoneza_isManaged_original"] = array(
@@ -113,8 +119,8 @@ class iMonezaAdmin {
         "#attributes" => array(
           "class" => array(
             "imoneza_row"
-          )
-        )
+          ),
+        ),
       );
 
       $imoneza_container = &$form["imoneza"]["imoneza_meta_container"];
@@ -122,8 +128,8 @@ class iMonezaAdmin {
       $imoneza_container["imoneza_metadata"] = array(
         "#markup" => "<strong>Metadata</strong>",
         "#attributes" => array(
-          "class" => array("imoneza_row")
-        )
+          "class" => array("imoneza_row"),
+        ),
       );
 
       $imoneza_container["imoneza_name"] = array(
@@ -135,7 +141,6 @@ class iMonezaAdmin {
         "#description" => t("A friendly name for the resource to help "
           . "you identify it. This name is never displayed publicly "
           . "to consumers. Defaults to the article title."),
-
       );
 
       $imoneza_container["imoneza_title"] = array(
@@ -146,7 +151,6 @@ class iMonezaAdmin {
         "#title" => t("Title"),
         "#description" => t("The title of the resource which gets "
           . "displayed to consumers. Defaults to the article title."),
-
       );
 
       $imoneza_container["imoneza_byline"] = array(
@@ -156,7 +160,6 @@ class iMonezaAdmin {
           ? $resource['Byline'] : "")),
         "#title" => t("Byline"),
         "#description" => t("For instance, the author of the post."),
-
       );
 
       $imoneza_container["imoneza_description"] = array(
@@ -166,12 +169,10 @@ class iMonezaAdmin {
         "#title" => "Description",
         "#description" => t("A short description of the post. "
           . "Defaults to the first 100 words."),
-
       );
 
       $imoneza_container["imoneza_pricing"] = array(
         "#markup" => "<strong>Pricing</strong>",
-
       );
 
       $pricingOptions = array(
@@ -181,12 +182,14 @@ class iMonezaAdmin {
         "VariablePrice" => "Variable Price",
         "TimeTiered" => "Time Tiered",
         "ViewTiered" => "View Tiered",
-        "SubscriptionOnly" => "Subscription Only");
+        "SubscriptionOnly" => "Subscription Only",
+      );
 
       $pricing_groups = array();
       $pricing_groups_list = $is_managed ?
         $resource['Property']['PricingGroups'] :
         $property['PricingGroups'];
+
       $default_group = 0;
       foreach ($pricing_groups_list as $pricing_group) {
         $default_group = $pricing_group['IsDefault'];
@@ -216,7 +219,7 @@ class iMonezaAdmin {
         "#title" => t("Pricing Model"),
         "#attributes" => array(
           "onchange" => "imoneza_update_display()",
-          "id" => "edit-imoneza-pricingmodel"
+          "id" => "edit-imoneza-pricingmodel",
         ),
 
       );
@@ -225,15 +228,16 @@ class iMonezaAdmin {
         "#type" => "container",
         "#attributes" => array(
           "class" => array(
-            "imoneza_row_price"
-          )
-        )
+            "imoneza_row_price",
+          ),
+        ),
       );
+
       $custom_pricing_container =
             &$imoneza_container["imoneza_custom_pricing_container"];
+
       $custom_pricing_container["imoneza_custom_pricing"] = array(
         "#markup" => "<strong>Custom Pricing</strong>",
-
       );
 
       $custom_pricing_container["imoneza_price"] = array(
@@ -241,7 +245,7 @@ class iMonezaAdmin {
         "#size" => 25,
         "#title" => t("Pricing"),
         "#default_value" => isset($resource["Price"]) ?
-          $resource["Price"] : t("0.0")
+          $resource["Price"] : t("0.0"),
       );
 
       $expiration_options = array(
@@ -249,7 +253,7 @@ class iMonezaAdmin {
         "Years" => "Years",
         "Months" => "Months",
         "Weeks" => "Weeks",
-        "Days" => "Days"
+        "Days" => "Days",
       );
 
       if (!isset($resource['ExpirationPeriodUnit'])) {
@@ -262,26 +266,24 @@ class iMonezaAdmin {
         "#title" => t("Expiration Period"),
         "#attributes" => array(
           "onchange" => "imoneza_update_display()",
-          "id" => "edit-imoneza-expirationperiodunit"
-
+          "id" => "edit-imoneza-expirationperiodunit",
         ),
-        "#default_value" => $resource['ExpirationPeriodUnit'] = "Never"
+        "#default_value" => $resource['ExpirationPeriodUnit'] = "Never",
       );
 
       $custom_pricing_container["imoneza_expirationPeriodValue"] = array(
         "#type" => "textfield",
         "#title" => "Expiration Duration",
         "#size" => 25,
-
       );
 
       $imoneza_container["imoneza_tiered_pricing_container"] = array(
         "#type" => "container",
         "#attributes" => array(
           "class" => array(
-            "imoneza_row_price_tier"
-          )
-        )
+            "imoneza_row_price_tier",
+          ),
+        ),
       );
 
       $tiered_pricing_container
@@ -293,7 +295,7 @@ class iMonezaAdmin {
         "#description" => t("You must have at least one tier, and "
           . "there must be one tier of 0 minutes or 0 views."),
         "#prefix" => '<div id="tiers-fieldset-wrapper">',
-        "#suffix" => "</div>"
+        "#suffix" => "</div>",
       );
 
       $fieldset = &$tiered_pricing_container["imoneza_tiered_fieldset"];
@@ -312,9 +314,8 @@ class iMonezaAdmin {
             "#prefix" => '<div class="tier-wrapper">',
             "#suffix" => "</div>",
             "#attributes" => array(
-              "class" => array('container-inline')
-            )
-
+              "class" => array('container-inline'),
+            ),
           );
 
           $wrapper = &$fieldset[$i];
@@ -336,24 +337,24 @@ class iMonezaAdmin {
           }
           $wrapper["tier"] = array(
             "#type" => "textfield",
-            "#default_value" => $tier_val
+            "#default_value" => $tier_val,
           );
           $options = array(
             "minutes" => "minutes",
             "hours" => "hours",
-            "days" => "days"
+            "days" => "days",
           );
           $wrapper["scale_val"] = array(
             "#type" => "select",
             "#options" => $options,
             "#attributes" => array(
               "class" => array(
-                "time_scale_selector"
-              )
+                "time_scale_selector",
+              ),
             ),
             "#default_value" => $scaling_factor,
             "#prefix" => '<div class="tier-selector-wrapper">',
-            "#suffix" => "</div>"
+            "#suffix" => "</div>",
           );
           $wrapper["view_text"] = array(
             "#markup" => '<div class="view_text">views</div>'
@@ -362,7 +363,7 @@ class iMonezaAdmin {
             "#type" => "textfield",
             "#default_value" =>
               $resource['ResourcePricingTiers'][$i]["Price"],
-            "#prefix" => "<br />"
+            "#prefix" => "<br />",
           );
 
           $wrapper["tier"]["#title"] = t("Tier &nbsp;");
@@ -370,18 +371,18 @@ class iMonezaAdmin {
 
           $wrapper['remove'] = array(
             "#type" => "button",
-
             "#value" => t("Remove"),
             "#attributes" => array(
               "class" => array(
-                "remove_button"
-              )
-            )
+                "remove_button",
+              ),
+            ),
 
           );
 
         }
-      } else {
+      }
+      else {
         if (!isset($form_state["imoneza_num_tiers"])) {
           $form_state["imoneza_num_tiers"] = 1;
         }
@@ -404,8 +405,8 @@ class iMonezaAdmin {
         "#value" => t("Add Tier"),
         "#attributes" => array(
           "class" => array(
-            "add_tier_btn"
-          )
+            "add_tier_btn",
+          ),
         ),
 
       );
@@ -421,6 +422,7 @@ class iMonezaAdmin {
 
   /**
    * Handler to save form data.
+   *
    * @param $form
    * @param $form_state
    * @throws Exception
@@ -428,7 +430,7 @@ class iMonezaAdmin {
   function saveMetaBoxData($form, $form_state) {
     // Check the user's permissions.
     if (!user_access("edit any " . $form["#node"]->type . " content")) {
-      //no permission to be here
+      // No permission to be here.
       return;
     }
 
@@ -442,7 +444,7 @@ class iMonezaAdmin {
         $resource_management = new IMonezaResourceManagement();
         $data = array(
           'ExternalKey' => $post_id,
-          'Active' => 0
+          'Active' => 0,
         );
         $resource_management->putResource($post_id, $data);
 
@@ -454,7 +456,7 @@ class iMonezaAdmin {
 
     $values = &$values["imoneza_meta_container"];
 
-    /* OK, it's safe for us to save the data now. */
+    // OK, it's safe for us to save the data now.
     $name = check_plain($values['imoneza_name']) == ""
       ? $form_state["values"]["title"]
       : check_plain($values['imoneza_name']);
@@ -483,7 +485,7 @@ class iMonezaAdmin {
         : date(DATE_ATOM, $form_state["values"]["created"]),
       'PricingGroup' => array('PricingGroupID' =>
         check_plain($values['imoneza_pricingGroup'])),
-      'PricingModel' => check_plain($values['imoneza_pricingModel'])
+      'PricingModel' => check_plain($values['imoneza_pricingModel']),
     );
 
     if ($values['imoneza_pricingModel'] == 'FixedPrice'
@@ -492,6 +494,7 @@ class iMonezaAdmin {
 
       $data['Price'] = check_plain(
         $values["imoneza_custom_pricing_container"]['imoneza_price']);
+
       $data['ExpirationPeriodUnit'] = check_plain(
         $values["imoneza_custom_pricing_container"]
         ['imoneza_expirationPeriodUnit']);
@@ -517,13 +520,16 @@ class iMonezaAdmin {
         if ($do_multiply) {
           if ($tiers[$i]["scale_val"] == "hours") {
             $multiplier = 60;
-          } else if ($tiers[$i]["scale_val"] == "days") {
-            $multiplier = 1440;
+          }
+          else {
+            if ($tiers[$i]["scale_val"] == "days") {
+              $multiplier = 1440;
+            }
           }
         }
         $vals[] = array(
           'Tier' => $tiers[$i]["tier"] * ($multiplier),
-          'Price' => $tiers[$i]["price"]
+          'Price' => $tiers[$i]["price"],
         );
       }
 
@@ -569,7 +575,7 @@ class iMonezaAdmin {
 
     $form['imoneza_ra_header'] = array(
       "#markup" =>
-        read_file_contents("static/resource_access_api_header.html")
+        read_file_contents("static/resource_access_api_header.html"),
     );
 
     $form['imoneza_ra_api_key_access'] = array(
@@ -596,7 +602,7 @@ class iMonezaAdmin {
 
     $form['imoneza_rm_api_header'] = array(
       "#markup" =>
-        read_file_contents("static/resource_management_api_header.html")
+        read_file_contents("static/resource_management_api_header.html"),
     );
 
     $form['imoneza_rm_api_key_access'] = array(
@@ -623,7 +629,7 @@ class iMonezaAdmin {
 
     $form['imoneza_dynamic_resources_header'] = array(
       "#markup" =>
-        read_file_contents("static/dynamic_resource_header.html")
+        read_file_contents("static/dynamic_resource_header.html"),
     );
 
     $form['imoneza_nodynamic'] = array(
@@ -639,10 +645,11 @@ class iMonezaAdmin {
     $radio_options = array(
       IMONEZA_NO_ACCESS_CONTROL => t("None"),
       IMONEZA_CLIENT_SIDE_ACCESS_CONTROL => t("Client-side (JavaScript)"),
-      IMONEZA_SERVER_SIDE_ACCESS_CONTROL => t("Server-side"));
+      IMONEZA_SERVER_SIDE_ACCESS_CONTROL => t("Server-side"),
+    );
 
     $form['imoneza_access_control_description'] = array(
-      "#markup" => read_file_contents("static/access_control_description.html")
+      "#markup" => read_file_contents("static/access_control_description.html"),
     );
 
     $form['imoneza_access_control'] = array(
@@ -679,16 +686,16 @@ class iMonezaAdmin {
       "#default_value" => $options['imoneza_node_types'],
       "#title" => "Node Types",
       "#description" => t("Use this to select which node types you "
-        . "want iMoneza to control")
+        . "want iMoneza to control"),
     );
 
     $form['imoneza_config_submit'] = array(
       "#type" => "submit",
-      "#value" => "Save"
+      "#value" => "Save",
     );
 
     $form['imoneza_admin_help'] = array(
-      "#markup" => read_file_contents("static/admin_help.html")
+      "#markup" => read_file_contents("static/admin_help.html"),
     );
 
     $form["#submit"][] = array($this, "imonezaSaveConfig");
@@ -699,8 +706,11 @@ class iMonezaAdmin {
 
   /**
    * Handler to save configuration.
-   * @param $form
-   * @param $form_state
+   *
+   * @param mixed $form
+   *    The original form displayed to the user.
+   * @param mixed $form_state
+   *    Form state corresponding to the form.
    */
   public function imonezaSaveConfig($form, &$form_state) {
 
@@ -732,8 +742,11 @@ class iMonezaAdmin {
   /**
    * Sanitize each setting field as needed.
    *
-   * @param  array $input Contains all settings fields as array keys
-   * @return array similar to $input with sanitized values
+   * @param  mixed $input
+   *    Array containing all settings fields as array keys.
+   *
+   * @return array
+   *    Similar to $input with sanitized values.
    */
   public function sanitize($input) {
 
@@ -761,7 +774,8 @@ class iMonezaAdmin {
       && $input['imoneza_nodynamic'] == '1'
     ) {
       $new_input['imoneza_nodynamic'] = '1';
-    } else {
+    }
+    else {
       $new_input['imoneza_nodynamic'] = '0';
     }
 
@@ -769,7 +783,8 @@ class iMonezaAdmin {
       && $input['imoneza_use_access_control'] == '1'
     ) {
       $new_input['imoneza_use_access_control'] = '1';
-    } else {
+    }
+    else {
       $new_input['imoneza_use_access_control'] = '0';
     }
 
@@ -806,7 +821,9 @@ class iMonezaAdmin {
 
   /**
    * Displays a notice to the user.
-   * @param $notice
+   *
+   * @param string $notice
+   *    Notice to be displayed.
    */
   public function setUpdatedNotice($notice) {
 
@@ -815,10 +832,13 @@ class iMonezaAdmin {
 
   /**
    * Displays an error notice to the user.
-   * @param $notice
+   *
+   * @param string $notice
+   *    Error to be displayed.
    */
   public function setErrorNotice($notice) {
 
     drupal_set_message($notice, "error");
   }
+
 }
