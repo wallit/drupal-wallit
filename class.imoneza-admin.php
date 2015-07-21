@@ -34,7 +34,7 @@ class IMonezaAdmin {
    *    Contents of the form javascript to be rendered.
    */
   public function renderFormJavascript() {
-    return read_file_contents("static/post_form_js.html");
+    return imoneza_read_file_contents("static/post_form_js.html");
   }
 
   /**
@@ -135,8 +135,8 @@ class IMonezaAdmin {
       $imoneza_container["imoneza_name"] = array(
         "#type" => "textfield",
         "#size" => "25",
-        "#default_value" => t(check_plain(isset($resource['Name'])
-          ? $resource['Name'] : "")),
+        "#default_value" => check_plain(isset($resource['Name'])
+          ? $resource['Name'] : ""),
         "#title" => t("Name"),
         "#description" => t("A friendly name for the resource to help you identify it. This name is never displayed publicly to consumers. Defaults to the article title."),
       );
@@ -409,7 +409,7 @@ class IMonezaAdmin {
     }
     catch (Exception $e) {
       $form['imoneza']["imoneza_error"] = array(
-        "#markup" => t("An error has occurred: @error", array("@errro" => check_plain($e->getMessage()))),
+        "#markup" => t("An error has occurred: @error", array("@error" => $e->getMessage())),
       );
     }
 
@@ -531,8 +531,7 @@ class IMonezaAdmin {
     $resource_management = new IMonezaResourceManagement();
     try {
       $resource_management->putResource($post_id, $data);
-      $this->setUpdatedNotice('iMoneza settings for the resource "
-                . "were successfully updated.');
+      $this->setUpdatedNotice('iMoneza settings for the resource were successfully updated.');
     }
     catch (Exception $e) {
       $this->setErrorNotice($e->getMessage());
@@ -567,7 +566,8 @@ class IMonezaAdmin {
     }
 
     $form['imoneza_ra_header'] = array(
-      "#markup" => read_file_contents("static/resource_access_api_header.html"),
+      "#markup" => "<h3>".t("Resource Access API")."</h3><br/>".t("You must provide a Resource Access API access key and secret key."),
+
     );
 
     $form['imoneza_ra_api_key_access'] = array(
@@ -591,7 +591,7 @@ class IMonezaAdmin {
     );
 
     $form['imoneza_rm_api_header'] = array(
-      "#markup" => read_file_contents("static/resource_management_api_header.html"),
+      "#markup" => "<h3>".t("Resource Management API")."</h3>".t("You must provide a Resource Management API access key and secret key. Note that these two keys should be different from the Resource Access API access key and secret key.")."<br/>",
     );
 
     $form['imoneza_rm_api_key_access'] = array(
@@ -615,7 +615,7 @@ class IMonezaAdmin {
     );
 
     $form['imoneza_dynamic_resources_header'] = array(
-      "#markup" => read_file_contents("static/dynamic_resource_header.html"),
+      "#markup" => "<h3>".t("Dynamic Resource Creation")."</h3>".t("Dynamic resource creation allows pages on your site to be added to iMoneza automatically when users first hit them. To use this feature, make sure the checkbox below is unchecked and that you've checked \"Dynamically Create Resources\" on the ")."<a href=\"https://manageui.imoneza.com/Property/Edit#tab_advanced\">".t("Property Settings")."</a>".t(" page.")."<br/><br/>",
     );
 
     $form['imoneza_nodynamic'] = array(
@@ -633,7 +633,7 @@ class IMonezaAdmin {
     );
 
     $form['imoneza_access_control_description'] = array(
-      "#markup" => read_file_contents("static/access_control_description.html"),
+      "#markup" => "<h2>".t("Access Control")."</h2>".t("The access control method specifies how your site will communicate with iMoneza, determine if a user has access to the resource they're trying to access, and display the paywall if needed.")."<br/><br/><strong>".t("None:")."</strong>".t("No access control is enforced. Visitors to your site will not interact with iMoneza and will never see a paywall. Essentially, iMoneza won't be used on your site.")."<br/><strong>".t("Client-side:")."</strong>".t("The JavaScript Library is run in your users's web browsers. You can set whether the paywall appears in a modal window or not on the Property Settings page.")."<br/><strong>".t("Server-side:")."</strong>".t("User access is verified on your web server. This is more secure than the client-side approach. If you choose this option, you can also exclude certain user agents (like search engine bots) from being redirected to the paywall.")."<br/><br/>". t("If you specify user agents to exclude, you can specify one user agent per line.")
     );
 
     $form['imoneza_access_control'] = array(
@@ -673,7 +673,7 @@ class IMonezaAdmin {
     );
 
     $form['imoneza_admin_help'] = array(
-      "#markup" => read_file_contents("static/admin_help.html"),
+      "#markup" => "<h3>".t("Help")."</h3>".t("The ")."<a href=\"https://www.imoneza.com/drupal/\">".t("iMoneza website")."</a>".t(" has additional information about these settings.")."<br/>"
     );
 
     $form["#submit"][] = array($this, "imonezaSaveConfig");

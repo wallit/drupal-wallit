@@ -60,10 +60,10 @@ function imoneza_form_alter(&$form, $form_state, $form_id) {
   if (isset($form["type"]) && isset($form["type"]["#value"])) {
     $holder = new ImonezaStdObject();
     $holder->type = $form["type"]["#value"];
-    $imoneza = variable_get("imoneza", new IMoneza());
-    if ($imoneza->is_imoneza_managed_node($holder)) {
-      $admin = variable_get("imoneza_admin", new IMonezaAdmin());
-      $admin->render_imoneza_meta_box($form, $form_state);
+    $imoneza = imoneza_object();
+    if ($imoneza->isImonezaManagedNode($holder)) {
+      $admin = imoneza_admin_object();
+      $admin->renderImonezaMetaBox($form, $form_state);
     }
   }
 
@@ -145,7 +145,7 @@ function imoneza_node_load($nodes, $types) {
 
   $imoneza = imoneza_object();
   foreach ($nodes as $node) {
-    if ($imoneza->is_imoneza_managed_node($node)) {
+    if ($imoneza->isImonezaManagedNode($node)) {
       $num_managed_nodes++;
       $managed_node = $node;
     }
@@ -165,16 +165,16 @@ function imoneza_node_load($nodes, $types) {
   drupal_add_js(IMONEZA__RA_UI_URL . "/assets/imoneza.js", "file");
 
   if ($imoneza->doDynamic) {
-    $imoneza->create_dynamic($node);
+    $imoneza->createDynamic($node);
   }
 
   if ($imoneza->doServerSideAuth) {
     error_log("Doing iMoneza redirect");
-    $imoneza->imoneza_template_redirect($node);
+    $imoneza->imonezaTemplateRedirect($node);
   }
   else {
     if ($imoneza->doClientSideAuth) {
-      drupal_add_js($imoneza->create_snippet($node), "inline");
+      drupal_add_js($imoneza->createSnippet($node), "inline");
     }
     else {
       // Ignore it.
