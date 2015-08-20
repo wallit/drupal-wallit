@@ -1,12 +1,13 @@
 name = iMoneza
 description = Provides CMS integration for the iMoneza system
 core = 7.x
+php = 5.5
 
 stylesheets[all][] = static/imoneza.css
-files[] = b3_helpers.php
-files[] = class.imoneza.php
-files[] = class.imoneza-api.php
-files[] = class.imoneza-admin.php
-files[] = class.imoneza-resourceaccess.php
-files[] = class.imoneza-restfulrequest.php
-files[] = class.imoneza-resourcemanagement.php
+files[] = b3_helpers.inc
+files[] = class.imoneza.inc
+files[] = class.imoneza-api.inc
+files[] = class.imoneza-admin.inc
+files[] = class.imoneza-resourceaccess.inc
+files[] = class.imoneza-restfulrequest.inc
+files[] = class.imoneza-resourcemanagement.inc
