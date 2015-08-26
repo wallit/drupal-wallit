@@ -144,8 +144,8 @@ class IMonezaAdmin {
       $imoneza_container["imoneza_title"] = array(
         "#type" => "textfield",
         "#size" => 25,
-        "#default_value" => t(check_plain(isset($resource['Title'])
-          ? $resource['Title'] : "")),
+        "#default_value" => check_plain(isset($resource['Title'])
+          ? $resource['Title'] : ""),
         "#title" => t("Title"),
         "#description" => t("The title of the resource which gets displayed to consumers. Defaults to the article title."),
       );
@@ -179,6 +179,7 @@ class IMonezaAdmin {
         "TimeTiered" => "Time Tiered",
         "ViewTiered" => "View Tiered",
         "SubscriptionOnly" => "Subscription Only",
+        "TargetConversion" => "Target Conversion Rate"
       );
 
       $pricing_groups = array();
@@ -279,6 +280,52 @@ class IMonezaAdmin {
             "imoneza_row_price_tier",
           ),
         ),
+      );
+
+      $imoneza_container["imoneza_target_pricing_container"] = array(
+        "#type" => "container",
+      );
+
+      $target_pricing_container =
+        &$imoneza_container["imoneza_target_pricing_container"];
+
+      $target_pricing_container["target_pricing_fieldset"] = array(
+        "#type" => "fieldset",
+        "#title" => "Target Conversion Rate Parameters",
+        "#description" => t("Specify the conversion rate as a decimal between 0 and 100."),
+        "#prefix" => '<div id="target-conversion-fieldset-wrapper">',
+        "#suffix" => "</div>",
+      );
+
+      $target_fieldset = &$target_pricing_container["target_pricing_fieldset"];
+
+      $target_fieldset['imoneza_target_conversion_rate'] = array(
+        "#type" => "textfield",
+        "#size" => 25,
+        "#default_value" => check_plain(isset($resource['TargetConversionRate'])
+          ? $resource['TargetConversionRate'] : "0.0"),
+        "#title" => t("Target conversion rate"),
+        "#description" => t("The target conversion rate, between 0.0 and 0.97"),
+      );
+
+      $target_fieldset['imoneza_target_conversion_floor'] = array(
+        "#type" => "textfield",
+        "#size" => 25,
+        "#default_value" => check_plain(
+          isset($resource['TargetConversionPriceFloor'])
+          ? $resource['TargetConversionPriceFloor'] : "0"),
+        "#title" => t("Price floor"),
+        "#description" => t("The price floor that the price will not go below."),
+      );
+
+      $target_fieldset['imoneza_target_conversion_hits_per_recalc'] = array(
+        "#type" => "textfield",
+        "#size" => 25,
+        "#default_value" => check_plain(
+          isset($resource['TargetConversionHitsPerRecalculationPeriod'])
+            ? $resource['TargetConversionHitsPerRecalculationPeriod'] : ""),
+        "#title" => t("Hits per recalculation period"),
+        "#description" => t("The number of conversions before recalculating the price. This value cannot be less than 100"),
       );
 
       $tiered_pricing_container
@@ -470,6 +517,7 @@ class IMonezaAdmin {
             $form_state["values"]["body"][LANGUAGE_NONE]["0"]["value"]), 0, 100)) . "...";
     }
 
+    error_log(print_r($values, true));
     $data = array(
       'ExternalKey' => $post_id,
       'Active' => 1,
@@ -481,6 +529,9 @@ class IMonezaAdmin {
       'PublicationDate' => $form_state["values"]["created"] == "" ? date(DATE_ATOM) : date(DATE_ATOM, $form_state["values"]["created"]),
       'PricingGroup' => array('PricingGroupID' => check_plain($values['imoneza_pricingGroup'])),
       'PricingModel' => check_plain($values['imoneza_pricingModel']),
+      'TargetConversionRate' => check_plain($values['imoneza_target_pricing_container']['target_pricing_fieldset']['imoneza_target_conversion_rate']),
+      'TargetConversionPriceFloor' => check_plain($values['imoneza_target_pricing_container']['target_pricing_fieldset']['imoneza_target_conversion_floor']),
+      'TargetConversionHitsPerRecalculationPeriod' => check_plain($values['imoneza_target_pricing_container']['target_pricing_fieldset']['imoneza_target_conversion_hits_per_recalc'])
     );
 
     if ($values['imoneza_pricingModel'] == 'FixedPrice'
