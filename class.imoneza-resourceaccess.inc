@@ -114,6 +114,7 @@ class IMonezaResourceAccess extends IMonezaApi {
     $request->uri = '/api/Resource/' . $this->accessKey . '/' . $external_key;
     $request->getParameters['ResourceURL'] = $resource_url;
     $request->getParameters['UserToken'] = $user_token;
+    $request->getParameters['IP'] = ip_address();
 
     $response = $request->getResponse();
 
@@ -151,6 +152,7 @@ class IMonezaResourceAccess extends IMonezaApi {
       . $this->accessKey . '/' . $temporary_user_token;
     $request->getParameters['ResourceKey'] = $external_key;
     $request->getParameters['ResourceURL'] = $resource_url;
+    $request->getParameters['IP'] = ip_address();
 
     $response = $request->getResponse();
 
