@@ -1,4 +1,4 @@
-# iMoneza Drupal Plugin
+# iMoneza Standard Drupal Plugin
 
 The iMoneza Standard plugin has two main features.  First, because not all content is created equal, you can easily indicate
 premium content.  This lets your visitors know when they're in for a real treat.  Also, we've added the ability to

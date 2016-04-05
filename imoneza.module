@@ -1,146 +1,92 @@
 <?php
 /**
- * The basic bootstrap of the module for iMoneza
+ * @file
+ * The main plugin for imoneza standard
  */
 
 /**
  * Implements hook_help().
+ * @param $path string
+ * @param $arg mixed
+ * @return null|string
  */
 function imoneza_help($path, $arg) {
+  $help = '';
+
   switch ($path) {
     case "admin/help#imoneza":
-      return "<p>" . t("This plugin integrates your Drupal site with the iMoneza service") . "</p>";
-
+      $help = t("This plugin will add icons to highlight your premium content and message readers using adblockers.");
+      break;
   }
+
+  return $help;
 }
-//
-///**
-// * Implements hook_form_alter().
-// */
-//function imoneza_form_alter(&$form, $form_state, $form_id) {
-//  if (isset($form["type"]) && isset($form["type"]["#value"])) {
-//    $holder = new ImonezaStdObject();
-//    $holder->type = $form["type"]["#value"];
-//    $imoneza = imoneza_object();
-//    if ($imoneza->isImonezaManagedNode($holder)) {
-//      $admin = imoneza_admin_object();
-//      $admin->renderImonezaMetaBox($form, $form_state);
-//    }
-//  }
-//
-//}
-//
-///**
-// * Implements hook_menu().
-// */
-//function imoneza_menu() {
-//  $items = array();
-//  $items["admin/settings/imoneza"] = array(
-//    "title" => "iMoneza",
-//    "description" => "iMoneza Settings",
-//    "page callback" => "drupal_get_form",
-//    "page arguments" => array("imoneza_admin"),
-//    "access arguments" => array("administer imoneza settings"),
-//    "type" => MENU_NORMAL_ITEM,
-//  );
-//
-//  return $items;
-//}
-//
-///**
-// * Implements hook_permission().
-// */
-//function imoneza_permission() {
-//  return array(
-//    "administer imoneza settings" => array(
-//      "title" => t("Administer iMoneza Global Settings"),
-//      "description" => t("Configure iMoneza, including API keys and site-wide defaults"),
-//    ),
-//    "bypass imoneza paywall" => array(
-//      "title" => t("Bypass iMoneza Paywall"),
-//      "description" => t("Allow users of this type to bypass iMoneza checks for all content types"),
-//    ),
-//  );
-//}
-//
-///**
-// * Implements hook_admin().
-// *
-// * Hook that displays the admin configuration page for the iMoneza module.
-// *  Delegates to the IMonezaAdmin::create_admin_page() method and implementation
-// * of hook_admin().
-// */
-//function imoneza_admin() {
-//  $imoneza_admin = imoneza_admin_object();
-//
-//  return $imoneza_admin->createAdminPage();
-//
-//}
-//
-///**
-// * Implements hook_node_load().
-// *
-// * Primary hook for controlling whether iMoneza displays the paywall
-// * and implementation of hook_node_load().
-// *
-// * <p>Logic works like this:
-// * <ol>
-// *  <li>Determine how many nodes are being loaded that iMoneza manages</li>
-// *  <li>If there are more than one managed node on this page, or no managed
-// *      nodes on this page, default to open. The reason for this is because
-// *      the home page, searches, section home pages, etc. all load more than
-// *      one node. It will be up to the theme to make sure it only displays
-// *      content the publisher is comfortable giving away for free.</li>
-// *  <li>If the user requesting the node has the 'administer' role or has
-// *      privileges such that the user can edit the content in the node,
-// *      we allow them to view the content with the paywall</li>
-// * </ol>
-// * <p>
-// *  At this point, if we're going to show the paywall, we determine
-// *  whether to display the javascript paywall, or handle it server-side.
-// * </p>
-// */
-//function imoneza_node_load($nodes, $types) {
-//  // Check for resource access.
-//  $num_managed_nodes = 0;
-//
-//  $imoneza = imoneza_object();
-//  foreach ($nodes as $node) {
-//    if ($imoneza->isImonezaManagedNode($node)) {
-//      $num_managed_nodes++;
-//      $managed_node = $node;
-//    }
-//
-//  }
-//  if ($num_managed_nodes > 1 || $num_managed_nodes < 1) {
-//    return;
-//    // For now, not executing on pages that contain multiple nodes.
-//  }
-//  $node = $managed_node;
-//
-//  if (user_access("bypass imoneza paywall") || path_is_admin(current_path())) {
-//    // Allow them access no matter what.
-//    return;
-//  }
-//
-//  drupal_add_js(IMONEZA__RA_UI_URL . "/assets/imoneza.js", "file");
-//
-//  if ($imoneza->doDynamic) {
-//    $imoneza->createDynamic($node);
-//  }
-//
-//  if ($imoneza->doServerSideAuth) {
-//    error_log("Doing iMoneza redirect");
-//    $imoneza->imonezaTemplateRedirect($node);
-//  }
-//  else {
-//    if ($imoneza->doClientSideAuth) {
-//      drupal_add_js($imoneza->createSnippet($node), "inline");
-//    }
-//    else {
-//      // Ignore it.
-//      return;
-//    }
-//  }
-//
-//}
+
+/**
+ * Implements hook_permission().
+ */
+function imoneza_permission() {
+  return array(
+    "administer imoneza settings" => array(
+      "title" => t("Administer iMoneza Settings"),
+      "description" => t("Configure iMoneza settings including choosing premium indicator icons and specifying an adblock message.")
+    )
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function imoneza_menu() {
+  $items = array();
+  $items["admin/settings/imoneza"] = array(
+    "title" => "iMoneza",
+    "description" => "iMoneza Settings",
+    "page callback" => "drupal_get_form",
+    "page arguments" => array("imoneza_admin"),
+    "access arguments" => array("administer imoneza settings"),
+    "type" => MENU_NORMAL_ITEM,
+  );
+
+  return $items;
+}
+
+/**
+ * Hook that displays the admin configuration page for the iMoneza module.
+ * @param $form
+ * @param $form_state
+ * @return mixed
+ */
+function imoneza_admin($form, &$form_state) {
+  $form['show_adblock_notification'] = array(
+    '#type' =>  'radios',
+    '#title' =>  t('Add a notification for adblockers:'),
+    '#default_value'  =>  variable_get('imoneza_show_adblock_notification', 0),
+    '#options'  =>  array(0 => t('No'), 1 => t('Yes'))
+  );
+
+  $form['adblock_notification'] = array(
+    '#type' =>  'textarea',
+    '#title'  =>  t('Message for users of ad blockers:'),
+    '#default_value'  =>  variable_get('imoneza_adblock_notification', "We noticed you have your ad blocker on.  Is it possible for you to turn it off - just for this site - as a favor?  We wouldn't ask except that our website needs ads to survive.")
+  );
+
+  $form['actions']['submit'] = array(
+    '#type' =>  'submit',
+    '#value'  =>  t('Save Settings')
+  );
+
+  return $form;
+}
+
+/**
+ * Save the admin form items
+ *
+ * @param $form
+ * @param $form_state
+ */
+function imoneza_admin_submit($form, &$form_state) {
+  variable_set('imoneza_show_adblock_notification', $form_state['values']['show_adblock_notification']);
+  variable_set('imoneza_adblock_notification', $form_state['values']['adblock_notification']);
+  drupal_set_message(t('Your form has been saved.'));
+}
