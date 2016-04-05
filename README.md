@@ -1,40 +1,10 @@
 # iMoneza Drupal Plugin
-This plugin provides integration with the 
-[iMoneza](http://www.imoneza.com "iMoneza") service for sites 
-running Drupal 7.x.
 
-## Getting started
-Too install the plugin, either clone the repository or download a zip and 
-drop into `/sites/all/modules` and activate the
-module.
+The iMoneza Standard plugin has two main features.  First, because not all content is created equal, you can easily indicate
+premium content.  This lets your visitors know when they're in for a real treat.  Also, we've added the ability to
+generate a message to your visitors who use adblock software.  If you're paying the bills with ads, you might want to
+enable this feature and tell your visitors about your specific needs and why you have ads.
 
-## Configuration
-Once installed, you must configure the plugin with iMoneza credentials 
-including the Resource Access Key/Secret and the 
-Resource Management Key/Secret available from the API Keys section of the 
-iMoneza website. To access the configuration
-scree, click the `iMoneza` link in the admin menu bar.
-
-The plugin is also designed to work with a variety of node types. In order to 
-use the iMoneza service with your site, 
-select at least one node type on the iMoneza configuration page.
-
-## Using the plugin
-### Resource creation
-The iMoneza plugin automatically creates resources in the iMoneza service for 
-every new node you create that has iMoneza
-enabled. You can also optionally enable dynamic resource creation that will 
-allow you to create resources for previously
-created content.
-
-### Custom pricing
-When creating a resource, the new resource automatically receives default 
-pricing parameters. These parameters can be 
-overridden on a resource-by-resource basis using the iMoneza menu on the 
-`Edit` page for the paritcular node. More information
-about the supported pricing structures can be found at the 
-[iMoneza Merchants page](https://www.imoneza.com/merchants/).
-
-## Additional resources
-More information about the iMoneza service and the Drupal plugin can be found 
-at [iMoneza.com](http://www.imoneza.com "iMoneza").
+iMoneza provides a platform to accept micropayments for protected and premium content.  For more details or to get the PRO
+version of this plugin (which contains these features plus the ability to manage your digital content and accept micropayments),
+visit [www.imoneza.com](https://www.imoneza.com).

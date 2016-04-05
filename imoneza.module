@@ -1,46 +1,7 @@
 <?php
 /**
- * @file
- * This plugin provides integration the iMoneza System.
+ * The basic bootstrap of the module for iMoneza
  */
-
-define("IMONEZA_NO_ACCESS_CONTROL", 0);
-define("IMONEZA_CLIENT_SIDE_ACCESS_CONTROL", 1);
-define("IMONEZA_SERVER_SIDE_ACCESS_CONTROL", 2);
-define('IMONEZA__RA_API_URL', 'https://accessapi.imoneza.com');
-define('IMONEZA__RM_API_URL', 'https://manageapi.imoneza.com');
-define('IMONEZA__RA_UI_URL', 'https://accessui.imoneza.com');
-define('IMONEZA__DEBUG', FALSE);
-
-/**
- * Factory method to return the global iMoneza object.
- *
- * @return object
- *    iMoneza object.
- */
-function imoneza_object() {
-  static $imoneza = NULL;
-  if (empty($imoneza)) {
-    $imoneza = new IMoneza();
-  }
-
-  return $imoneza;
-}
-
-/**
- * Factory method to return the global iMonezaAdmin object.
- *
- * @return object
- *    iMonezaAdmin object.
- */
-function imoneza_admin_object() {
-  static $imoneza_admin = NULL;
-  if (empty($imoneza_admin)) {
-    $imoneza_admin = new IMonezaAdmin();
-  }
-
-  return $imoneza_admin;
-}
 
 /**
  * Implements hook_help().
@@ -52,134 +13,134 @@ function imoneza_help($path, $arg) {
 
   }
 }
-
-/**
- * Implements hook_form_alter().
- */
-function imoneza_form_alter(&$form, $form_state, $form_id) {
-  if (isset($form["type"]) && isset($form["type"]["#value"])) {
-    $holder = new ImonezaStdObject();
-    $holder->type = $form["type"]["#value"];
-    $imoneza = imoneza_object();
-    if ($imoneza->isImonezaManagedNode($holder)) {
-      $admin = imoneza_admin_object();
-      $admin->renderImonezaMetaBox($form, $form_state);
-    }
-  }
-
-}
-
-/**
- * Implements hook_menu().
- */
-function imoneza_menu() {
-  $items = array();
-  $items["admin/settings/imoneza"] = array(
-    "title" => "iMoneza",
-    "description" => "iMoneza Settings",
-    "page callback" => "drupal_get_form",
-    "page arguments" => array("imoneza_admin"),
-    "access arguments" => array("administer imoneza settings"),
-    "type" => MENU_NORMAL_ITEM,
-  );
-
-  return $items;
-}
-
-/**
- * Implements hook_permission().
- */
-function imoneza_permission() {
-  return array(
-    "administer imoneza settings" => array(
-      "title" => t("Administer iMoneza Global Settings"),
-      "description" => t("Configure iMoneza, including API keys and site-wide defaults"),
-    ),
-    "bypass imoneza paywall" => array(
-      "title" => t("Bypass iMoneza Paywall"),
-      "description" => t("Allow users of this type to bypass iMoneza checks for all content types"),
-    ),
-  );
-}
-
-/**
- * Implements hook_admin().
- *
- * Hook that displays the admin configuration page for the iMoneza module.
- *  Delegates to the IMonezaAdmin::create_admin_page() method and implementation
- * of hook_admin().
- */
-function imoneza_admin() {
-  $imoneza_admin = imoneza_admin_object();
-
-  return $imoneza_admin->createAdminPage();
-
-}
-
-/**
- * Implements hook_node_load().
- *
- * Primary hook for controlling whether iMoneza displays the paywall
- * and implementation of hook_node_load().
- *
- * <p>Logic works like this:
- * <ol>
- *  <li>Determine how many nodes are being loaded that iMoneza manages</li>
- *  <li>If there are more than one managed node on this page, or no managed
- *      nodes on this page, default to open. The reason for this is because
- *      the home page, searches, section home pages, etc. all load more than
- *      one node. It will be up to the theme to make sure it only displays
- *      content the publisher is comfortable giving away for free.</li>
- *  <li>If the user requesting the node has the 'administer' role or has
- *      privileges such that the user can edit the content in the node,
- *      we allow them to view the content with the paywall</li>
- * </ol>
- * <p>
- *  At this point, if we're going to show the paywall, we determine
- *  whether to display the javascript paywall, or handle it server-side.
- * </p>
- */
-function imoneza_node_load($nodes, $types) {
-  // Check for resource access.
-  $num_managed_nodes = 0;
-
-  $imoneza = imoneza_object();
-  foreach ($nodes as $node) {
-    if ($imoneza->isImonezaManagedNode($node)) {
-      $num_managed_nodes++;
-      $managed_node = $node;
-    }
-
-  }
-  if ($num_managed_nodes > 1 || $num_managed_nodes < 1) {
-    return;
-    // For now, not executing on pages that contain multiple nodes.
-  }
-  $node = $managed_node;
-
-  if (user_access("bypass imoneza paywall") || path_is_admin(current_path())) {
-    // Allow them access no matter what.
-    return;
-  }
-
-  drupal_add_js(IMONEZA__RA_UI_URL . "/assets/imoneza.js", "file");
-
-  if ($imoneza->doDynamic) {
-    $imoneza->createDynamic($node);
-  }
-
-  if ($imoneza->doServerSideAuth) {
-    error_log("Doing iMoneza redirect");
-    $imoneza->imonezaTemplateRedirect($node);
-  }
-  else {
-    if ($imoneza->doClientSideAuth) {
-      drupal_add_js($imoneza->createSnippet($node), "inline");
-    }
-    else {
-      // Ignore it.
-      return;
-    }
-  }
-
-}
+//
+///**
+// * Implements hook_form_alter().
+// */
+//function imoneza_form_alter(&$form, $form_state, $form_id) {
+//  if (isset($form["type"]) && isset($form["type"]["#value"])) {
+//    $holder = new ImonezaStdObject();
+//    $holder->type = $form["type"]["#value"];
+//    $imoneza = imoneza_object();
+//    if ($imoneza->isImonezaManagedNode($holder)) {
+//      $admin = imoneza_admin_object();
+//      $admin->renderImonezaMetaBox($form, $form_state);
+//    }
+//  }
+//
+//}
+//
+///**
+// * Implements hook_menu().
+// */
+//function imoneza_menu() {
+//  $items = array();
+//  $items["admin/settings/imoneza"] = array(
+//    "title" => "iMoneza",
+//    "description" => "iMoneza Settings",
+//    "page callback" => "drupal_get_form",
+//    "page arguments" => array("imoneza_admin"),
+//    "access arguments" => array("administer imoneza settings"),
+//    "type" => MENU_NORMAL_ITEM,
+//  );
+//
+//  return $items;
+//}
+//
+///**
+// * Implements hook_permission().
+// */
+//function imoneza_permission() {
+//  return array(
+//    "administer imoneza settings" => array(
+//      "title" => t("Administer iMoneza Global Settings"),
+//      "description" => t("Configure iMoneza, including API keys and site-wide defaults"),
+//    ),
+//    "bypass imoneza paywall" => array(
+//      "title" => t("Bypass iMoneza Paywall"),
+//      "description" => t("Allow users of this type to bypass iMoneza checks for all content types"),
+//    ),
+//  );
+//}
+//
+///**
+// * Implements hook_admin().
+// *
+// * Hook that displays the admin configuration page for the iMoneza module.
+// *  Delegates to the IMonezaAdmin::create_admin_page() method and implementation
+// * of hook_admin().
+// */
+//function imoneza_admin() {
+//  $imoneza_admin = imoneza_admin_object();
+//
+//  return $imoneza_admin->createAdminPage();
+//
+//}
+//
+///**
+// * Implements hook_node_load().
+// *
+// * Primary hook for controlling whether iMoneza displays the paywall
+// * and implementation of hook_node_load().
+// *
+// * <p>Logic works like this:
+// * <ol>
+// *  <li>Determine how many nodes are being loaded that iMoneza manages</li>
+// *  <li>If there are more than one managed node on this page, or no managed
+// *      nodes on this page, default to open. The reason for this is because
+// *      the home page, searches, section home pages, etc. all load more than
+// *      one node. It will be up to the theme to make sure it only displays
+// *      content the publisher is comfortable giving away for free.</li>
+// *  <li>If the user requesting the node has the 'administer' role or has
+// *      privileges such that the user can edit the content in the node,
+// *      we allow them to view the content with the paywall</li>
+// * </ol>
+// * <p>
+// *  At this point, if we're going to show the paywall, we determine
+// *  whether to display the javascript paywall, or handle it server-side.
+// * </p>
+// */
+//function imoneza_node_load($nodes, $types) {
+//  // Check for resource access.
+//  $num_managed_nodes = 0;
+//
+//  $imoneza = imoneza_object();
+//  foreach ($nodes as $node) {
+//    if ($imoneza->isImonezaManagedNode($node)) {
+//      $num_managed_nodes++;
+//      $managed_node = $node;
+//    }
+//
+//  }
+//  if ($num_managed_nodes > 1 || $num_managed_nodes < 1) {
+//    return;
+//    // For now, not executing on pages that contain multiple nodes.
+//  }
+//  $node = $managed_node;
+//
+//  if (user_access("bypass imoneza paywall") || path_is_admin(current_path())) {
+//    // Allow them access no matter what.
+//    return;
+//  }
+//
+//  drupal_add_js(IMONEZA__RA_UI_URL . "/assets/imoneza.js", "file");
+//
+//  if ($imoneza->doDynamic) {
+//    $imoneza->createDynamic($node);
+//  }
+//
+//  if ($imoneza->doServerSideAuth) {
+//    error_log("Doing iMoneza redirect");
+//    $imoneza->imonezaTemplateRedirect($node);
+//  }
+//  else {
+//    if ($imoneza->doClientSideAuth) {
+//      drupal_add_js($imoneza->createSnippet($node), "inline");
+//    }
+//    else {
+//      // Ignore it.
+//      return;
+//    }
+//  }
+//
+//}

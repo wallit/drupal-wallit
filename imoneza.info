@@ -1,13 +1,4 @@
 name = iMoneza
-description = Provides CMS integration for the iMoneza system
+description = Add icons to highlight your premium content and message readers using adblockers.
 core = 7.x
-php = 5.5
-
-stylesheets[all][] = static/imoneza.css
-files[] = b3_helpers.inc
-files[] = class.imoneza.inc
-files[] = class.imoneza-api.inc
-files[] = class.imoneza-admin.inc
-files[] = class.imoneza-resourceaccess.inc
-files[] = class.imoneza-restfulrequest.inc
-files[] = class.imoneza-resourcemanagement.inc
+php = 5.4
