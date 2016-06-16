@@ -1,6 +1,7 @@
-name = iMoneza Standard
-description = Add icons to highlight your premium content and message readers using adblockers.
+name = iMoneza
+description = Integrate your site with your iMoneza account and begin monetizing your content.
 core = 7.x
 php = 5.4
+version = 2.0.0
 
 configure = admin/settings/imoneza

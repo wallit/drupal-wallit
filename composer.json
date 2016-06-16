@@ -1,0 +1,21 @@
+{
+    "name": "imoneza/drupal-7-imoneza",
+    "description": "iMoneza Drupal plugin",
+    "authors": [
+        {
+            "name": "iMoneza",
+            "email": "support@imoneza.com"
+        },
+        {
+            "name": "Aaron Saray",
+            "email": "aaron@aaronsaray.com"
+        }
+    ],
+    "require": {
+        "imoneza/imoneza-php-api": "^1.3",
+        "monolog/monolog": "^1.19"
+    },
+    "autoload": {
+        "psr-4": {"iMoneza\\Drupal\\": "src"}
+    }
+}

@@ -1,10 +1,18 @@
-# iMoneza Standard Drupal Plugin
+# iMoneza Drupal Plugin
 
-The iMoneza Standard plugin has two main features.  First, because not all content is created equal, you can easily indicate
-premium content.  This lets your visitors know when they're in for a real treat.  Also, we've added the ability to
-generate a message to your visitors who use adblock software.  If you're paying the bills with ads, you might want to
-enable this feature and tell your visitors about your specific needs and why you have ads.
+Integrate your site with your iMoneza account and begin monetizing your content.
 
-iMoneza provides a platform to accept micropayments for protected and premium content.  For more details or to get the PRO
-version of this plugin (which contains these features plus the ability to manage your digital content and accept micropayments),
-visit [www.imoneza.com](https://www.imoneza.com).
+## Description
+
+iMoneza is a digital micro-transaction paywall service. This Drupal plugin allows you to quickly and easily integrate iMoneza with your site. 
+It will add iMoneza's paywall to your site and allow you to manage your iMoneza resources from within Drupal. 
+Please note - an iMoneza account is **required**.
+
+Visit [www.imoneza.com](https://imoneza.com) for more information about iMoneza.
+
+## Installation
+
+1. Set up an iMoneza account, create an iMoneza property, and generate a set of API keys.
+2. Visit the [latest release link](https://github.com/iMoneza/drupal-imoneza/releases/latest) and download imoneza.zip
+3. Upload imoneza.zip through the module installer in Drupal
+4. Follow setup wizard

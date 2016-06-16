@@ -1,11 +1,26 @@
 <?php
 /**
  * @file
- * The main plugin for imoneza standard
+ * The main plugin for iMoneza
  */
 
+
+if (!class_exists('DrupalFakeCache')) {
+  $cache_backends = variable_get('cache_backends', array());
+  $cache_backends[] = 'includes/cache-install.inc';
+  variable_set('cache_backends', $cache_backends);
+}
+// Default to throwing away cache data
+variable_set('cache_default_class','DrupalFakeCache');
+// Rely on the DB cache for form caching - otherwise forms fail.
+variable_set('cache_class_cache_form', 'DrupalDatabaseCache');
+
+
 /**
- * Implements hook_help().
+ * Implements hook_help()
+ * 
+ * Displays help string for this module 
+ * 
  * @param $path string
  * @param $arg mixed
  * @return null|string
@@ -15,78 +30,197 @@ function imoneza_help($path, $arg) {
 
   switch ($path) {
     case "admin/help#imoneza":
-      $help = t("This plugin will add icons to highlight your premium content and message readers using adblockers.");
+      $help .= "<h3>" . t('About') . "</h3>";
+      $help .= "<p>" . t("This module adds the iMoneza content control and paywall to your site.") . "</p>";
+      $help .= "<h3>" . t('Features') . "</h3>";
+      $help .= "<dl>";
+      $help .= "<dt>" . t('Paywall and Wallet') . "</dt>";
+      $help .= "<dd>" . t('Add the paywall and embedded wallet to your site.  The paywall can be configured to be server-side or embedded (client side).') . "</dd>";
+      $help .= "<dt>" . t('Premium Content Indicator') . "</dt>";
+      $help .= "<dd>" . t('Indicate premium content on your site by tagging it as such.  This helps users understand if a paywall action is about to occur.') . "</dd>";
+      $help .= "</dl>";
       break;
   }
-
+  
   return $help;
 }
 
 /**
- * Implements hook_permission().
+ * Implements hook_permission()
+ * 
+ * This creates a section in the permissions admin area to allow permissions for this module.
+ * @return array
  */
 function imoneza_permission() {
   return array(
     "administer imoneza settings" => array(
-      "title" => t("Administer iMoneza Settings"),
-      "description" => t("Configure iMoneza settings including choosing premium indicator icons and specifying an adblock message.")
+      "title" => t("Administer iMoneza Settings")
     )
   );
 }
 
 /**
- * Implements hook_menu().
+ * Implements hook_menu()
+ * 
+ * This generates an iMoneza menu item at the main level.
+ * 
+ * @return array
  */
 function imoneza_menu() {
   $items = array();
+  
+  /** main for first time */
   $items["admin/settings/imoneza"] = array(
     "title" => "iMoneza",
     "description" => "iMoneza Settings",
     "page callback" => "drupal_get_form",
-    "page arguments" => array("imoneza_admin"),
+    "page arguments" => array("imoneza_first_time_form"),
     "access arguments" => array("administer imoneza settings"),
     "type" => MENU_NORMAL_ITEM,
+  );
+
+  /** internal config */
+  $items["admin/settings/imoneza/config"] = array(
+      "title" => "Internal Config",
+      "description" => "iMoneza Internal Config",
+      "page callback" => "drupal_get_form",
+      "page arguments" => array("imoneza_internal_config_form"),
+      "access arguments" => array("administer imoneza settings"),
+      "type" => MENU_CALLBACK,
   );
 
   return $items;
 }
 
 /**
- * Hook that displays the admin configuration page for the iMoneza module.
+ * Implements hook_theme()
+ * 
+ * @return array
+ */
+function imoneza_theme() {
+  return array(
+      'imoneza_first_time_form' => array (
+          'render element' => 'form',
+      ),
+      'imoneza_internal_config_form' => array (
+          'render element' => 'form',
+      ),
+  );
+}
+
+/**
+ * Hook that displays the first time admin form
+ * 
+ * @see imoneza_menu()
  * @param $form
  * @param $form_state
  * @return mixed
  */
-function imoneza_admin($form, &$form_state) {
-  $form['show_adblock_notification'] = array(
-    '#type' =>  'radios',
-    '#title' =>  t('Add a notification for adblockers:'),
-    '#default_value'  =>  variable_get('imoneza_show_adblock_notification', 0),
-    '#options'  =>  array(0 => t('No'), 1 => t('Yes'))
+function imoneza_first_time_form($form, &$form_state) {
+  $form['#theme'] = 'imoneza_first_time_form';
+  $form['#attached']['css'] = array(
+      drupal_get_path('module', 'imoneza') . '/assets/admin.css',
   );
-
-  $form['adblock_notification'] = array(
-    '#type' =>  'textarea',
-    '#title'  =>  t('Message for users of ad blockers:'),
-    '#default_value'  =>  variable_get('imoneza_adblock_notification', "We noticed you have your ad blocker on.  Is it possible for you to turn it off - just for this site - as a favor?  We wouldn't ask except that our website needs ads to survive.")
+  
+  $form['manage_api_key'] = array(
+      '#type' =>  'textfield',
+      '#title'  =>  t('Resource Management API Key:'),
+      '#required' => true
+  );
+  $form['manage_api_secret'] = array(
+      '#type' =>  'textfield',
+      '#title'  =>  t('Resource Management API Secret:'),
+      '#required' =>  true
   );
 
   $form['actions']['submit'] = array(
-    '#type' =>  'submit',
-    '#value'  =>  t('Save Settings')
+      '#type' =>  'submit',
+      '#value'  =>  t('Verify Access')
+  );
+  
+  return $form;
+}
+
+function imoneza_internal_config_form($form, &$form_state) {
+  $form['#theme'] = 'imoneza_internal_config_form';
+  $form['#attached']['css'] = array(
+      drupal_get_path('module', 'imoneza') . '/assets/admin.css',
+  );
+
+  $form['manage_api_url'] = array(
+      '#type' =>  'textfield',
+      '#title'  =>  t('Resource Management API URL:'),
+  );
+  $form['access_api_url'] = array(
+      '#type' =>  'textfield',
+      '#title'  =>  t('Resource Access API URL:'),
+  );
+  $form['javascript_cdn_url'] = array(
+      '#type' =>  'textfield',
+      '#title'  =>  t('Javascript CDN URL:'),
+  );
+  $form['manage_ui_url'] = array(
+      '#type' =>  'textfield',
+      '#title'  =>  t('Manage UI URL:'),
+  );
+  
+  $form['actions']['submit'] = array(
+      '#type' =>  'submit',
+      '#value'  =>  t('Save')
   );
 
   return $form;
 }
 
 /**
- * Save the admin form items
+ * Implements hook_theme().
+ *
+ * This is the theme for the first time form
+ * 
+ * @param $vars
+ * @return string
+ */
+function theme_imoneza_first_time_form($vars) {
+  $form = $vars['form'];
+  $output = '<p class="imz-welcome">' . t("Hey there!  It looks like it's your first time here.  Let's get started!") . "</p>";
+  $output .= "<h3>" . t("Time to do a little configuration") . "</h3>";
+  $output .= "<p>" . t("Right now, all we need is your Resource Management API key and secret.");
+  $output .= t("This will help us custom tailor the rest of the plugin options for you.") . "</p>";
+  $output .= drupal_render_children($form);
+  return $output;
+}
+
+function theme_imoneza_internal_config_form($vars) {
+  $form = $vars['form'];
+  $output = "<h3>" . t("Internal Configuration") . "</h3>";
+  $output .= "<p>" . t("Here you can override the URLs built into the plugin.  Do not use this section unless you know what you're doing.");
+  $output .= "<strong>" . t("Leave them blank") . "</strong> " . t("to use the default production URLs.") . "</p>";
+
+  $output .= drupal_render_children($form);
+  return $output;
+}
+
+/**
+ * Implements the validation for first time form
+ * 
+ * @param $form
+ * @param $form_state
+ */
+function imoneza_first_time_form_validate($form, &$form_state) {
+  $apiKey = $form_state['values']['manage_api_key'];
+  $apiSecret = $form_state['values']['manage_api_secret'];
+
+  //form_set_error('manage_api_secret', 'this is a test error.');
+}
+
+/**
+ * Implements the form saving mechanism for first time form
  *
  * @param $form
  * @param $form_state
  */
-function imoneza_admin_submit($form, &$form_state) {
-  variable_set('imoneza_show_adblock_notification', $form_state['values']['show_adblock_notification']);
-  variable_set('imoneza_adblock_notification', $form_state['values']['adblock_notification']);
-  drupal_set_message(t('Your form has been saved.'));
-}
+//function imoneza_first_time_form_submit($form, &$form_state) {
+//  variable_set('imoneza_show_adblock_notification', $form_state['values']['show_adblock_notification']);
+//  variable_set('imoneza_adblock_notification', $form_state['values']['adblock_notification']);
+//  drupal_set_message(t('Your form has been saved.'));
+//}
