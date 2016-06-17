@@ -1,20 +1,12 @@
 <?php
 /**
- * @file
- * The main plugin for iMoneza
+ * @file The main plugin for iMoneza
+ * 
+ * @author Aaron Saray
  */
 
-
-if (!class_exists('DrupalFakeCache')) {
-  $cache_backends = variable_get('cache_backends', array());
-  $cache_backends[] = 'includes/cache-install.inc';
-  variable_set('cache_backends', $cache_backends);
-}
-// Default to throwing away cache data
-variable_set('cache_default_class','DrupalFakeCache');
-// Rely on the DB cache for form caching - otherwise forms fail.
-variable_set('cache_class_cache_form', 'DrupalDatabaseCache');
-
+/** load in my own composer stuff for this moment */
+require_once 'vendor/autoload.php';
 
 /**
  * Implements hook_help()
@@ -77,16 +69,18 @@ function imoneza_menu() {
     "page arguments" => array("imoneza_first_time_form"),
     "access arguments" => array("administer imoneza settings"),
     "type" => MENU_NORMAL_ITEM,
+    "file" => "imoneza.admin.inc"
   );
 
   /** internal config */
   $items["admin/settings/imoneza/config"] = array(
-      "title" => "Internal Config",
+      "title" => "iMoneza Internal Config",
       "description" => "iMoneza Internal Config",
       "page callback" => "drupal_get_form",
       "page arguments" => array("imoneza_internal_config_form"),
       "access arguments" => array("administer imoneza settings"),
       "type" => MENU_CALLBACK,
+      "file" => "imoneza.internal-config.inc"
   );
 
   return $items;
@@ -107,120 +101,3 @@ function imoneza_theme() {
       ),
   );
 }
-
-/**
- * Hook that displays the first time admin form
- * 
- * @see imoneza_menu()
- * @param $form
- * @param $form_state
- * @return mixed
- */
-function imoneza_first_time_form($form, &$form_state) {
-  $form['#theme'] = 'imoneza_first_time_form';
-  $form['#attached']['css'] = array(
-      drupal_get_path('module', 'imoneza') . '/assets/admin.css',
-  );
-  
-  $form['manage_api_key'] = array(
-      '#type' =>  'textfield',
-      '#title'  =>  t('Resource Management API Key:'),
-      '#required' => true
-  );
-  $form['manage_api_secret'] = array(
-      '#type' =>  'textfield',
-      '#title'  =>  t('Resource Management API Secret:'),
-      '#required' =>  true
-  );
-
-  $form['actions']['submit'] = array(
-      '#type' =>  'submit',
-      '#value'  =>  t('Verify Access')
-  );
-  
-  return $form;
-}
-
-function imoneza_internal_config_form($form, &$form_state) {
-  $form['#theme'] = 'imoneza_internal_config_form';
-  $form['#attached']['css'] = array(
-      drupal_get_path('module', 'imoneza') . '/assets/admin.css',
-  );
-
-  $form['manage_api_url'] = array(
-      '#type' =>  'textfield',
-      '#title'  =>  t('Resource Management API URL:'),
-  );
-  $form['access_api_url'] = array(
-      '#type' =>  'textfield',
-      '#title'  =>  t('Resource Access API URL:'),
-  );
-  $form['javascript_cdn_url'] = array(
-      '#type' =>  'textfield',
-      '#title'  =>  t('Javascript CDN URL:'),
-  );
-  $form['manage_ui_url'] = array(
-      '#type' =>  'textfield',
-      '#title'  =>  t('Manage UI URL:'),
-  );
-  
-  $form['actions']['submit'] = array(
-      '#type' =>  'submit',
-      '#value'  =>  t('Save')
-  );
-
-  return $form;
-}
-
-/**
- * Implements hook_theme().
- *
- * This is the theme for the first time form
- * 
- * @param $vars
- * @return string
- */
-function theme_imoneza_first_time_form($vars) {
-  $form = $vars['form'];
-  $output = '<p class="imz-welcome">' . t("Hey there!  It looks like it's your first time here.  Let's get started!") . "</p>";
-  $output .= "<h3>" . t("Time to do a little configuration") . "</h3>";
-  $output .= "<p>" . t("Right now, all we need is your Resource Management API key and secret.");
-  $output .= t("This will help us custom tailor the rest of the plugin options for you.") . "</p>";
-  $output .= drupal_render_children($form);
-  return $output;
-}
-
-function theme_imoneza_internal_config_form($vars) {
-  $form = $vars['form'];
-  $output = "<h3>" . t("Internal Configuration") . "</h3>";
-  $output .= "<p>" . t("Here you can override the URLs built into the plugin.  Do not use this section unless you know what you're doing.");
-  $output .= "<strong>" . t("Leave them blank") . "</strong> " . t("to use the default production URLs.") . "</p>";
-
-  $output .= drupal_render_children($form);
-  return $output;
-}
-
-/**
- * Implements the validation for first time form
- * 
- * @param $form
- * @param $form_state
- */
-function imoneza_first_time_form_validate($form, &$form_state) {
-  $apiKey = $form_state['values']['manage_api_key'];
-  $apiSecret = $form_state['values']['manage_api_secret'];
-
-  //form_set_error('manage_api_secret', 'this is a test error.');
-}
-
-/**
- * Implements the form saving mechanism for first time form
- *
- * @param $form
- * @param $form_state
- */
-//function imoneza_first_time_form_submit($form, &$form_state) {
-//  variable_set('imoneza_show_adblock_notification', $form_state['values']['show_adblock_notification']);
-//  variable_set('imoneza_adblock_notification', $form_state['values']['adblock_notification']);
-//  drupal_set_message(t('Your form has been saved.'));
-//}
