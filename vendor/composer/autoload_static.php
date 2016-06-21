@@ -40,6 +40,10 @@ class ComposerStaticInit65b4f21908d7cd2a5407f15af72948b2
             array (
                 0 => __DIR__ . '/..' . '/psr/log',
             ),
+            'Pimple' => 
+            array (
+                0 => __DIR__ . '/..' . '/pimple/pimple/src',
+            ),
         ),
     );
 

@@ -6,6 +6,8 @@
  */
 
 namespace iMoneza\Drupal;
+use iMoneza\Drupal\Form;
+use Pimple\Container;
 
 /**
  * Class App
@@ -24,7 +26,12 @@ class App
     protected static $instance;
 
     /**
-     * @return App singleton
+     * @var Container
+     */
+    protected $di;
+
+    /**
+     * @return App singleton (needed for drupal specifically)
      */
     public static function getInstance()
     {
@@ -35,6 +42,32 @@ class App
         return self::$instance;
     }
 
+    /**
+     * App constructor. Protected becaues this is a singleton pattern for Drupal
+     */
+    protected function __construct()
+    {
+        $this->di = $di = new Container();
+        
+        $di['imoneza_first_time_form'] = function() {
+            return new Form\FirstTime();
+        };
+    }
+
+    /**
+     * Spawn a form
+     * 
+     * @param $form
+     * @param $formState
+     * @param $formId
+     * @return array
+     */
+    public function form($form, &$formState, $formId)
+    {
+        $formState['build_info']['base_form_id'] = $formId; // this is an array because its a callback by default but drupal requires a string - so making it back to the original string (lets others alter us too)
+        return $this->di[$formId]();
+    }
+    
     /**
      * Generate the menu for the app
      * 
@@ -49,8 +82,7 @@ class App
                 "page callback" => "drupal_get_form",
                 "page arguments" => array("imoneza_first_time_form"),
                 "access arguments" => array(self::PERMISSION_ADMIN_IMONEZA),
-                "type" => MENU_NORMAL_ITEM,
-                "file" => "imoneza.admin.inc"
+                "type" => MENU_NORMAL_ITEM
             ],
             "admin/settings/imoneza/config" =>  [
                 "title" => "iMoneza Internal Config",

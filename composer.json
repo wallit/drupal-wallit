@@ -13,7 +13,8 @@
     ],
     "require": {
         "imoneza/imoneza-php-api": "^1.3",
-        "monolog/monolog": "^1.19"
+        "monolog/monolog": "^1.19",
+        "pimple/pimple": "^3.0"
     },
     "autoload": {
         "psr-4": {"iMoneza\\Drupal\\": "src"}
