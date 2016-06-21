@@ -13,6 +13,9 @@ namespace iMoneza\Drupal\Form;
  */
 class FirstTime
 {
+    /**
+     * @return array The data for the form
+     */
     public function __invoke()
     {
         $form['#theme'] = 'imoneza_first_time_form';

@@ -2,6 +2,8 @@
 /**
  * @file The main plugin for iMoneza
  * 
+ * It is necessary to have some of these hooks in the `module-name.module` file otherwise Drupal won't find them.
+ * 
  * @author Aaron Saray
  */
 
@@ -65,11 +67,13 @@ function imoneza_help($path, $arg) {
  * @return array
  */
 function imoneza_forms($formId, $args) {
-  $iMoneza = \iMoneza\Drupal\App::getInstance();
-  return [
-    $formId =>  [
-      'callback'  =>  array($iMoneza, 'form'),
-      'callback arguments'  =>  array($formId)
-    ]
-  ];
+  if (stripos($formId, 'imoneza_') === 0) {
+    $iMoneza = \iMoneza\Drupal\App::getInstance();
+    return [
+        $formId =>  [
+            'callback'  =>  array($iMoneza, 'form'),
+            'callback arguments'  =>  array($formId)
+        ]
+    ];
+  }
 }

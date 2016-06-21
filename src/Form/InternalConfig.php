@@ -15,6 +15,9 @@ use iMoneza\Drupal\Model;
  */
 class InternalConfig
 {
+    /**
+     * @return array the data for the form
+     */
     public function __invoke()
     {
         $form['#theme'] = 'imoneza_internal_config_form';
@@ -32,14 +35,23 @@ class InternalConfig
         $form['access_api_url'] = array(
             '#type' =>  'textfield',
             '#title'  =>  t('Resource Access API URL:'),
+            '#attributes' =>  array(
+                'placeholder'   =>  Model\Options::DEFAULT_ACCESS_API_URL
+            )
         );
         $form['javascript_cdn_url'] = array(
             '#type' =>  'textfield',
             '#title'  =>  t('Javascript CDN URL:'),
+            '#attributes' =>  array(
+                'placeholder'   =>  Model\Options::DEFAULT_JAVASCRIPT_CDN_URL
+            )
         );
         $form['manage_ui_url'] = array(
             '#type' =>  'textfield',
             '#title'  =>  t('Manage UI URL:'),
+            '#attributes' =>  array(
+                'placeholder'   =>  Model\Options::DEFAULT_MANAGE_UI_URL
+            )
         );
 
         $form['actions']['submit'] = array(

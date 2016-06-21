@@ -31,6 +31,11 @@ class App
     protected $di;
 
     /**
+     * @var string the location of the template files
+     */
+    protected $templateFilesPath;
+
+    /**
      * @return App singleton (needed for drupal specifically)
      */
     public static function getInstance()
@@ -43,32 +48,23 @@ class App
     }
 
     /**
-     * App constructor. Protected becaues this is a singleton pattern for Drupal
+     * App constructor. Protected because this is a singleton pattern for Drupal
      */
     protected function __construct()
     {
-        $this->di = $di = new Container();
+        $this->templateFilesPath = drupal_get_path('module', 'imoneza') . '/templates';
         
+        $this->di = $di = new Container();
+
+        /**
+         * Forms
+         */
         $di['imoneza_first_time_form'] = function() {
             return new Form\FirstTime();
         };
         $di['imoneza_internal_config_form'] = function() {
             return new Form\InternalConfig();
         };
-    }
-
-    /**
-     * Spawn a form
-     * 
-     * @param $form
-     * @param $formState
-     * @param $formId
-     * @return array
-     */
-    public function form($form, &$formState, $formId)
-    {
-        $formState['build_info']['base_form_id'] = $formId; // this is an array because its a callback by default but drupal requires a string - so making it back to the original string (lets others alter us too)
-        return $this->di[$formId]();
     }
     
     /**
@@ -124,7 +120,7 @@ class App
             'imoneza_internal_config_form' => [
                 'render element' => 'form',
                 'template'  =>  'internal-config',
-                'path'  =>  drupal_get_path('module', 'imoneza') . '/templates'
+                'path'  =>  $this->templateFilesPath
             ]
         ];
     }
@@ -141,18 +137,24 @@ class App
 
         switch ($path) {
             case "admin/help#imoneza":
-                $help .= "<h3>" . t('About') . "</h3>";
-                $help .= "<p>" . t("This module adds the iMoneza content control and paywall to your site.") . "</p>";
-                $help .= "<h3>" . t('Features') . "</h3>";
-                $help .= "<dl>";
-                $help .= "<dt>" . t('Paywall and Wallet') . "</dt>";
-                $help .= "<dd>" . t('Add the paywall and embedded wallet to your site.  The paywall can be configured to be server-side or embedded (client side).') . "</dd>";
-                $help .= "<dt>" . t('Premium Content Indicator') . "</dt>";
-                $help .= "<dd>" . t('Indicate premium content on your site by tagging it as such.  This helps users understand if a paywall action is about to occur.') . "</dd>";
-                $help .= "</dl>";
+                $help .= theme_render_template($this->templateFilesPath . '/help.tpl.php', []);
                 break;
         }
 
         return $help;
+    }
+
+    /**
+     * Spawn a form using our OO method (this is used in a callback in the .module file)
+     *
+     * @param $form
+     * @param $formState
+     * @param $formId
+     * @return array
+     */
+    public function form($form, &$formState, $formId)
+    {
+        $formState['build_info']['base_form_id'] = $formId; // this is an array because its a callback by default but drupal requires a string - so making it back to the original string (lets others alter us too)
+        return $this->di[$formId]();
     }
 }
