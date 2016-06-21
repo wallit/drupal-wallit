@@ -52,6 +52,9 @@ class App
         $di['imoneza_first_time_form'] = function() {
             return new Form\FirstTime();
         };
+        $di['imoneza_internal_config_form'] = function() {
+            return new Form\InternalConfig();
+        };
     }
 
     /**
@@ -90,8 +93,7 @@ class App
                 "page callback" => "drupal_get_form",
                 "page arguments" => array("imoneza_internal_config_form"),
                 "access arguments" => array(self::PERMISSION_ADMIN_IMONEZA),
-                "type" => MENU_CALLBACK,
-                "file" => "imoneza.internal-config.inc"
+                "type" => MENU_CALLBACK
             ]
         ];
     }
@@ -121,6 +123,8 @@ class App
             ],
             'imoneza_internal_config_form' => [
                 'render element' => 'form',
+                'template'  =>  'internal-config',
+                'path'  =>  drupal_get_path('module', 'imoneza') . '/templates'
             ]
         ];
     }

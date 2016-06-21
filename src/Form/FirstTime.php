@@ -1,13 +1,16 @@
 <?php
 /**
- *
+ * First time form
  *
  * @author Aaron Saray
  */
 
 namespace iMoneza\Drupal\Form;
 
-
+/**
+ * Class FirstTime
+ * @package iMoneza\Drupal\Form
+ */
 class FirstTime
 {
     public function __invoke()
