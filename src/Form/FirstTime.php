@@ -35,6 +35,19 @@ class FirstTime
         
         $form['#validate'] = array(function()  {
             die('validating');
+
+//            /**
+//             * Implements the validation for first time form
+//             *
+//             * @param $form
+//             * @param $form_state
+//             */
+//            function imoneza_first_time_form_validate($form, &$form_state) {
+//                $apiKey = $form_state['values']['manage_api_key'];
+//                $apiSecret = $form_state['values']['manage_api_secret'];
+//
+//                form_set_error('manage_api_secret', 'this is a test error.');
+//            }
         });
         $form['#submit'] = array(function() {
             die('submitting');
