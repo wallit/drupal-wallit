@@ -9,6 +9,39 @@
 require_once 'vendor/autoload.php';
 
 /**
+ * Implements hook_menu()
+ *
+ * This generates an iMoneza menu item at the main level.
+ *
+ * @return array
+ */
+function imoneza_menu() {
+  $iMoneza = \iMoneza\Drupal\App::getInstance();
+  return $iMoneza->menu();
+}
+
+/**
+ * Implements hook_permission()
+ *
+ * This creates a section in the permissions admin area to allow permissions for this module.
+ * @return array
+ */
+function imoneza_permission() {
+  $iMoneza = \iMoneza\Drupal\App::getInstance();
+  return $iMoneza->permissions();
+}
+
+/**
+ * Implements hook_theme()
+ *
+ * @return array
+ */
+function imoneza_theme() {
+  $iMoneza = \iMoneza\Drupal\App::getInstance();
+  return $iMoneza->theme();
+}
+
+/**
  * Implements hook_help()
  * 
  * Displays help string for this module 
@@ -18,86 +51,6 @@ require_once 'vendor/autoload.php';
  * @return null|string
  */
 function imoneza_help($path, $arg) {
-  $help = '';
-
-  switch ($path) {
-    case "admin/help#imoneza":
-      $help .= "<h3>" . t('About') . "</h3>";
-      $help .= "<p>" . t("This module adds the iMoneza content control and paywall to your site.") . "</p>";
-      $help .= "<h3>" . t('Features') . "</h3>";
-      $help .= "<dl>";
-      $help .= "<dt>" . t('Paywall and Wallet') . "</dt>";
-      $help .= "<dd>" . t('Add the paywall and embedded wallet to your site.  The paywall can be configured to be server-side or embedded (client side).') . "</dd>";
-      $help .= "<dt>" . t('Premium Content Indicator') . "</dt>";
-      $help .= "<dd>" . t('Indicate premium content on your site by tagging it as such.  This helps users understand if a paywall action is about to occur.') . "</dd>";
-      $help .= "</dl>";
-      break;
-  }
-  
-  return $help;
-}
-
-/**
- * Implements hook_permission()
- * 
- * This creates a section in the permissions admin area to allow permissions for this module.
- * @return array
- */
-function imoneza_permission() {
-  return array(
-    "administer imoneza settings" => array(
-      "title" => t("Administer iMoneza Settings")
-    )
-  );
-}
-
-/**
- * Implements hook_menu()
- * 
- * This generates an iMoneza menu item at the main level.
- * 
- * @return array
- */
-function imoneza_menu() {
-  $items = array();
-  
-  /** main for first time */
-  $items["admin/settings/imoneza"] = array(
-    "title" => "iMoneza",
-    "description" => "iMoneza Settings",
-    "page callback" => "drupal_get_form",
-    "page arguments" => array("imoneza_first_time_form"),
-    "access arguments" => array("administer imoneza settings"),
-    "type" => MENU_NORMAL_ITEM,
-    "file" => "imoneza.admin.inc"
-  );
-
-  /** internal config */
-  $items["admin/settings/imoneza/config"] = array(
-      "title" => "iMoneza Internal Config",
-      "description" => "iMoneza Internal Config",
-      "page callback" => "drupal_get_form",
-      "page arguments" => array("imoneza_internal_config_form"),
-      "access arguments" => array("administer imoneza settings"),
-      "type" => MENU_CALLBACK,
-      "file" => "imoneza.internal-config.inc"
-  );
-
-  return $items;
-}
-
-/**
- * Implements hook_theme()
- * 
- * @return array
- */
-function imoneza_theme() {
-  return array(
-      'imoneza_first_time_form' => array (
-          'render element' => 'form',
-      ),
-      'imoneza_internal_config_form' => array (
-          'render element' => 'form',
-      ),
-  );
+  $iMoneza = \iMoneza\Drupal\App::getInstance();
+  return $iMoneza->help($path, $arg);
 }
