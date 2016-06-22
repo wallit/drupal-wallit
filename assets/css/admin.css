@@ -1,0 +1,87 @@
+* {
+    box-sizing: border-box;
+}
+.clearfix:after {
+    visibility: hidden;
+    display: block;
+    font-size: 0;
+    content: " ";
+    clear: both;
+    height: 0;
+}
+.text-center {
+    text-align: center;
+}
+.row {
+    display: flex;
+    flex-direction: row;
+}
+.row > * {
+    padding: 0.5rem;
+}
+.row > *:first-child {
+    padding-left: 0;
+}
+.row > *:last-child {
+    padding-right: 0;
+}
+.row > div {
+    flex: 2;
+}
+.row > aside {
+    flex: 1;
+}
+
+/** generic forms **/
+.imoneza-form fieldset {
+    border: none;
+    padding: 0;
+    margin: 0;
+}
+.imoneza-form fieldset .fieldset-wrapper {
+    padding: 0;
+}
+.imoneza-form .form-item label {
+    font-weight: bold;
+    display: inline-block;
+    text-align: right;
+    padding-right: 1%;
+    vertical-align: super;
+    width: 33%;
+}
+.imoneza-form input[type=text] {
+    font-size: 1.5rem;
+    padding: 0.5rem;
+    width: 64%;
+}
+
+/** card layouts **/
+.i-card {
+    background-color: #ffffff;
+    padding: 0.1rem 1rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    margin: 0.5rem auto;
+}
+.i-card .success {
+    color: #00AD2A;
+}
+.i-card .error {
+    color: #E90000;
+}
+.i-card .large {
+    font-size: 1.5rem;
+}
+.i-card hr {
+    margin: 2rem 0;
+}
+.i-card .form-submit {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+} 
+
+/** header and text size things **/
+h2.branded-header img {
+    height: 1.4rem;
+    margin-right: 0.15rem;
+    vertical-align: bottom;
+}

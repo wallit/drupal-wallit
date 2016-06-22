@@ -23,7 +23,7 @@ class FirstTime extends FormAbstract
             '#submit'   =>  [[$this, 'submit']],
             '#theme'    =>  'imoneza_first_time_form',
             '#attached' =>  [
-                'css'   =>  [drupal_get_path('module', 'imoneza') . '/assets/admin.css']
+                'css'   =>  [drupal_get_path('module', 'imoneza') . '/assets/css/admin.css']
             ]
         ];
         

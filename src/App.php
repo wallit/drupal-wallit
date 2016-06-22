@@ -168,4 +168,15 @@ class App
         $formState['build_info']['base_form_id'] = $formId; // this is an array because its a callback by default but drupal requires a string - so making it back to the original string (lets others alter us too)
         return $this->di[$formId]();
     }
+
+    /**
+     * Creates a nice URL for an asset in a template
+     * 
+     * @param $url string location of the asset
+     * @return string
+     */
+    public static function asset($url)
+    {
+        return file_create_url(drupal_get_path('module', 'imoneza') . '/assets/' . $url);
+    }
 }

@@ -25,11 +25,18 @@ class InternalConfig extends FormAbstract
             '#submit'   =>  [[$this, 'submit']],
             '#theme'    =>  'imoneza_internal_config_form',
             '#attached' =>  [
-                'css'   =>  [drupal_get_path('module', 'imoneza') . '/assets/admin.css']
+                'css'   =>  [drupal_get_path('module', 'imoneza') . '/assets/css/admin.css']
+            ],
+            '#attributes'   =>  [
+                'class' =>  ['imoneza-form']
             ]
         ];
         
-        $form['manage_api_url'] = array(
+        $form['urls'] = [
+            '#type' =>  'fieldset'
+        ];
+        
+        $form['urls']['manage_api_url'] = array(
             '#type' =>  'textfield',
             '#title'  =>  t('Resource Management API URL:'),
             '#default_value'    =>  $this->options->getManageApiUrl(),
@@ -37,7 +44,7 @@ class InternalConfig extends FormAbstract
                 'placeholder'   =>  Model\Options::DEFAULT_MANAGE_API_URL
             )
         );
-        $form['access_api_url'] = array(
+        $form['urls']['access_api_url'] = array(
             '#type' =>  'textfield',
             '#title'  =>  t('Resource Access API URL:'),
             '#default_value'    =>  $this->options->getAccessApiUrl(),
@@ -45,7 +52,7 @@ class InternalConfig extends FormAbstract
                 'placeholder'   =>  Model\Options::DEFAULT_ACCESS_API_URL
             )
         );
-        $form['javascript_cdn_url'] = array(
+        $form['urls']['javascript_cdn_url'] = array(
             '#type' =>  'textfield',
             '#title'  =>  t('Javascript CDN URL:'),
             '#default_value'    =>  $this->options->getJavascriptCdnUrl(),
@@ -53,7 +60,7 @@ class InternalConfig extends FormAbstract
                 'placeholder'   =>  Model\Options::DEFAULT_JAVASCRIPT_CDN_URL
             )
         );
-        $form['manage_ui_url'] = array(
+        $form['urls']['manage_ui_url'] = array(
             '#type' =>  'textfield',
             '#title'  =>  t('Manage UI URL:'),
             '#default_value'    =>  $this->options->getManageUiUrl(),
@@ -61,12 +68,12 @@ class InternalConfig extends FormAbstract
                 'placeholder'   =>  Model\Options::DEFAULT_MANAGE_UI_URL
             )
         );
+        
+        $form['submit'] = array(
+            '#type' => 'submit',
+            '#value' => t('Save'),
 
-        $form['actions']['submit'] = array(
-            '#type' =>  'submit',
-            '#value'  =>  t('Save')
         );
-
         return $form;
     }
 
