@@ -41,7 +41,7 @@
 .imoneza-form fieldset .fieldset-wrapper {
     padding: 0;
 }
-.imoneza-form .form-item label {
+.imoneza-form .form-item label, .imoneza-form label {
     font-weight: bold;
     display: inline-block;
     text-align: right;
@@ -84,4 +84,11 @@ h2.branded-header img {
     height: 1.4rem;
     margin-right: 0.15rem;
     vertical-align: bottom;
+}
+h2.logo-header {
+    text-align: center;
+    background-color: #414143;
+}
+.logo-header img {
+    height: 3rem;
 }

@@ -24,15 +24,22 @@ class FirstTime extends FormAbstract
             '#theme'    =>  'imoneza_first_time_form',
             '#attached' =>  [
                 'css'   =>  [drupal_get_path('module', 'imoneza') . '/assets/css/admin.css']
+            ],
+            '#attributes'   =>  [
+                'class' =>  ['imoneza-form']
             ]
         ];
+
+        $form['manage_api'] = [
+            '#type' =>  'fieldset'
+        ];
         
-        $form['manage_api_key'] = array(
+        $form['manage_api']['key'] = array(
             '#type' =>  'textfield',
             '#title'  =>  t('Resource Management API Key:'),
             '#required' => true
         );
-        $form['manage_api_secret'] = array(
+        $form['manage_api']['secret'] = array(
             '#type' =>  'textfield',
             '#title'  =>  t('Resource Management API Secret:'),
             '#required' =>  true
