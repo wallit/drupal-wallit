@@ -7,6 +7,7 @@
 
 namespace iMoneza\Drupal;
 use iMoneza\Drupal\Form;
+use iMoneza\Drupal\Model\Options;
 use Pimple\Container;
 
 /**
@@ -57,13 +58,21 @@ class App
         $this->di = $di = new Container();
 
         /**
+         * Options
+         */
+        $di['options'] = function() {
+            /** this is done because its __PHP_INCOMPLETE_CLASS when its unserialized the first time (cuz our class is not valid yet)  */
+            return unserialize(serialize(variable_get('imoneza-options', new Model\Options())));
+        };
+        
+        /**
          * Forms
          */
-        $di['imoneza_first_time_form'] = function() {
-            return new Form\FirstTime();
+        $di['imoneza_first_time_form'] = function() use ($di) {
+            return new Form\FirstTime($di['options']);
         };
-        $di['imoneza_internal_config_form'] = function() {
-            return new Form\InternalConfig();
+        $di['imoneza_internal_config_form'] = function() use ($di) {
+            return new Form\InternalConfig($di['options']);
         };
     }
     
@@ -116,10 +125,12 @@ class App
         return [
             'imoneza_first_time_form' => [
                 'render element' => 'form',
+                'template'  =>  'admin/options/first-time',
+                'path'  =>  $this->templateFilesPath
             ],
             'imoneza_internal_config_form' => [
                 'render element' => 'form',
-                'template'  =>  'internal-config',
+                'template'  =>  'admin/options/internal-config',
                 'path'  =>  $this->templateFilesPath
             ]
         ];
@@ -137,7 +148,7 @@ class App
 
         switch ($path) {
             case "admin/help#imoneza":
-                $help .= theme_render_template($this->templateFilesPath . '/help.tpl.php', []);
+                $help .= theme_render_template($this->templateFilesPath . '/admin/help.tpl.php', []);
                 break;
         }
 

@@ -11,18 +11,22 @@ namespace iMoneza\Drupal\Form;
  * Class FirstTime
  * @package iMoneza\Drupal\Form
  */
-class FirstTime
+class FirstTime extends FormAbstract
 {
     /**
      * @return array The data for the form
      */
     public function __invoke()
     {
-        $form['#theme'] = 'imoneza_first_time_form';
-        $form['#attached']['css'] = array(
-            drupal_get_path('module', 'imoneza') . '/assets/admin.css',
-        );
-
+        $form = [
+            '#validate' =>  [[$this, 'validate']],
+            '#submit'   =>  [[$this, 'submit']],
+            '#theme'    =>  'imoneza_first_time_form',
+            '#attached' =>  [
+                'css'   =>  [drupal_get_path('module', 'imoneza') . '/assets/admin.css']
+            ]
+        ];
+        
         $form['manage_api_key'] = array(
             '#type' =>  'textfield',
             '#title'  =>  t('Resource Management API Key:'),
@@ -39,26 +43,33 @@ class FirstTime
             '#value'  =>  t('Verify Access')
         );
         
-        $form['#validate'] = array(function()  {
-            die('validating');
-
-//            /**
-//             * Implements the validation for first time form
-//             *
-//             * @param $form
-//             * @param $form_state
-//             */
-//            function imoneza_first_time_form_validate($form, &$form_state) {
-//                $apiKey = $form_state['values']['manage_api_key'];
-//                $apiSecret = $form_state['values']['manage_api_secret'];
-//
-//                form_set_error('manage_api_secret', 'this is a test error.');
-//            }
-        });
-        $form['#submit'] = array(function() {
-            die('submitting');
-        });
-
         return $form;
+    }
+
+    /**
+     * Implements form validation
+     *
+     * @param $form
+     * @param $form_state
+     */
+    public function validate($form, &$form_state)
+    {
+        form_set_error('manage_api_key', 'Invalid, son!');
+    }
+
+    /**
+     * Handles the form submission
+     *
+     * @param $form
+     * @param $form_state
+     */
+    public function submit($form, &$form_state) {
+        $this->options
+            ->setManageApiKey($form['manage_api_key']['#value'])
+            ->setManageApiSecret($form['manage_api_secret']['#value']);
+
+        $this->saveOptions();
+
+        drupal_set_message(t('Way to go!'));
     }
 }
