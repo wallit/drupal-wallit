@@ -77,3 +77,30 @@ function imoneza_forms($formId, $args) {
     ];
   }
 }
+
+/**
+ * Implements hook_init()
+ * 
+ * This will launch the admin notice configuration if we're in the admin
+ */
+function imoneza_init()
+{
+  $path = current_path();
+  if (path_is_admin($path)) {
+    $iMoneza = \iMoneza\Drupal\App::getInstance();
+    $iMoneza->adminNoticeConfigNeeded();
+  }
+}
+
+/**
+ * This is the ajax handler for all of our forms 
+ * 
+ * This must be in this file to be recognized - and since it does basically nothing, we'll leave it abstracted here
+ * @param $form
+ * @param $form_state
+ * @return array
+ */
+function imoneza_form_ajax_handler($form, &$form_state)
+{
+  return $form;
+}

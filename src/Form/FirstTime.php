@@ -61,7 +61,12 @@ class FirstTime extends FormAbstract
      */
     public function validate($form, &$form_state)
     {
-        form_set_error('manage_api_key', 'Invalid, son!');
+        if (($key = $form_state['values']['key']) && ($secret = $form_state['values']['secret'])) {
+            // do some validation
+            //form_set_error('key', 'Invalid test, son!');
+
+        }
+       
     }
 
     /**
@@ -72,8 +77,8 @@ class FirstTime extends FormAbstract
      */
     public function submit($form, &$form_state) {
         $this->options
-            ->setManageApiKey($form['manage_api_key']['#value'])
-            ->setManageApiSecret($form['manage_api_secret']['#value']);
+            ->setManageApiKey($form['manage_api']['key']['#value'])
+            ->setManageApiSecret($form['manage_api']['secret']['#value']);
 
         $this->saveOptions();
 

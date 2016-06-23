@@ -179,4 +179,19 @@ class App
     {
         return file_create_url(drupal_get_path('module', 'imoneza') . '/assets/' . $url);
     }
+
+    /**
+     * Used to determine if the admin notice is needed
+     */
+    public function adminNoticeConfigNeeded()
+    {
+        $path = current_path();
+        if (stripos($path, 'settings/imoneza') === false && !$this->di['options']->isInitialized()) {
+            $message = sprintf('%s <a href="#">%s</a>',
+                t('iMoneza is not yet configured.'),
+                t('Configure iMoneza to begin protecting your content.')
+            );
+            drupal_set_message($message, 'warning', false);
+        }
+    }
 }

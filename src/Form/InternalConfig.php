@@ -72,7 +72,11 @@ class InternalConfig extends FormAbstract
         $form['submit'] = array(
             '#type' => 'submit',
             '#value' => t('Save'),
-
+            '#ajax'     =>  [
+                'callback'  =>  'imoneza_form_ajax_handler',
+                'effect'    =>  'fade',
+                'wrapper'   =>  'imoneza-internal-config-form'
+            ]
         );
         return $form;
     }
@@ -118,10 +122,10 @@ class InternalConfig extends FormAbstract
      */
     public function submit($form, &$form_state) {
         $this->options
-            ->setManageApiUrl($form['manage_api_url']['#value'])
-            ->setAccessApiUrl($form['access_api_url']['#value'])
-            ->setJavascriptCdnUrl($form['javascript_cdn_url']['#value'])
-            ->setManageUiUrl($form['manage_ui_url']['#value']);
+            ->setManageApiUrl($form['urls']['manage_api_url']['#value'])
+            ->setAccessApiUrl($form['urls']['access_api_url']['#value'])
+            ->setJavascriptCdnUrl($form['urls']['javascript_cdn_url']['#value'])
+            ->setManageUiUrl($form['urls']['manage_ui_url']['#value']);
         
         $this->saveOptions();
         
