@@ -57,19 +57,25 @@ class App
         
         $this->di = $di = new Container();
 
-        /**
-         * Options
-         */
+        // DI: Options
         $di['options'] = function() {
             /** this is done because its __PHP_INCOMPLETE_CLASS when its unserialized the first time (cuz our class is not valid yet)  */
             return unserialize(serialize(variable_get('imoneza-options', new Model\Options())));
         };
+
+        // DI: Filters
+        $di['filter.external-resource-key'] = function () {
+            return new Filter\ExternalResourceKey();
+        };
         
-        /**
-         * Forms
-         */
+        // DI: Services
+        $di['service.imoneza'] = function () use ($di) {
+            return new Service\iMoneza($di['filter.external-resource-key']);
+        };
+        
+        // DI: Forms
         $di['imoneza_first_time_form'] = function() use ($di) {
-            return new Form\FirstTime($di['options']);
+            return new Form\FirstTime($di['options'], $di['service.imoneza']);
         };
         $di['imoneza_internal_config_form'] = function() use ($di) {
             return new Form\InternalConfig($di['options']);
@@ -169,6 +175,16 @@ class App
         return $this->di[$formId]();
     }
 
+    /**
+     * Set variables that our forms might need
+     * 
+     * @param $variables array
+     */
+    public function preprocessForm(&$variables)
+    {
+        $variables['manageUiUrl'] = $this->di['options']->getManageUiUrl();
+    }
+    
     /**
      * Creates a nice URL for an asset in a template
      * 

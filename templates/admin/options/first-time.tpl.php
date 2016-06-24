@@ -10,6 +10,8 @@
             <h3><?= t("Time to do a little configuration") ?></h3>
             <p>
                 <?= t("Right now, all we need is your Resource Management API key and secret. This will help us custom tailor the rest of the plugin options for you.") ?>
+                <?= t("Need to find these? ") ?>
+                <a href="<?= $manageUiUrl ?>" target="_blank"><?= t('Go to iMoneza.com and log in.') ?></a>
             </p>
             <?= drupal_render($form['manage_api']) ?>
             <label for="edit-submit"></label>
