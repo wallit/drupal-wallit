@@ -138,3 +138,30 @@ function imoneza_preprocess_imoneza_access_form(&$variables)
   $iMoneza = \iMoneza\Drupal\App::getInstance();
   $iMoneza->preprocessForm($variables);
 }
+
+
+/////////////////////// WIP below
+
+
+
+
+
+
+/**
+ * Implements hook_preprocess_page().
+ */
+function imoneza_preprocess_page(&$variables)
+{
+  if (array_key_exists('node', $variables)) {
+    $variables['title'] = '<u>under</u>' . filter_xss($variables['node']->title);
+  }
+}
+
+/**
+ * Implements hook_preprocess_page().
+ */
+function imoneza_preprocess_node(&$variables)
+{
+  $variables['title'] = '<u>under</u>' . filter_xss($variables['elements']['#node']->title);
+}
+
