@@ -240,4 +240,23 @@ class App
             drupal_set_message($message, 'warning', false);
         }
     }
+
+    /**
+     * Add the client side javascript to the non-admin pages
+     */
+    public function addClientSideJs()
+    {
+        /** @var \iMoneza\Drupal\Model\Options $options */
+        $options = $this->di['options'];
+        
+        if ($options->isAccessControlClient() && $options->getAccessApiKey()) {
+            $resourceKey = null;
+            if ($node = menu_get_object()) {
+                $resourceKey = $this->di['filter.external-resource-key']($node);
+            }
+            
+            drupal_add_js($options->getJavascriptCdnUrl(Options::GET_DEFAULT));
+            drupal_add_js(sprintf('iMoneza.paywall.init("%s",{resourceKey:"%s"});', $options->getAccessApiKey(), $resourceKey), 'inline');
+        }
+    }
 }

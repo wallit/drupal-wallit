@@ -273,13 +273,13 @@ class iMoneza
             $result = true;
         }
         catch (Exception\NotFound $e) {
-            $this->lastError = __("It seems like your resource access API key is wrong. Check and see if there are any obvious problems - otherwise, delete it and try again please.", 'iMoneza');
+            $this->lastError = t("It seems like your resource access API key is wrong. Check and see if there are any obvious problems - otherwise, delete it and try again please.");
         }
         catch (Exception\AuthenticationFailure $e) {
-            $this->lastError = __("Your resource access API secret looks wrong.  Can you give it another shot?", 'iMoneza');
+            $this->lastError = t("Your resource access API secret looks wrong.  Can you give it another shot?");
         }
         catch (Exception\iMoneza $e) {
-            $this->lastError = sprintf(__('Something went wrong with the system: %s', 'iMoneza'), $e->getMessage());
+            $this->lastError = sprintf(t('Something went wrong with the system: %s'), $e->getMessage());
         }
 
         return $result;

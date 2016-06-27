@@ -90,10 +90,14 @@ function imoneza_forms($formId, $args) {
  */
 function imoneza_init()
 {
+  $iMoneza = \iMoneza\Drupal\App::getInstance();
+
   $path = current_path();
   if (path_is_admin($path)) {
-    $iMoneza = \iMoneza\Drupal\App::getInstance();
     $iMoneza->adminNoticeConfigNeeded();
+  }
+  else {
+    $iMoneza->addClientSideJs();
   }
 }
 

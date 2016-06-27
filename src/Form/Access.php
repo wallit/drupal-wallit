@@ -88,7 +88,6 @@ class Access extends FormAbstract
             '#required' =>  true,
             '#default_value'    =>  $this->options->getAccessApiSecret()
         );
-        
         if (!($accessControl = $this->options->getAccessControl())) {
             $accessControl = Model\Options::ACCESS_CONTROL_CLIENT;
         }
@@ -115,19 +114,34 @@ class Access extends FormAbstract
      *
      * @param $form
      * @param $form_state
+     * @return bool|void
      */
     public function validate($form, &$form_state)
     {
-        if (($key = $form_state['values']['key']) && ($secret = $form_state['values']['secret'])) {
+        if (
+            ($manageApiKey = $form_state['values']['manage_api_key']) 
+            && 
+            ($manageApiSecret = $form_state['values']['manage_api_secret'])
+            &&
+            ($accessApiKey = $form_state['values']['access_api_key'])
+            &&
+            ($accessApiSecret = $form_state['values']['access_api_secret'])
+        ) {
 
             $this->iMonezaService
-                ->setManagementApiKey($key)
-                ->setManagementApiSecret($secret)
+                ->setManagementApiKey($manageApiKey)
+                ->setManagementApiSecret($manageApiSecret)
+                ->setAccessApiKey($accessApiKey)
+                ->setAccessApiSecret($accessApiSecret)
                 ->setManageApiUrl($this->options->getManageApiUrl(Model\Options::GET_DEFAULT))
                 ->setAccessApiUrl($this->options->getAccessApiUrl(Model\Options::GET_DEFAULT));
 
             if (!($this->propertyOptions = $this->iMonezaService->getProperty())) {
-                form_set_error('key', $this->iMonezaService->getLastError());
+                form_set_error('manage_api_key', $this->iMonezaService->getLastError());
+            }
+
+            if (!$this->iMonezaService->validateResourceAccessApiCredentials()) {
+                form_set_error('access_api_key', $this->iMonezaService->getLastError());
             }
         }
     }
@@ -137,20 +151,20 @@ class Access extends FormAbstract
      *
      * @param $form
      * @param $form_state
-     * 
-     * @todo schedule cron to include dynamically created items
      */
     public function submit($form, &$form_state) {
         $this->options
-            ->setManageApiKey($form['manage_api']['key']['#value'])
-            ->setManageApiSecret($form['manage_api']['secret']['#value'])
+            ->setManageApiKey($form['manage_api']['manage_api_key']['#value'])
+            ->setManageApiSecret($form['manage_api']['manage_api_secret']['#value'])
+            ->setAccessApiKey($form['access_api']['access_api_key']['#value'])
+            ->setAccessApiSecret($form['access_api']['access_api_secret']['#value'])
             ->setPropertyTitle($this->propertyOptions->getTitle())
             ->setDynamicallyCreateResources($this->propertyOptions->isDynamicallyCreateResources())
-            ->setAccessControl(Model\Options::ACCESS_CONTROL_CLIENT)
+            ->setAccessControl($form['access_control_method']['#value'])
             ->setPricingGroupsBubbleDefaultToTop($this->propertyOptions->getPricingGroups());
         
         $this->saveOptions();
 
-        drupal_set_message(t("Way to go!  Now, let's finish this up."));
+        drupal_set_message(t("Your settings have been saved!"));
     }
 }

@@ -15,11 +15,11 @@ class ExternalResourceKey
 {
     /**
      * Get the external resource key
-     * @param \WP_Post $post
+     * @param \stdClass $node
      * @return string
      */
-//    public function __invoke(\WP_Post $post)
-//    {
-//        return sprintf('wp-%s', $post->ID);
-//    }
+    public function __invoke(\stdClass $node)
+    {
+        return sprintf('dp7-%s', $node->nid);
+    }
 }
