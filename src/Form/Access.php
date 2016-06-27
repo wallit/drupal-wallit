@@ -1,6 +1,6 @@
 <?php
 /**
- * First time form
+ * Access form
  * 
  * @note this cannot be ajax based because it doesn't get regenerated otherwise.
  *
@@ -12,10 +12,10 @@ use iMoneza\Drupal\Model;
 use iMoneza\Drupal\Service;
 
 /**
- * Class FirstTime
+ * Class Access
  * @package iMoneza\Drupal\Form
  */
-class FirstTime extends FormAbstract
+class Access extends FormAbstract
 {
     /**
      * @var Service\iMoneza
@@ -48,7 +48,7 @@ class FirstTime extends FormAbstract
         $form = [
             '#validate' =>  [[$this, 'validate']],
             '#submit'   =>  [[$this, 'submit']],
-            '#theme'    =>  'imoneza_first_time_form',
+            '#theme'    =>  'imoneza_access_form',
             '#attached' =>  [
                 'css'   =>  [drupal_get_path('module', 'imoneza') . '/assets/css/admin.css']
             ],
@@ -60,21 +60,51 @@ class FirstTime extends FormAbstract
         $form['manage_api'] = [
             '#type' =>  'fieldset'
         ];
-        
-        $form['manage_api']['key'] = array(
+        $form['manage_api']['manage_api_key'] = array(
             '#type' =>  'textfield',
             '#title'  =>  t('Resource Management API Key:'),
-            '#required' => true
+            '#required' => true,
+            '#default_value'    =>  $this->options->getManageApiKey()
         );
-        $form['manage_api']['secret'] = array(
+        $form['manage_api']['manage_api_secret'] = array(
             '#type' =>  'textfield',
             '#title'  =>  t('Resource Management Secret:'),
-            '#required' =>  true
+            '#required' =>  true,
+            '#default_value'    =>  $this->options->getManageApiSecret()
         );
 
+        $form['access_api'] = [
+            '#type' =>  'fieldset'
+        ];
+        $form['access_api']['access_api_key'] = array(
+            '#type' =>  'textfield',
+            '#title'  =>  t('Resource Access API Key:'),
+            '#required' => true,
+            '#default_value'    =>  $this->options->getAccessApiKey()
+        );
+        $form['access_api']['access_api_secret'] = array(
+            '#type' =>  'textfield',
+            '#title'  =>  t('Resource Access Secret:'),
+            '#required' =>  true,
+            '#default_value'    =>  $this->options->getAccessApiSecret()
+        );
+        
+        if (!($accessControl = $this->options->getAccessControl())) {
+            $accessControl = Model\Options::ACCESS_CONTROL_CLIENT;
+        }
+        $form['access_control_method'] = [
+            '#type' =>  'radios',
+            '#title'    =>  'Select an Access Control:',
+            '#default_value'    =>  $accessControl,
+            '#options'  =>  [
+                Model\Options::ACCESS_CONTROL_CLIENT    =>  'Client Side',
+                Model\Options::ACCESS_CONTROL_SERVER    =>  'Server Side'
+            ]
+        ];
+        
         $form['submit'] = array(
             '#type' =>  'submit',
-            '#value'  =>  t('Verify Access')
+            '#value'  =>  t('Save Settings')
         );
         
         return $form;

@@ -72,7 +72,7 @@
     font-size: 1.5rem;
 }
 .i-card hr {
-    margin: 2rem 0;
+    margin: 1rem 0 1.5rem 0;
 }
 .i-card .form-submit {
     margin-top: 1rem;
@@ -91,4 +91,55 @@ h2.logo-header {
 }
 .logo-header img {
     height: 3rem;
+}
+
+
+/** custom toggle **/
+.imoneza-form .form-radios {
+    vertical-align: middle;
+}
+.imoneza-form .form-radios {
+    overflow: hidden;
+    display: inline-block;
+}
+.imoneza-form .form-radios input {
+    display: none;
+}
+.imoneza-form .form-radios label.option {
+    float: left;
+    display: inline-block;
+    background-color: #e4e4e4;
+    color: rgba(0, 0, 0, 0.6);
+    font-size: 14px;
+    font-weight: normal;
+    text-align: center;
+    text-shadow: none;
+    padding: 6px 14px;
+    width: auto;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    -webkit-box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px rgba(255, 255, 255, 0.1);
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px rgba(255, 255, 255, 0.1);
+    -webkit-transition: all 0.1s ease-in-out;
+    -moz-transition:    all 0.1s ease-in-out;
+    -ms-transition:     all 0.1s ease-in-out;
+    -o-transition:      all 0.1s ease-in-out;
+    transition:         all 0.1s ease-in-out;
+}
+.imoneza-form .form-radios label:hover {
+    cursor: pointer;
+}
+.imoneza-form .form-radios input:checked + label {
+    background-color: #A5DC86;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+}
+.imoneza-form .form-radios .form-type-radio:first-of-type label {
+    border-radius: 4px 0 0 4px;
+}
+.imoneza-form .form-radios .form-type-radio:last-of-type label {
+    border-radius: 0 4px 4px 0;
+    margin-left: -5px; /** grr drupal **/
+}
+.imoneza-form .form-item.form-type-radio {
+    display: inline-block;
 }

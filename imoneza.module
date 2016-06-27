@@ -121,3 +121,15 @@ function imoneza_preprocess_imoneza_first_time_form(&$variables)
   $iMoneza = \iMoneza\Drupal\App::getInstance();
   $iMoneza->preprocessForm($variables);
 }
+
+/**
+ * Add form values used for display
+ *
+ * @todo can this be part of the form instead?
+ * @param $variables array the variables for this view
+ */
+function imoneza_preprocess_imoneza_access_form(&$variables)
+{
+  $iMoneza = \iMoneza\Drupal\App::getInstance();
+  $iMoneza->preprocessForm($variables);
+}

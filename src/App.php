@@ -8,6 +8,7 @@
 namespace iMoneza\Drupal;
 use iMoneza\Drupal\Form;
 use iMoneza\Drupal\Model\Options;
+use iMoneza\Drupal\Service\iMoneza;
 use Pimple\Container;
 
 /**
@@ -77,6 +78,9 @@ class App
         $di['imoneza_first_time_form'] = function() use ($di) {
             return new Form\FirstTime($di['options'], $di['service.imoneza']);
         };
+        $di['imoneza_access_form'] = function() use ($di) {
+            return new Form\Access($di['options'], $di['service.imoneza']);
+        };
         $di['imoneza_internal_config_form'] = function() use ($di) {
             return new Form\InternalConfig($di['options']);
         };
@@ -89,24 +93,41 @@ class App
      */
     public function menu()
     {
-        return [
-            "admin/settings/imoneza"    =>  [
+        /** @var \iMoneza\Drupal\Model\Options $options */
+        $options = $this->di['options'];
+
+        $menu = [];
+        if ($options->isInitialized()) {
+            $menu["admin/settings/imoneza"] = [
+                "title" => "iMoneza",
+                "description" => "iMoneza Settings",
+                "page callback" => "drupal_get_form",
+                "page arguments" => array("imoneza_access_form"),
+                "access arguments" => array(self::PERMISSION_ADMIN_IMONEZA),
+                "type" => MENU_NORMAL_ITEM
+            ];
+        }
+        else {
+            $menu["admin/settings/imoneza"] = [
                 "title" => "iMoneza",
                 "description" => "iMoneza Settings",
                 "page callback" => "drupal_get_form",
                 "page arguments" => array("imoneza_first_time_form"),
                 "access arguments" => array(self::PERMISSION_ADMIN_IMONEZA),
                 "type" => MENU_NORMAL_ITEM
-            ],
-            "admin/settings/imoneza/config" =>  [
-                "title" => "iMoneza Internal Config",
-                "description" => "iMoneza Internal Config",
-                "page callback" => "drupal_get_form",
-                "page arguments" => array("imoneza_internal_config_form"),
-                "access arguments" => array(self::PERMISSION_ADMIN_IMONEZA),
-                "type" => MENU_CALLBACK
-            ]
+            ];
+        }
+        
+        $menu["admin/settings/imoneza/config"] =  [
+            "title" => "iMoneza Internal Config",
+            "description" => "iMoneza Internal Config",
+            "page callback" => "drupal_get_form",
+            "page arguments" => array("imoneza_internal_config_form"),
+            "access arguments" => array(self::PERMISSION_ADMIN_IMONEZA),
+            "type" => MENU_CALLBACK
         ];
+        
+        return $menu;
     }
 
     /**
@@ -132,6 +153,11 @@ class App
             'imoneza_first_time_form' => [
                 'render element' => 'form',
                 'template'  =>  'admin/options/first-time',
+                'path'  =>  $this->templateFilesPath
+            ],
+            'imoneza_access_form' => [
+                'render element' => 'form',
+                'template'  =>  'admin/options/access',
                 'path'  =>  $this->templateFilesPath
             ],
             'imoneza_internal_config_form' => [
@@ -182,7 +208,11 @@ class App
      */
     public function preprocessForm(&$variables)
     {
-        $variables['manageUiUrl'] = $this->di['options']->getManageUiUrl();
+        /** @var \iMoneza\Drupal\Model\Options $options */
+        $options = $this->di['options'];
+        $variables['manageUiUrl'] = $options->getManageUiUrl();
+        $variables['propertyTitle'] = $options->getPropertyTitle();
+        $variables['isDynamicallyCreateResources'] = $options->isDynamicallyCreateResources();
     }
     
     /**
