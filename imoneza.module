@@ -97,7 +97,8 @@ function imoneza_init()
     $iMoneza->adminNoticeConfigNeeded();
   }
   else {
-    $iMoneza->addClientSideJs();
+    $iMoneza->addClientSideAccessControl();
+    $iMoneza->addServerSideAccessControl();
   }
 }
 

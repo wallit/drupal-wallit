@@ -162,44 +162,43 @@ class iMoneza
         return $this->lastError;
     }
 
-//    /**
-//     * Gets a URL to redirect for access OR false if its granted
-//     *
-//     * @param \WP_Post $post
-//     * @param null $iMonezaTUT
-//     * @return bool|string
-//     * @throws Exception\DecodingError
-//     * @throws Exception\TransferError
-//     */
-//    public function getResourceAccessRedirectURL(\WP_Post $post, $iMonezaTUT = null)
-//    {
-//        $result = false;
-//        $keyFilter = $this->externalResourceKeyFilter;
-//        
-//        if ($iMonezaTUT) {
-//            $options = new GetResourceFromTemporaryUserToken();
-//            $options->setTemporaryUserToken($iMonezaTUT);
-//        }
-//        else {
-//            $options = new GetResourceFromResourceKey();
-//            $options->setUserToken($this->getUserTokenFromCookie());
-//        }
-//        
-//        $options->setResourceKey($keyFilter($post))
-//            ->setIP(Helper::getCurrentIP());
-//        $this->prepareForRequest($options, self::API_TYPE_ACCESS);
-//
-//        /** @var \iMoneza\Data\ResourceAccess $data */
-//        $data = $this->getConnectionInstance()->request($options, $options->getDataObject());
-//
-//        $this->setUserTokenCookie($data->getUserToken(), $data->getUserTokenExpiration());
-//
-//        if ($data->getAccessAction() != ResourceAccess::ACCESS_ACTION_GRANT) {
-//            $result = $data->getAccessActionUrl();
-//        }
-//
-//        return $result;
-//    }
+    /**
+     * Gets a URL to redirect for access OR false if its granted
+     *
+     * @param \stdClass $node
+     * @param null $iMonezaTUT
+     * @return bool|string
+     * @throws Exception\DecodingError
+     * @throws Exception\TransferError
+     */
+    public function getResourceAccessRedirectURL(\stdClass $node, $iMonezaTUT = null)
+    {
+        $result = false;
+        $keyFilter = $this->externalResourceKeyFilter;
+        
+        if ($iMonezaTUT) {
+            $options = new GetResourceFromTemporaryUserToken();
+            $options->setTemporaryUserToken($iMonezaTUT);
+        }
+        else {
+            $options = new GetResourceFromResourceKey();
+            $options->setUserToken($this->getUserTokenFromCookie());
+        }
+        
+        $options->setResourceKey($keyFilter($node))
+            ->setIP(Helper::getCurrentIP());
+        $this->prepareForRequest($options, self::API_TYPE_ACCESS);
+
+        /** @var \iMoneza\Data\ResourceAccess $data */
+        $data = $this->getConnectionInstance()->request($options, $options->getDataObject());
+        $this->setUserTokenCookie($data->getUserToken(), $data->getUserTokenExpiration());
+
+        if ($data->getAccessAction() != ResourceAccess::ACCESS_ACTION_GRANT) {
+            $result = $data->getAccessActionUrl();
+        }
+
+        return $result;
+    }
 
 //    /**
 //     * @param \WP_Post $post

@@ -8,8 +8,9 @@
 namespace iMoneza\Drupal;
 use iMoneza\Drupal\Form;
 use iMoneza\Drupal\Model\Options;
-use iMoneza\Drupal\Service\iMoneza;
 use Pimple\Container;
+use iMoneza\Exception;
+
 
 /**
  * Class App
@@ -244,7 +245,7 @@ class App
     /**
      * Add the client side javascript to the non-admin pages
      */
-    public function addClientSideJs()
+    public function addClientSideAccessControl()
     {
         /** @var \iMoneza\Drupal\Model\Options $options */
         $options = $this->di['options'];
@@ -257,6 +258,41 @@ class App
             
             drupal_add_js($options->getJavascriptCdnUrl(Options::GET_DEFAULT));
             drupal_add_js(sprintf('iMoneza.paywall.init("%s",{resourceKey:"%s"});', $options->getAccessApiKey(), $resourceKey), 'inline');
+        }
+    }
+
+    /**
+     * Add server side control
+     */
+    public function addServerSideAccessControl()
+    {
+        /** @var \iMoneza\Drupal\Model\Options $options */
+        $options = $this->di['options'];
+
+        if ($options->isAccessControlServer() && $options->getAccessApiKey()) {
+            if ($node = menu_get_object()) {
+                $iMonezaTUT = isset($_GET['iMonezaTUT']) ? $_GET['iMonezaTUT'] : null;
+
+                /** @var \iMoneza\Drupal\Service\iMoneza $service */
+                $service = $this->di['service.imoneza'];
+                $service
+                    ->setManagementApiKey($options->getManageApiKey())
+                    ->setManagementApiSecret($options->getManageApiSecret())
+                    ->setAccessApiKey($options->getAccessApiKey())
+                    ->setAccessApiSecret($options->getAccessApiSecret())
+                    ->setManageApiUrl($options->getManageApiUrl(Options::GET_DEFAULT))
+                    ->setAccessApiUrl($options->getAccessApiUrl(Options::GET_DEFAULT));
+
+                try {
+                    if ($redirectURL = $service->getResourceAccessRedirectURL($node, $iMonezaTUT)) {
+                        $currentURL = sprintf('%s://%s%s', $_SERVER['SERVER_PROTOCOL'], $_SERVER['HTTP_HOST'], $_SERVER['REQUEST_URI']);
+                        drupal_goto($redirectURL . '&originalURL=' . $currentURL);
+                    }
+                }
+                catch (Exception\iMoneza $e) {
+                    // do nothing - as we don't want to error out on content
+                }
+            }
         }
     }
 }
