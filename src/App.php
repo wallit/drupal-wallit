@@ -38,6 +38,11 @@ class App
      */
     protected $templateFilesPath;
 
+    /** 
+     * @var \iMoneza\Drupal\Model\Options
+     */
+    protected $options;
+
     /**
      * @return App singleton (needed for drupal specifically)
      */
@@ -85,6 +90,9 @@ class App
         $di['imoneza_internal_config_form'] = function() use ($di) {
             return new Form\InternalConfig($di['options']);
         };
+        
+        // helper for most things
+        $this->options = $di['options'];
     }
     
     /**
@@ -94,11 +102,8 @@ class App
      */
     public function menu()
     {
-        /** @var \iMoneza\Drupal\Model\Options $options */
-        $options = $this->di['options'];
-
         $menu = [];
-        if ($options->isInitialized()) {
+        if ($this->options->isInitialized()) {
             $menu["admin/settings/imoneza"] = [
                 "title" => "iMoneza",
                 "description" => "iMoneza Settings",
@@ -209,11 +214,9 @@ class App
      */
     public function preprocessForm(&$variables)
     {
-        /** @var \iMoneza\Drupal\Model\Options $options */
-        $options = $this->di['options'];
-        $variables['manageUiUrl'] = $options->getManageUiUrl();
-        $variables['propertyTitle'] = $options->getPropertyTitle();
-        $variables['isDynamicallyCreateResources'] = $options->isDynamicallyCreateResources();
+        $variables['manageUiUrl'] = $this->options->getManageUiUrl();
+        $variables['propertyTitle'] = $this->options->getPropertyTitle();
+        $variables['isDynamicallyCreateResources'] = $this->options->isDynamicallyCreateResources();
     }
     
     /**
@@ -233,7 +236,7 @@ class App
     public function adminNoticeConfigNeeded()
     {
         $path = current_path();
-        if (stripos($path, 'settings/imoneza') === false && !$this->di['options']->isInitialized()) {
+        if (stripos($path, 'settings/imoneza') === false && !$this->options->isInitialized()) {
             $message = sprintf('%s <a href="#">%s</a>',
                 t('iMoneza is not yet configured.'),
                 t('Configure iMoneza to begin protecting your content.')
@@ -247,17 +250,14 @@ class App
      */
     public function addClientSideAccessControl()
     {
-        /** @var \iMoneza\Drupal\Model\Options $options */
-        $options = $this->di['options'];
-        
-        if ($options->isAccessControlClient() && $options->getAccessApiKey()) {
+        if ($this->options->isAccessControlClient() && $this->options->getAccessApiKey()) {
             $resourceKey = null;
             if ($node = menu_get_object()) {
                 $resourceKey = $this->di['filter.external-resource-key']($node);
             }
             
-            drupal_add_js($options->getJavascriptCdnUrl(Options::GET_DEFAULT));
-            drupal_add_js(sprintf('iMoneza.paywall.init("%s",{resourceKey:"%s"});', $options->getAccessApiKey(), $resourceKey), 'inline');
+            drupal_add_js($this->options->getJavascriptCdnUrl(Options::GET_DEFAULT));
+            drupal_add_js(sprintf('iMoneza.paywall.init("%s",{resourceKey:"%s"});', $this->options->getAccessApiKey(), $resourceKey), 'inline');
         }
     }
 
@@ -266,22 +266,19 @@ class App
      */
     public function addServerSideAccessControl()
     {
-        /** @var \iMoneza\Drupal\Model\Options $options */
-        $options = $this->di['options'];
-
-        if ($options->isAccessControlServer() && $options->getAccessApiKey()) {
+        if ($this->options->isAccessControlServer() && $this->options->getAccessApiKey()) {
             if ($node = menu_get_object()) {
                 $iMonezaTUT = isset($_GET['iMonezaTUT']) ? $_GET['iMonezaTUT'] : null;
 
                 /** @var \iMoneza\Drupal\Service\iMoneza $service */
                 $service = $this->di['service.imoneza'];
                 $service
-                    ->setManagementApiKey($options->getManageApiKey())
-                    ->setManagementApiSecret($options->getManageApiSecret())
-                    ->setAccessApiKey($options->getAccessApiKey())
-                    ->setAccessApiSecret($options->getAccessApiSecret())
-                    ->setManageApiUrl($options->getManageApiUrl(Options::GET_DEFAULT))
-                    ->setAccessApiUrl($options->getAccessApiUrl(Options::GET_DEFAULT));
+                    ->setManagementApiKey($this->options->getManageApiKey())
+                    ->setManagementApiSecret($this->options->getManageApiSecret())
+                    ->setAccessApiKey($this->options->getAccessApiKey())
+                    ->setAccessApiSecret($this->options->getAccessApiSecret())
+                    ->setManageApiUrl($this->options->getManageApiUrl(Options::GET_DEFAULT))
+                    ->setAccessApiUrl($this->options->getAccessApiUrl(Options::GET_DEFAULT));
 
                 try {
                     if ($redirectURL = $service->getResourceAccessRedirectURL($node, $iMonezaTUT)) {
@@ -295,4 +292,102 @@ class App
             }
         }
     }
+
+    /**
+     * Add imoneza to the form
+     * 
+     * @param $form array the form values
+     */
+    public function addImonezaToNodeForm(&$form)
+    {
+        $form['iMoneza'] = array(
+            '#type' => 'fieldset',
+            '#title' => 'iMoneza',
+            '#access' => user_access(self::PERMISSION_ADMIN_IMONEZA),
+            '#collapsible' => TRUE,
+            '#collapsed' => false,
+            '#group' => 'additional_settings',
+            '#tree' => TRUE,
+            '#weight' => -10,
+            '#attached' => array(
+                'js' => array('vertical-tabs' => drupal_get_path('module', 'iMoneza') . '/assets/js/node-form.js'),
+            )
+        );
+        
+        if ($this->options->isDynamicallyCreateResources()) {
+            $form['iMoneza']['default-action'] = [
+                '#markup' =>   '<p>' . t('iMoneza will automatically manage this resource for you using your default pricing options.') . '</p>'
+            ];
+            $overridePricingLabel = t('Override Default Pricing Options');
+        }
+        else {
+            $form['iMoneza']['default-action'] = [
+                '#markup' =>   '<p>' . t('iMoneza is not automatically managing your resources.') . '</p>'
+            ];
+            $overridePricingLabel = t('Manage this resource with iMoneza.');
+        }
+        
+        $form['iMoneza']['override-pricing'] = array(
+            '#type' => 'checkbox',
+            '#title' => $overridePricingLabel,
+            '#default_value' => 0,
+        );
+        
+        $pricingGroupOptions = [];
+        /** @var \iMoneza\Data\PricingGroup $pricingGroup */
+        foreach ($this->options->getPricingGroups() as $pricingGroup) {
+            $pricingGroupOptions[$pricingGroup->getPricingGroupID()] = $pricingGroup->getName();
+        }
+        $form['iMoneza']['pricing-group-id'] = array(
+            '#type' =>  'select',
+            '#title'    =>  'Pricing Group',
+            '#options'  =>  $pricingGroupOptions
+        );
+        
+        $form["actions"]["submit"]["#submit"][]  = 'imoneza_node_submit_handler';
+    }
+
+    /**
+     * Handles node submit - for adding resources
+     * 
+     * @param $form
+     * @param $form_state
+     */
+    public function nodeSubmitHandler($form, $form_state)
+    {
+        $overridePricing = !empty($form_state['values']['iMoneza']['override-pricing']);
+        $pricingGroupId = $form_state['values']['iMoneza']['pricing-group-id'];
+
+        if ($this->options->isDynamicallyCreateResources() || $overridePricing) {
+            $node = node_load($form_state['nid']);
+            
+            /** @var \iMoneza\Drupal\Service\iMoneza $service */
+            $service = $this->di['service.imoneza'];
+            $service
+                ->setManagementApiKey($this->options->getManageApiKey())
+                ->setManagementApiSecret($this->options->getManageApiSecret())
+                ->setManageApiUrl($this->options->getManageApiUrl(Options::GET_DEFAULT))
+                ->setAccessApiUrl($this->options->getAccessApiUrl(Options::GET_DEFAULT));
+
+            try {
+                $service->createOrUpdateResource($node, $pricingGroupId);
+            }
+            catch (Exception\iMoneza $e) {
+                trigger_error($e->getMessage(), E_USER_ERROR);
+            }
+
+            // @todo add some meta data
+//            $new = substr($_POST['_wp_http_referer'], -12) == 'post-new.php';
+//
+//            if ($new) {
+//                add_post_meta($postId, '_override-pricing', $overridePricing, true);
+//                add_post_meta($postId, '_pricing-group-id', $pricingGroupId, true);
+//            }
+//            else {
+//                update_post_meta($postId, '_override-pricing', $overridePricing);
+//                update_post_meta($postId, '_pricing-group-id', $pricingGroupId);
+//            }
+        }
+    }
 }
+

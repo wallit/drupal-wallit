@@ -139,6 +139,35 @@ function imoneza_preprocess_imoneza_access_form(&$variables)
   $iMoneza->preprocessForm($variables);
 }
 
+/**
+ * Implements hook_form_alter()
+ *
+ * This is used to add the iMoneza settings to the node form
+ * @param $form
+ * @param $form_state
+ * @param $form_id
+ */
+function imoneza_form_alter(&$form, &$form_state, $form_id)
+{
+  if ($form_id == 'article_node_form') {
+    $iMoneza = \iMoneza\Drupal\App::getInstance();
+    $iMoneza->addImonezaToNodeForm($form);
+  }
+}
+
+/**
+ * Callback for node submission
+ * 
+ * @param $form
+ * @param $form_state
+ */
+function imoneza_node_submit_handler($form, $form_state)
+{
+  $iMoneza = \iMoneza\Drupal\App::getInstance();
+  $iMoneza->nodeSubmitHandler($form, $form_state);
+}
+
+
 
 /////////////////////// WIP below
 
@@ -150,18 +179,18 @@ function imoneza_preprocess_imoneza_access_form(&$variables)
 /**
  * Implements hook_preprocess_page().
  */
-function imoneza_preprocess_page(&$variables)
-{
-  if (array_key_exists('node', $variables)) {
-    $variables['title'] = '<u>under</u>' . filter_xss($variables['node']->title);
-  }
-}
-
-/**
- * Implements hook_preprocess_page().
- */
-function imoneza_preprocess_node(&$variables)
-{
-  $variables['title'] = '<u>under</u>' . filter_xss($variables['elements']['#node']->title);
-}
+//function imoneza_preprocess_page(&$variables)
+//{
+//  if (array_key_exists('node', $variables)) {
+//    $variables['title'] = '<u>under</u>' . filter_xss($variables['node']->title);
+//  }
+//}
+//
+///**
+// * Implements hook_preprocess_page().
+// */
+//function imoneza_preprocess_node(&$variables)
+//{
+//  $variables['title'] = '<u>under</u>' . filter_xss($variables['elements']['#node']->title);
+//}
 

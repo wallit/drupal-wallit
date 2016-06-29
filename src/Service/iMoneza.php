@@ -200,35 +200,37 @@ class iMoneza
         return $result;
     }
 
-//    /**
-//     * @param \WP_Post $post
-//     * @param $pricingGroupId
-//     * @return bool
-//     */
-//    public function createOrUpdateResource(\WP_Post $post, $pricingGroupId)
-//    {
-//        $filter = $this->externalResourceKeyFilter;
-//        
-//        $options = new SaveResource();
-//        $options->setPricingGroupId($pricingGroupId)
-//            ->setExternalKey($filter($post))
-//            ->setName($post->post_title)
-//            ->setTitle($post->post_title)
-//            ->setDescription($post->post_excerpt)
-//            ->setPublicationDate(new \DateTime($post->post_date));
-//        $this->prepareForRequest($options);
-//
-//        $result = false;
-//        try {
-//            $this->getConnectionInstance()->request($options, new None());
-//            $result = true;
-//        }
-//        catch (Exception\iMoneza $e) {
-//            $this->lastError = sprintf(__('Something went wrong with the system: %s', 'iMoneza'), $e->getMessage());
-//        }
-//
-//        return $result;
-//    }
+    /**
+     * @param \stdClass $node
+     * @param $pricingGroupId
+     * @return bool
+     */
+    public function createOrUpdateResource(\stdClass $node, $pricingGroupId)
+    {
+        $filter = $this->externalResourceKeyFilter;
+        $options = new SaveResource();
+        $options->setPricingGroupId($pricingGroupId)
+            ->setExternalKey($filter($node))
+            ->setName($node->title)
+            ->setTitle($node->title)
+            ->setPublicationDate(new \DateTime('@' . $node->created));
+
+        // not sure why but sometimes this is not set? @todo figure out why
+        if (!empty($node->body['und'][0]['summary'])) $options->setDescription($node->body['und'][0]['summary']);
+
+        $this->prepareForRequest($options);
+
+        $result = false;
+        try {
+            $this->getConnectionInstance()->request($options, new None());
+            $result = true;
+        }
+        catch (Exception\iMoneza $e) {
+            $this->lastError = sprintf(t('Something went wrong with the system: %s'), $e->getMessage());
+        }
+
+        return $result;
+    }
 
     /**
      * @return \iMoneza\Data\Property|false
