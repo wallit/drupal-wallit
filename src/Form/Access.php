@@ -106,6 +106,11 @@ class Access extends FormAbstract
             '#value'  =>  t('Save Settings')
         );
         
+        $form['refresh'] = array(
+            '#type' =>  'submit',
+            '#value'    =>  t('Refresh Settings from iMoneza.com')
+        );
+        
         return $form;
     }
 
@@ -118,30 +123,40 @@ class Access extends FormAbstract
      */
     public function validate($form, &$form_state)
     {
-        if (
-            ($manageApiKey = $form_state['values']['manage_api_key']) 
-            && 
-            ($manageApiSecret = $form_state['values']['manage_api_secret'])
-            &&
-            ($accessApiKey = $form_state['values']['access_api_key'])
-            &&
-            ($accessApiSecret = $form_state['values']['access_api_secret'])
-        ) {
-
+        if ($form_state["triggering_element"]['#id'] == 'edit-refresh') {
+            // this means that it was the refresh button - so we need to populate property options with our standard info
             $this->iMonezaService
-                ->setManagementApiKey($manageApiKey)
-                ->setManagementApiSecret($manageApiSecret)
-                ->setAccessApiKey($accessApiKey)
-                ->setAccessApiSecret($accessApiSecret)
-                ->setManageApiUrl($this->options->getManageApiUrl(Model\Options::GET_DEFAULT))
-                ->setAccessApiUrl($this->options->getAccessApiUrl(Model\Options::GET_DEFAULT));
+                ->setManagementApiKey($this->options->getManageApiKey())
+                ->setManagementApiSecret($this->options->getManageApiSecret())
+                ->setManageApiUrl($this->options->getManageApiUrl(Model\Options::GET_DEFAULT));  // wonder if this is a bad idea not to populate those values
+            $this->propertyOptions = $this->iMonezaService->getProperty();
+        }
+        else {
+            if (
+                ($manageApiKey = $form_state['values']['manage_api_key'])
+                &&
+                ($manageApiSecret = $form_state['values']['manage_api_secret'])
+                &&
+                ($accessApiKey = $form_state['values']['access_api_key'])
+                &&
+                ($accessApiSecret = $form_state['values']['access_api_secret'])
+            ) {
 
-            if (!($this->propertyOptions = $this->iMonezaService->getProperty())) {
-                form_set_error('manage_api_key', $this->iMonezaService->getLastError());
-            }
+                $this->iMonezaService
+                    ->setManagementApiKey($manageApiKey)
+                    ->setManagementApiSecret($manageApiSecret)
+                    ->setAccessApiKey($accessApiKey)
+                    ->setAccessApiSecret($accessApiSecret)
+                    ->setManageApiUrl($this->options->getManageApiUrl(Model\Options::GET_DEFAULT))
+                    ->setAccessApiUrl($this->options->getAccessApiUrl(Model\Options::GET_DEFAULT));
 
-            if (!$this->iMonezaService->validateResourceAccessApiCredentials()) {
-                form_set_error('access_api_key', $this->iMonezaService->getLastError());
+                if (!($this->propertyOptions = $this->iMonezaService->getProperty())) {
+                    form_set_error('manage_api_key', $this->iMonezaService->getLastError());
+                }
+
+                if (!$this->iMonezaService->validateResourceAccessApiCredentials()) {
+                    form_set_error('access_api_key', $this->iMonezaService->getLastError());
+                }
             }
         }
     }
@@ -153,18 +168,28 @@ class Access extends FormAbstract
      * @param $form_state
      */
     public function submit($form, &$form_state) {
+        $successMessage = t('Your settings have been updated from iMoneza.com');
+        
+        if ($form_state["triggering_element"]['#id'] != 'edit-refresh') {
+            // this means that it was the save button, not the refresh settings button
+            $this->options
+                ->setManageApiKey($form['manage_api']['manage_api_key']['#value'])
+                ->setManageApiSecret($form['manage_api']['manage_api_secret']['#value'])
+                ->setAccessApiKey($form['access_api']['access_api_key']['#value'])
+                ->setAccessApiSecret($form['access_api']['access_api_secret']['#value'])
+                ->setAccessControl($form['access_control_method']['#value']);
+            
+            $successMessage = t("Your settings have been saved!");
+        }
+        
+        // update the rest from the property options regardless
         $this->options
-            ->setManageApiKey($form['manage_api']['manage_api_key']['#value'])
-            ->setManageApiSecret($form['manage_api']['manage_api_secret']['#value'])
-            ->setAccessApiKey($form['access_api']['access_api_key']['#value'])
-            ->setAccessApiSecret($form['access_api']['access_api_secret']['#value'])
             ->setPropertyTitle($this->propertyOptions->getTitle())
             ->setDynamicallyCreateResources($this->propertyOptions->isDynamicallyCreateResources())
-            ->setAccessControl($form['access_control_method']['#value'])
             ->setPricingGroupsBubbleDefaultToTop($this->propertyOptions->getPricingGroups());
         
         $this->saveOptions();
 
-        drupal_set_message(t("Your settings have been saved!"));
+        drupal_set_message($successMessage);
     }
 }

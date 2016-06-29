@@ -1,13 +1,8 @@
 * {
     box-sizing: border-box;
 }
-.clearfix:after {
-    visibility: hidden;
-    display: block;
-    font-size: 0;
-    content: " ";
-    clear: both;
-    height: 0;
+.pull-right {
+    float: right;
 }
 .text-center {
     text-align: center;
@@ -53,6 +48,9 @@
     font-size: 1.5rem;
     padding: 0.5rem;
     width: 64%;
+}
+.imoneza-form #edit-refresh {
+    float: right;
 }
 
 /** card layouts **/

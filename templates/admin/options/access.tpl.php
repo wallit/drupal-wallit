@@ -1,3 +1,4 @@
+<a href="<?= $manageUiUrl ?>" target="_blank" class="pull-right"><?= t('iMoneza.com Management Log In') ?></a>
 <h2 class="branded-header"><img src="<?= \iMoneza\Drupal\App::asset('images/logo-square.jpg'); ?>" alt="logo"> <?= t('iMoneza Access Configuration') ?></h2>
 
 <section class="row">
