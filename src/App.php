@@ -341,7 +341,7 @@ class App
         $form['iMoneza']['pricing-group-id'] = array(
             '#type' =>  'select',
             '#title'    =>  'Pricing Group',
-            '#options'  =>  $pricingGroupOptions
+            '#options'  =>  $pricingGroupOptions,
         );
         
         $form["actions"]["submit"]["#submit"][]  = 'imoneza_node_submit_handler';
@@ -375,18 +375,6 @@ class App
             catch (Exception\iMoneza $e) {
                 trigger_error($e->getMessage(), E_USER_ERROR);
             }
-
-            // @todo add some meta data
-//            $new = substr($_POST['_wp_http_referer'], -12) == 'post-new.php';
-//
-//            if ($new) {
-//                add_post_meta($postId, '_override-pricing', $overridePricing, true);
-//                add_post_meta($postId, '_pricing-group-id', $pricingGroupId, true);
-//            }
-//            else {
-//                update_post_meta($postId, '_override-pricing', $overridePricing);
-//                update_post_meta($postId, '_pricing-group-id', $pricingGroupId);
-//            }
         }
     }
 }

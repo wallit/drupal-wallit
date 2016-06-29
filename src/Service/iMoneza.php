@@ -216,7 +216,7 @@ class iMoneza
             ->setPublicationDate(new \DateTime('@' . $node->created));
 
         // not sure why but sometimes this is not set? @todo figure out why
-        if (!empty($node->body['und'][0]['summary'])) $options->setDescription($node->body['und'][0]['summary']);
+        if (!empty($node->body[$node->language][0]['summary'])) $options->setDescription($node->body[$node->language][0]['summary']);
 
         $this->prepareForRequest($options);
 
