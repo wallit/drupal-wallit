@@ -167,7 +167,27 @@ function imoneza_node_submit_handler($form, $form_state)
   $iMoneza->nodeSubmitHandler($form, $form_state);
 }
 
+/**
+ * Handle the pricing retrieval for this node
+ * 
+ * @param $nid
+ * @return array
+ */
+function imoneza_ajax_pricing_get($nid)
+{
+  $iMoneza = \iMoneza\Drupal\App::getInstance();
+  return $iMoneza->ajaxPricingGet($nid);
+}
 
+/**
+ * Render the return result as json
+ * 
+ * @param $callbackData
+ */
+function imoneza_ajax_pricing_render($callbackData)
+{
+  print json_encode($callbackData);
+}
 
 /////////////////////// WIP below
 

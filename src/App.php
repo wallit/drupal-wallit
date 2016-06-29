@@ -133,6 +133,14 @@ class App
             "type" => MENU_CALLBACK
         ];
         
+        $menu["admin/imoneza/ajax-pricing/%"] = [
+            'page callback' =>  'imoneza_ajax_pricing_get',
+            'page arguments'    =>  array(3),
+            'delivery callback' => 'imoneza_ajax_pricing_render',
+            "access arguments" => array(self::PERMISSION_ADMIN_IMONEZA),
+            'type'  =>  MENU_CALLBACK
+        ];
+        
         return $menu;
     }
 
@@ -313,38 +321,67 @@ class App
                 'js' => array('vertical-tabs' => drupal_get_path('module', 'iMoneza') . '/assets/js/node-form.js'),
             )
         );
-        
+
+        // @todo get rid of this dupe code
+        // this just seems so complex because of the javascript that runs after node edit runs - it will potentially alter the form
+        $overrideMessage = t('Override Default Pricing Options');
+        $manualMessage = t('Manage this resource with iMoneza.');
         if ($this->options->isDynamicallyCreateResources()) {
-            $form['iMoneza']['default-action'] = [
-                '#markup' =>   '<p>' . t('iMoneza will automatically manage this resource for you using your default pricing options.') . '</p>'
-            ];
-            $overridePricingLabel = t('Override Default Pricing Options');
+            $markup = '<p id="message-automatically-manage">' . t('iMoneza will automatically manage this resource for you using your default pricing options.') . '</p>';
+            $markup .= '<p id="message-manually-manage" style="display:none">' . t('iMoneza is not automatically managing your resources.') . '</p>';
+            $overridePricingLabel = $overrideMessage;
+        } else {
+            $markup = '<p id="message-automatically-manage" style="display:none">' . t('iMoneza will automatically manage this resource for you using your default pricing options.') . '</p>';
+            $markup .= '<p id="message-manually-manage">' . t('iMoneza is not automatically managing your resources.') . '</p>';
+            $overridePricingLabel = $manualMessage;
         }
-        else {
-            $form['iMoneza']['default-action'] = [
-                '#markup' =>   '<p>' . t('iMoneza is not automatically managing your resources.') . '</p>'
-            ];
-            $overridePricingLabel = t('Manage this resource with iMoneza.');
-        }
-        
+        $form['iMoneza']['default-action'] = [
+            '#markup' => $markup
+        ];
+
         $form['iMoneza']['override-pricing'] = array(
             '#type' => 'checkbox',
             '#title' => $overridePricingLabel,
             '#default_value' => 0,
+            '#attributes'   =>  [
+                'data-automatically-manage' =>  $overrideMessage,
+                'data-manually-manage'  =>  $manualMessage
+            ]
         );
-        
+
         $pricingGroupOptions = [];
         /** @var \iMoneza\Data\PricingGroup $pricingGroup */
         foreach ($this->options->getPricingGroups() as $pricingGroup) {
             $pricingGroupOptions[$pricingGroup->getPricingGroupID()] = $pricingGroup->getName();
         }
         $form['iMoneza']['pricing-group-id'] = array(
-            '#type' =>  'select',
-            '#title'    =>  'Pricing Group',
-            '#options'  =>  $pricingGroupOptions,
+            '#type' => 'select',
+            '#title' => 'Pricing Group',
+            '#options' => $pricingGroupOptions,
         );
-        
-        $form["actions"]["submit"]["#submit"][]  = 'imoneza_node_submit_handler';
+
+        $form["actions"]["submit"]["#submit"][] = 'imoneza_node_submit_handler';
+
+        // use this to handle the summary for the tab
+        $form['iMoneza']['dynamically-create-resources'] = [
+            '#type' => 'hidden',
+            '#value' => $this->options->isDynamicallyCreateResources(),
+            '#attributes' => [
+                'id' => 'imoneza-is-dynamically-created-resources'
+            ]
+        ];
+
+        // use this to potentially put details about the current item so that ajax can update the form
+        if ($nidArray = $form['nid']) {
+            $nid = $nidArray['#value'];
+            $form['iMoneza']['nid'] = [
+                '#type' =>  'hidden',
+                '#value'    =>  $nid,
+                '#attributes'   =>  [
+                    'id'    =>  'imoneza-current-nid'
+                ]
+            ];
+        }
     }
 
     /**
@@ -376,6 +413,72 @@ class App
                 trigger_error($e->getMessage(), E_USER_ERROR);
             }
         }
+    }
+
+    /**
+     * Get the pricing information
+     * 
+     * @param $nid
+     * @return array
+     */
+    public function ajaxPricingGet($nid)
+    {
+        $fakeNode = new \stdClass();
+        $fakeNode->nid = $nid;
+
+        /** @var \iMoneza\Drupal\Service\iMoneza $service */
+        $service = $this->di['service.imoneza'];
+        $service
+            ->setManagementApiKey($this->options->getManageApiKey())
+            ->setManagementApiSecret($this->options->getManageApiSecret())
+            ->setAccessApiKey($this->options->getAccessApiKey())
+            ->setAccessApiSecret($this->options->getAccessApiSecret())
+            ->setManageApiUrl($this->options->getManageApiUrl(Options::GET_DEFAULT))
+            ->setAccessApiUrl($this->options->getAccessApiUrl(Options::GET_DEFAULT));
+
+        $results = $this->getGenericAjaxResultsObject();
+
+        if ($propertyOptions = $service->getProperty()) {
+            $this->options->setPricingGroupsBubbleDefaultToTop($propertyOptions->getPricingGroups())
+                ->setDynamicallyCreateResources($propertyOptions->isDynamicallyCreateResources())
+                ->setPropertyTitle($propertyOptions->getTitle());
+            $this->saveOptions();
+            $results['data']['options'] = $this->options;
+            $results['success'] = true;
+        }
+        else {
+            $results['success'] = false;
+            $results['data']['message'] = $service->getLastError();
+        }
+        
+        return $results;
+    }
+
+
+
+
+
+    // @todo move to trait
+
+    /**
+     * Save the options
+     */
+    protected function saveOptions()
+    {
+        variable_set('imoneza-options', $this->options);
+    }
+
+    /**
+     * @return array the most generic of responses
+     */
+    protected function getGenericAjaxResultsObject()
+    {
+        return [
+            'success'   =>  false,
+            'data'  =>  [
+                'message'   =>  ''
+            ]
+        ];
     }
 }
 
