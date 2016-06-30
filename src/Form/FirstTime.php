@@ -119,7 +119,7 @@ class FirstTime extends FormAbstract
             ->setAccessControl(Model\Options::ACCESS_CONTROL_CLIENT)
             ->setPricingGroupsBubbleDefaultToTop($this->propertyOptions->getPricingGroups());
         
-        $this->saveOptions();
+        $this->saveOptions($this->options);
 
         drupal_set_message(t("Way to go!  Now, let's finish this up."));
     }

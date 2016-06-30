@@ -127,7 +127,7 @@ class InternalConfig extends FormAbstract
             ->setJavascriptCdnUrl($form['urls']['javascript_cdn_url']['#value'])
             ->setManageUiUrl($form['urls']['manage_ui_url']['#value']);
         
-        $this->saveOptions();
+        $this->saveOptions($this->options);
         
         drupal_set_message(t('You have successfully updated the settings.'));
     }

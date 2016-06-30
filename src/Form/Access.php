@@ -188,7 +188,7 @@ class Access extends FormAbstract
             ->setDynamicallyCreateResources($this->propertyOptions->isDynamicallyCreateResources())
             ->setPricingGroupsBubbleDefaultToTop($this->propertyOptions->getPricingGroups());
         
-        $this->saveOptions();
+        $this->saveOptions($this->options);
 
         drupal_set_message($successMessage);
     }

@@ -16,6 +16,7 @@ use iMoneza\Helper;
 use iMoneza\Options\Access\GetResourceFromResourceKey;
 use iMoneza\Options\Access\GetResourceFromTemporaryUserToken;
 use iMoneza\Options\Management\GetProperty;
+use iMoneza\Options\Management\GetResource;
 use iMoneza\Options\Management\SaveResource;
 use iMoneza\Options\OptionsAbstract;
 use iMoneza\Request\Curl;
@@ -198,6 +199,32 @@ class iMoneza
         }
 
         return $result;
+    }
+
+    /**
+     * Get a resource from a node
+     * 
+     * @param \stdClass $node
+     * @return \iMoneza\Data\Resource|null
+     */
+    public function getResource(\stdClass $node)
+    {
+        $keyFilter = $this->externalResourceKeyFilter;
+
+        $options = new GetResource();
+        $options->setResourceKey($keyFilter($node));
+        $this->prepareForRequest($options);
+        
+        $data = null;
+        
+        try {
+            /** @var \iMoneza\Data\Resource $data */
+            $data = $this->getConnectionInstance()->request($options, $options->getDataObject());
+        }
+        catch (Exception\iMoneza $e) {
+            $this->lastError = sprintf(t('Something went wrong with the system: %s'), $e->getMessage());
+        }
+        return $data;
     }
 
     /**

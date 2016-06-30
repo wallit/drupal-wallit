@@ -65,6 +65,28 @@
             if (window.location.pathname.substr(-5) == '/edit') {
                 $pricingGroupSelect.val(selected);
             }
+            
+            // select the proper pricing group id 
+            if (response.data.resourcePricingGroupId) {
+                $pricingGroupSelect.val(response.data.resourcePricingGroupId);
+
+                // check the box if needs be checking
+                
+                // if its dynamic, then check to see if the pricing group is not the default one (first one)  if it is
+                // the first one, leave it unchecked.  If its not, check it
+                // if its not dynamically create resource, and we're in this area where there is a pricing group id, that
+                // means it was made by hand - so check it
+                if (response.data.options.dynamicallyCreateResources) {
+                    if ($('option:first', $pricingGroupSelect).val() != response.data.resourcePricingGroupId) {
+                        $overrideSelect.attr('checked', true);
+                    }
+                }
+                else {
+                    $overrideSelect.attr('checked', true);
+                }
+
+                togglePricingGroupDisplay($pricingToggle, $pricingFormElement);
+            }
         });
     });
     

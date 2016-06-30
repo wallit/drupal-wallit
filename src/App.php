@@ -18,6 +18,8 @@ use iMoneza\Exception;
  */
 class App
 {
+    use \iMoneza\Drupal\Traits\Options;
+    
     /**
      * @var string the permission for admin
      */
@@ -423,9 +425,6 @@ class App
      */
     public function ajaxPricingGet($nid)
     {
-        $fakeNode = new \stdClass();
-        $fakeNode->nid = $nid;
-
         /** @var \iMoneza\Drupal\Service\iMoneza $service */
         $service = $this->di['service.imoneza'];
         $service
@@ -436,15 +435,33 @@ class App
             ->setManageApiUrl($this->options->getManageApiUrl(Options::GET_DEFAULT))
             ->setAccessApiUrl($this->options->getAccessApiUrl(Options::GET_DEFAULT));
 
-        $results = $this->getGenericAjaxResultsObject();
+        $results = [
+            'success'   =>  false,
+            'data'  =>  [
+                'message'   =>  ''
+            ]
+        ];
 
         if ($propertyOptions = $service->getProperty()) {
             $this->options->setPricingGroupsBubbleDefaultToTop($propertyOptions->getPricingGroups())
                 ->setDynamicallyCreateResources($propertyOptions->isDynamicallyCreateResources())
                 ->setPropertyTitle($propertyOptions->getTitle());
-            $this->saveOptions();
+            $this->saveOptions($this->options);
             $results['data']['options'] = $this->options;
             $results['success'] = true;
+            
+            if ($nid) {
+                $fakeNode = new \stdClass();
+                $fakeNode->nid = $nid;
+                
+                if ($resource = $service->getResource($fakeNode)) {
+                    $results['data']['resourcePricingGroupId'] = $resource->getPricingGroup()->getPricingGroupID();
+                }
+                else {
+                    $results['success'] = false;
+                    $results['data']['message'] = $service->getLastError();
+                }
+            }
         }
         else {
             $results['success'] = false;
@@ -454,31 +471,5 @@ class App
         return $results;
     }
 
-
-
-
-
-    // @todo move to trait
-
-    /**
-     * Save the options
-     */
-    protected function saveOptions()
-    {
-        variable_set('imoneza-options', $this->options);
-    }
-
-    /**
-     * @return array the most generic of responses
-     */
-    protected function getGenericAjaxResultsObject()
-    {
-        return [
-            'success'   =>  false,
-            'data'  =>  [
-                'message'   =>  ''
-            ]
-        ];
-    }
 }
 

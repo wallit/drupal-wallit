@@ -8,6 +8,7 @@
 namespace iMoneza\Drupal\Form;
 
 use iMoneza\Drupal\Model;
+use iMoneza\Drupal\Traits\Options;
 
 /**
  * Class FormAbstract
@@ -15,6 +16,8 @@ use iMoneza\Drupal\Model;
  */
 abstract class FormAbstract
 {
+    use Options;
+    
     /**
      * @var Model\Options
      */
@@ -28,15 +31,7 @@ abstract class FormAbstract
     {
         $this->options = $options;
     }
-
-    /**
-     * Save the options
-     */
-    protected function saveOptions()
-    {
-        variable_set('imoneza-options', $this->options);
-    }
-
+    
     /**
      * Validate the form
      * @param $form
