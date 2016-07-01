@@ -507,6 +507,21 @@ class App
                 ->setPropertyTitle($propertyOptions->getTitle());
             $this->saveOptions($this->options);
         }
+        
+        if ($this->options->isDynamicallyCreateResources()) {
+            $pricingGroupId = $this->options->getDefaultPricingGroup()->getPricingGroupID();
+            $queryResults = db_query("select nid from node where nid not in (select nid from imoneza) limit 20");
+            foreach ($queryResults as $partialNode) {
+                try {
+                    $node = node_load($partialNode->nid);
+                    $service->createOrUpdateResource($node, $pricingGroupId);
+                    db_merge('imoneza')->key(['nid'=>$node->nid])->fields(['nid'=>$node->nid, 'pricing_group_id'=>$pricingGroupId])->execute();
+                }
+                catch (Exception\iMoneza $e) {
+                    trigger_error($e->getMessage(), E_USER_ERROR);
+                }
+            }
+        }
     }
 }
 
