@@ -24,6 +24,11 @@ class App
      * @var string the permission for admin
      */
     const PERMISSION_ADMIN_IMONEZA = "administer imoneza settings";
+
+    /**
+     * @var string used to indicate the variable placement for pending items
+     */
+    const DYNAMICALLY_CREATE_PENDING_LIST_KEY = 'imoneza_dynamically_create';
     
     /**
      * @var self singleton variable
@@ -351,17 +356,6 @@ class App
             ]
         );
 
-        $pricingGroupOptions = [];
-        /** @var \iMoneza\Data\PricingGroup $pricingGroup */
-        foreach ($this->options->getPricingGroups() as $pricingGroup) {
-            $pricingGroupOptions[$pricingGroup->getPricingGroupID()] = $pricingGroup->getName();
-        }
-        $form['iMoneza']['pricing-group-id'] = array(
-            '#type' => 'select',
-            '#title' => 'Pricing Group',
-            '#options' => $pricingGroupOptions,
-        );
-
         $form["actions"]["submit"]["#submit"][] = 'imoneza_node_submit_handler';
 
         // use this to handle the summary for the tab
@@ -374,6 +368,8 @@ class App
         ];
 
         // use this to potentially put details about the current item so that ajax can update the form
+        // also to set default value for pricing group
+        $defaultPricingGroupId = null;
         if ($nidArray = $form['nid']) {
             $nid = $nidArray['#value'];
             $form['iMoneza']['nid'] = [
@@ -383,7 +379,23 @@ class App
                     'id'    =>  'imoneza-current-nid'
                 ]
             ];
+            $defaultPricingGroupIdArray = db_select('imoneza', 'i')->fields('i', ['pricing_group_id'])->condition('nid', $nid, '=')->execute()->fetchCol();
+            if (!empty($defaultPricingGroupIdArray)) {
+                $defaultPricingGroupId = $defaultPricingGroupIdArray[0];
+            }
         }
+
+        $pricingGroupOptions = [];
+        /** @var \iMoneza\Data\PricingGroup $pricingGroup */
+        foreach ($this->options->getPricingGroups() as $pricingGroup) {
+            $pricingGroupOptions[$pricingGroup->getPricingGroupID()] = $pricingGroup->getName();
+        }
+        $form['iMoneza']['pricing-group-id'] = array(
+            '#type' => 'select',
+            '#title' => 'Pricing Group',
+            '#options' => $pricingGroupOptions,
+            '#default_value'    =>  $defaultPricingGroupId
+        );
     }
 
     /**
@@ -410,6 +422,7 @@ class App
 
             try {
                 $service->createOrUpdateResource($node, $pricingGroupId);
+                db_merge('imoneza')->key(['nid'=>$node->nid])->fields(['nid'=>$node->nid, 'pricing_group_id'=>$pricingGroupId])->execute();
             }
             catch (Exception\iMoneza $e) {
                 trigger_error($e->getMessage(), E_USER_ERROR);

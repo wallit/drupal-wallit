@@ -1,0 +1,45 @@
+<?php
+/**
+ * @file the install file for imoneza module
+ *
+ * @author Aaron Saray
+ */
+
+/**
+ * Create the table for tracking imoneza resources
+ * @return array
+ */
+function imoneza_schema()
+{
+    $schema = [
+        'imoneza' => [
+            'description'   =>  'iMoneza Resource Pricing Tracking',
+            'fields'    =>  [
+                'nid'   =>  [
+                    'description'   =>  'The NID of the node',
+                    'type'  =>  'int',
+                    'unsigned'  =>  true,
+                    'not null'  =>  true
+                ],
+                'pricing_group_id'  =>  [
+                    'description'   =>  'The pricing group ID from iMoneza',
+                    'type'  =>  'varchar',
+                    'length'    =>  64,
+                    'not null'  =>  true,
+                    'default'   =>  ''
+                ]
+            ],
+            'foreign keys'  =>  [
+                'node_id'  =>  [
+                    'table' =>  'node',
+                    'columns'   =>  [
+                        'nid'   =>  'nid'
+                    ]
+                ]
+            ],
+            'primary key'   =>  ['nid']
+        ]
+    ];
+    
+    return $schema;
+}
