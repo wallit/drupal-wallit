@@ -471,5 +471,29 @@ class App
         return $results;
     }
 
+    /**
+     * When cron is run, this command is run
+     * 
+     * Updates settings for the property
+     */
+    public function cron()
+    {
+        /** @var \iMoneza\Drupal\Service\iMoneza $service */
+        $service = $this->di['service.imoneza'];
+        $service
+            ->setManagementApiKey($this->options->getManageApiKey())
+            ->setManagementApiSecret($this->options->getManageApiSecret())
+            ->setAccessApiKey($this->options->getAccessApiKey())
+            ->setAccessApiSecret($this->options->getAccessApiSecret())
+            ->setManageApiUrl($this->options->getManageApiUrl(Options::GET_DEFAULT))
+            ->setAccessApiUrl($this->options->getAccessApiUrl(Options::GET_DEFAULT));
+        
+        if ($propertyOptions = $service->getProperty()) {
+            $this->options->setPricingGroupsBubbleDefaultToTop($propertyOptions->getPricingGroups())
+                ->setDynamicallyCreateResources($propertyOptions->isDynamicallyCreateResources())
+                ->setPropertyTitle($propertyOptions->getTitle());
+            $this->saveOptions($this->options);
+        }
+    }
 }
 
