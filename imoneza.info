@@ -4,5 +4,5 @@ core = 7.x
 php = 5.4
 version = 2.0
 project = imoneza
-project status url = https://github.com/iMoneza/drupal-imoneza/tree/release-history
+project status url = https://raw.githubusercontent.com/iMoneza/drupal-imoneza/release-history
 configure = admin/settings/imoneza
