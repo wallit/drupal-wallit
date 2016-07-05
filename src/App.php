@@ -225,13 +225,18 @@ class App
     /**
      * Set variables that our forms might need
      * 
+     * @param $formType string the form type
      * @param $variables array
      */
-    public function preprocessForm(&$variables)
+    public function preprocessForm($formType, &$variables)
     {
         $variables['manageUiUrl'] = $this->options->getManageUiUrl();
         $variables['propertyTitle'] = $this->options->getPropertyTitle();
         $variables['isDynamicallyCreateResources'] = $this->options->isDynamicallyCreateResources();
+        
+        if ($formType == 'imoneza_access_form' && $this->options->isDynamicallyCreateResources()) {
+            $variables['postsQueuedForProcessing'] = db_query("select count(*) from node where nid not in (select nid from imoneza)")->fetchField();
+        }
     }
     
     /**

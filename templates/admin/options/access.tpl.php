@@ -56,7 +56,15 @@
         <div class="i-card">
             <h3><?= t("Dynamically Create Resources") ?></h3>
             <p>
+                <?php if (!empty($postsQueuedForProcessing)) : ?>
+                    <?php
+                    echo t('Your resources are being added to iMoneza.');
+                    echo ' ';
+                    echo format_plural($postsQueuedForProcessing, 'There is 1 remaining.', 'There are @count remaining.');
+                    ?>
+                <?php else : ?>
                 <?= t('Congratulations!  All of your content is managed by iMoneza.'); ?>
+                <?php endif; ?>
             </p>
         </div>
     </div>
