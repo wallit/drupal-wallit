@@ -29,8 +29,8 @@ If you need to work against test or qa, please visit the slug of `/admin/setting
 
 1. Merge all changes back into master for the drupal version this change is for.
 2. Pick the new release number (ex: 7.x-2.3)
-3. Change the `imoneza.info` to the new release number
-4. Create a new tag with that new release number locally and push to remote.
+3. Change the `imoneza.info` to the new release number (the release, not the drupal version. ex: 2.3)
+4. Create a new tag with the full new release number locally and push to remote.
 5. Create a `imoneza.zip` file using `git archive` of the project with a prefix of `imoneza/`
 6. Go to GitHub and create a Release from the tag, attach the `imoneza.zip` file and put changelog items in the release notes.
 7. Update branch `release-history` xml file to have the most recent update in it, commit, and push.
