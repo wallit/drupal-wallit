@@ -19,7 +19,7 @@
             <status>published</status>
             <release_link>https://github.com/iMoneza/drupal-imoneza/releases/tag/7.x-2.1</release_link>
             <download_link>https://github.com/iMoneza/drupal-imoneza/releases/download/7.x-2.1/imoneza.zip</download_link>
-            <date>1467725923</date>
+            <date>1469193658</date>
             <terms>
                 <term><name>Release type</name><value>Bug fixes</value></term>
             </terms>
