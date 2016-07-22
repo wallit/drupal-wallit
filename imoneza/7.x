@@ -4,9 +4,9 @@
     <short_name>imoneza</short_name>
     <dc:creator>imoneza</dc:creator>
     <api_version>7.x</api_version>
-    <recommended_major>7</recommended_major>
-    <supported_majors>7</supported_majors>
-    <default_major>7</default_major>
+    <recommended_major>2</recommended_major>
+    <supported_majors>2</supported_majors>
+    <default_major>2</default_major>
     <project_status>published</project_status>
     <link>https://github.com/iMoneza/drupal-imoneza</link>
     <releases>
