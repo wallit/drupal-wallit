@@ -257,8 +257,9 @@ class App
     {
         $path = current_path();
         if (stripos($path, 'settings/imoneza') === false && !$this->options->isInitialized()) {
-            $message = sprintf('%s <a href="#">%s</a>',
+            $message = sprintf('%s <a href="%s">%s</a>',
                 t('iMoneza is not yet configured.'),
+                file_create_url('admin/settings/imoneza'),
                 t('Configure iMoneza to begin protecting your content.')
             );
             drupal_set_message($message, 'warning', false);

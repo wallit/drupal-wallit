@@ -13,7 +13,7 @@ require_once 'vendor/autoload.php';
 /**
  * Only used to debug connection items
  */
-define('IMONEZA_DEBUG', true);
+define('IMONEZA_DEBUG', false);
 
 /**
  * Implements hook_menu()
